@@ -1,2 +1,1 @@
-# xvling.github.io
-Personal Website.
+[Xuling Blog](http://xuling.github.io)
