@@ -1,8 +1,8 @@
 # Site settings
 title: Xvling Blog
-SEOTitle: Xuling的博客 | Xvling Blog
+SEOTitle: Xvling的博客 | Xvling Blog
 header-img: img/home-bg-art.jpg
-email: huxpro@gmail.com
+email: xuling.chang@live.com
 description: "关于计算机程序开发, AI & 创业者， Software Engineer | 这里是 Xvling 的个人博客。"
 keyword: "Xvling, Xvling Blog, Xvling的博客, Xuling's Blog, 博客, 个人网站, C/C++, Python, Deep Learning, AI, 人工智能"
 url: "https://xvling.net"              # your host, for absolute URL
@@ -101,7 +101,7 @@ page-mathjax: true
 
 
 # Friends
-friends: [
+#friends: [
     #{
     #     title: "Su",
     #     href: "http://su.gallery/"
@@ -109,4 +109,4 @@ friends: [
     #    title: "乱序（Midare）",
     #    href: "http://mida.re/"
     #},{
-]
+#]
