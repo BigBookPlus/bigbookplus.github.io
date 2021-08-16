@@ -15,7 +15,7 @@ future: true
 RSS: false
 #weibo_username:     
 #zhihu_username:     
-github_username:    xvling
+#github_username:    xvling
 #twitter_username:   
 #facebook_username:  
 #linkedin_username:  firstname-lastname-idxxxx
@@ -71,7 +71,7 @@ netease_comment: false
 # ba_track_id: [your track id]
 
 # Google Analytics
-ga_track_id: G-Q9Y5F5GTFW #'UA-49627206-1'  # Format: UA-xxxxxx-xx
+ga_track_id: UA-204988276-1 #'UA-49627206-1'  # Format: UA-xxxxxx-xx
 ga_domain: auto
 
 
