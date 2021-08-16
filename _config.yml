@@ -5,7 +5,7 @@ header-img: img/home-bg-art.jpg
 email: xuling.chang@live.com
 description: "关于计算机程序开发, AI & 创业者， Software Engineer | 这里是 Xvling 的个人博客。"
 keyword: "Xvling, Xvling Blog, Xvling的博客, Xuling's Blog, 博客, 个人网站, C/C++, Python, Deep Learning, AI, 人工智能"
-url: "https://xvling.net"              # your host, for absolute URL
+url: ""              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
 # Publish posts or collection documents with a future date.
@@ -72,7 +72,7 @@ netease_comment: false
 
 # Google Analytics
 ga_track_id: G-Q9Y5F5GTFW #'UA-49627206-1'  # Format: UA-xxxxxx-xx
-ga_domain: xuling.github.io
+ga_domain: auto
 
 
 
