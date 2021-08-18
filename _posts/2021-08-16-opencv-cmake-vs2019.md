@@ -2,7 +2,7 @@
 layout: post
 title: "利用CMake+VS2019定制编译属于自己的OpenCV Lib文件"
 subtitle: 'Build Your Own OpenCV Library by CMake and VS2019'
-author: "Xvling"
+author: "BigBook"
 header-style: text
 tags:
   - C/C++
