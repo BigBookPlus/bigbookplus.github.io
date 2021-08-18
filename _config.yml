@@ -5,7 +5,7 @@ header-img: img/home-bg-art.jpg
 email: xuling.chang@live.com
 description: "关于计算机程序开发, AI & 创业者， Software Engineer | 这里是 Xvling 的个人博客。"
 keyword: "BigBook, BigBook+ Blog, BigBookPlus的博客, 博客, 个人网站, C/C++, Python, Deep Learning, AI, 人工智能"
-url: ""              # your host, for absolute URL
+url: "http://bigbookplus.github.io"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
 # Publish posts or collection documents with a future date.
