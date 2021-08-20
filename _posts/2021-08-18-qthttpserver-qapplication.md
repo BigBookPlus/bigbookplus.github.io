@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "在动态链接库中使用QtHttpServer并提供C形式API"
-subtitle: 'Using QtHttpServer Inside A Dynamic Linking Library and Exporting C Type APIs'
+title: "在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API"
+subtitle: 'Using Non-GUI Qt Modules Inside the Dynamic Linking Library and Encapsulating C APIs'
 author: "BigBook"
 header-style: text
 hidden: false
@@ -12,6 +12,8 @@ tags:
   - CMake
   - System Design
 ---
+
+
 
 ### 最简单的Qt代码
 
