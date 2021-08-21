@@ -10,6 +10,8 @@ tags:
   - CMake
   - Qt
   - OpenCV
+  - Boost
+  - CUDA
 ---
 
 现在我个人负责的所有项目均使用CMake管理，CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代表性的Lib库：
@@ -135,7 +137,11 @@ set(OpenCV_DIR D:/WORK/opencv-github/opencv452/build-cuda11/install)
 
 ### CMake with Boost
 
-同上，对Boost的支持似乎更容易，只需要搞定这两个环境变量: `Boost_INCLUDE_DIR`、`Boost_LIBRARY_DIRS`。为了使用简便，我们开启了`Boost_USE_STATIC_LIBS`变量支持静态链接，这也是Boost库的常用方法。又出于Debug的目的，我们先执行了几个unset对变量执行清除，再根据自己的路径，对Boost的变量进行设置，最后加入find_package等指令。这里只列举需要新增的内容：
+同上，对Boost的支持似乎更容易，只需要搞定这两个环境变量: `Boost_INCLUDE_DIR`、`Boost_LIBRARY_DIRS`。
+
+为了使用简便，我们开启了`Boost_USE_STATIC_LIBS`变量支持静态链接，这样可以省掉`target_link_libraries`指令。静态链接也是Boost库的常用方法。
+
+个人习惯的原因，我先执行了几个unset对环境变量进行清除，再根据自己的路径，对Boost的变量进行设置，最后加入find_package等指令。这里只列举需要新增的内容：
 
 ```cmake
 set(Boost_USE_STATIC_LIBS ON)
@@ -160,7 +166,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 ### CMake with Qt
 
-Qt也内建了对CMake的支持。Qt的编译流程比较复杂，因为是GUI的框架，涉及到组织资源文件、生成UI代码等步骤，似乎离不开QtCreator或者VS+Qt Plugin。但是如果尝试使用CMake进行组织Qt项目，life will be much easier.
+Qt也内建了对CMake的支持。Qt的编译流程比较复杂，因为是GUI的框架，涉及到组织资源文件、生成UI代码等步骤，似乎离不开QtCreator或者VS+Qt Plugin。
+
+但是如果尝试使用CMake进行组织Qt项目，life will be much easier.
 
 ```cmake
 cmake_minimum_required(VERSION 3.1.0)
