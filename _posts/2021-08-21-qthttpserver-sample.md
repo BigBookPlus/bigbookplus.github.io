@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "利用Qt启动的HttpServer并提交POST请求"
-subtitle: ''
+title: 'QtHttpServer Demo and a POST Client'
+subtitle: "在C++下调用QtHttpServer模块启动Server并测试提交HTTP POST请求"
 author: "BigBook"
 header-style: text
 hidden: false

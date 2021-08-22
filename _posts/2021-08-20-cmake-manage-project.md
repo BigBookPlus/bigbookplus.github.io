@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "利用CMake管理C/C++工程的一点心得"
+title: "CMake管理C/C++工程的一点心得"
 subtitle: 'Tips for Managing C/C++ Projects By CMake'
 author: "BigBook"
 header-style: text
@@ -14,7 +14,7 @@ tags:
   - CUDA
 ---
 
-现在我个人负责的所有项目均使用CMake管理，CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代表性的Lib库：
+现在我自己的几乎所有C/C++项目均使用CMake管理。CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代表性的Lib库：
 
 - OpenCV
     
@@ -128,16 +128,18 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 target_link_libraries( cv-test ${OpenCV_LIBS} )
 ```
 
-当然前提是你的OpenCV正确安装了，并且环境变量`OpenCV_DIR`没问题。如果没有设置环境变量，或者系统中有多个版本的OpenCV，想指定某一个版本的OpenCV，比如这里我想指定我自己编译的支持了CUDA11的`OpenCV 4.5.2`，可以增加如下一行：
+当然前提是你的OpenCV正确安装了，并且环境变量`OpenCV_DIR`没问题。如果没有设置`OpenCV_DIR`环境变量，或者系统中有多个版本的OpenCV，想指定某特定版本，比如这里我想指定我自己编译的支持了CUDA11的`OpenCV 4.5.2`，可以增加如下一行：
 
 
 ```cmake
 set(OpenCV_DIR D:/WORK/opencv-github/opencv452/build-cuda11/install)
 ```
 
+把后面的路径改成自己的即可。
+
 ### CMake with Boost
 
-同上，对Boost的支持似乎更容易，只需要搞定这两个环境变量: `Boost_INCLUDE_DIR`、`Boost_LIBRARY_DIRS`。
+支持Boost的配置更简单，只需要搞定这两个环境变量: `Boost_INCLUDE_DIR`、`Boost_LIBRARY_DIRS`。
 
 为了使用简便，我们开启了`Boost_USE_STATIC_LIBS`变量支持静态链接，这样可以省掉`target_link_libraries`指令。静态链接也是Boost库的常用方法。
 
@@ -200,7 +202,7 @@ target_link_libraries(helloworld Qt5::Widgets)
 
 ### CMake with CUDA
 
-对CUDA的支持更为简洁，只需要在文件开头的`project`指令加些参数：
+CMake 3.9以上的版本对CUDA开启原生支持，只需要在`CMakeLists.txt`文件开头的`project`指令中`LANGUAGES`参数增加`CUDA`：
 
 ```cmake
 project(cuda-demo VERSION 0.1.0 LANGUAGES CXX CUDA)

@@ -1,18 +1,23 @@
 ---
 layout: post
-title: "利用CMake+VS2019定制编译属于自己的OpenCV Lib文件"
-subtitle: 'Build Your Own OpenCV Library by CMake and VS2019'
+title: "Build OpenCV 4.5.2 with CUDA support | CMake+VS2019+Win10+CUDA"
+subtitle: 'Build Your Own OpenCV Library'
 author: "BigBook"
 header-style: text
 tags:
   - C/C++
   - CMake
+  - Win10
   - OpenCV
   - VS2019
   - Visual Studio 2019
 ---
 
-使用C++进行计算机图像处理方向的开发，OpenCV是最常使用的Lib之一。个人对OpenCV的使用，大概从2.4版本开始，一直到现在的Release版4.5.2[现在是2021.06.08]。OpenCV功能比较丰富，包含了传统图像处理的绝大部分经典算法，其基本矩阵类型Mat简单强大，现在还加入了DNN模块支持深度学习模型推理，这两部分都可以单独深入讨论。也正是因为最近决定使用DNN模块进行算法部署，所以需要用到GPU加速。而官方提供的标准编译安装包就不满足需求了。决定自己动手编译，定制符合自己需求的OpenCV Lib。我认为这对自己日常的开发工作来说，其实是一本万利的。本文在windows下实践，Linux下步骤类似。实际上在Linux下进行此类编译更为便捷，问题也更少。好在Windows平台下的Visual Stuido对CMake的支持也越做越好了。
+使用C++进行计算机图像处理方向的开发，OpenCV是最常使用的Lib之一。个人对OpenCV的使用，大概从2.4版本开始，一直到现在的Release版4.5.2[现在是2021.06.08]。
+
+OpenCV功能比较丰富，包含了传统图像处理的绝大部分经典算法，其基本矩阵类型Mat简单强大，现在还加入了DNN模块支持深度学习模型推理，这两部分都可以单独深入讨论。最近决定使用DNN模块进行算法部署，需要用到GPU加速,而官方提供的标准编译安装包不满足需求了，遂决定自己动手编译，定制符合自己需求的OpenCV Lib。这对自己日常的开发工作来说，其实是一本万利的。
+
+由于业务需求，本文实践在Windows 10操作系统下进行。在Linux下进行此类编译更为便捷，问题也更少，步骤基本类似。好在Windows平台下的Visual Stuido对CMake的支持也越做越好了。
 
 按照自己的习惯，我在自己的work目录下建立了一个名为opencv-github的文件夹，随后从git上把最新的opencv和opencv-contrib牵下来。opencv-contrib一般包含非release组件以及nonfree组件。
 
