@@ -1,1 +1,1 @@
-[My Blog](http://bigbookplus.github.io)
+[My Blog](http://bigbook.plus)
