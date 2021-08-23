@@ -4,7 +4,6 @@ title: "Image Classification Batch Inference By OpenCV DNN Module in C++"
 subtitle: 'OpenCV DNN Batch Inference'
 author: "BigBook"
 header-style: text
-hidden: false
 tags:
   - C/C++
   - OpenCV
