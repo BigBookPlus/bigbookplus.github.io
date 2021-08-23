@@ -59,7 +59,7 @@ Mat cv::dnn::blobFromImage( InputArray image,
 >Returns
 >4-dimensional Mat with NCHW dimensions order.
 
-### Difference Between cv::Mat Image and Blob
+## Difference Between cv::Mat Image and Blob
 
 The mainly difference is the data format. In normal cv::Mat image, the data is arranged in HWC format, like `RGBRGB...RGB`. But when turned into blobs, it becomes NCHW format, as most neural networks does.
 
