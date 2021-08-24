@@ -5,11 +5,11 @@ subtitle: 'lr_scheduler in PyTorch'
 author: "BigBook"
 header-style: text
 tags:
-  - C/C++
-  - OpenCV
-  - Image Classification
-  - Batch Inference
-  - OpenCV DNN
+  - Python
+  - PyTorch
+  - lr_scheduler
+  - Deep Learning
+  - Neural Network Training
 ---
 
 今天写一个关于Vision Transformer的实验代码，复习了一下几种常见的LR_Scheduler:
