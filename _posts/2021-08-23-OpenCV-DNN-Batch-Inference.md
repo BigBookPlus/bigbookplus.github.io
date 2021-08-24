@@ -12,11 +12,11 @@ tags:
   - OpenCV DNN
 ---
 
-OpenCV has a DNN module, which is powerful, efficient, and easy to use. To Implement a image classification inference, we need only to call a couple of APIs by DNN modules.
+OpenCV has a DNN module, which is powerful, efficient, and easy to use. To Implement a image classification inference, we need only to call a couple of APIs by DNN module.
 
 ## Importent APIs
 
-To load the weights into device, DNN module provide the loadNet methods. It support ONNX/Caffe/TF/OpenVINO...
+To load the weights into device, DNN module provide loadNet method. It supports ONNX/Caffe/TF/OpenVINO...
 
 In this article, we use Caffe model as example.
 
@@ -44,6 +44,7 @@ Mat cv::dnn::blobFromImage( InputArray image,
                             int ddepth = CV_32F)
 
 ```
+
 >Creates 4-dimensional blob from image. Optionally resizes and crops image from center, subtract mean values, scales values by scalefactor, swap Blue and Red channels.
 >
 >Parameters
