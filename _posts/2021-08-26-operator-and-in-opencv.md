@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "使用&运算符在裁剪OpenCV中图像时进行边界检查"
+title: "使用&运算符在OpenCV图像裁剪时进行边界检查"
 subtitle: 'Operator & in OpenCV ROI Bounds Checking'
 author: "BigBook"
 header-style: text
