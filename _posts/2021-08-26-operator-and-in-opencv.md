@@ -83,7 +83,7 @@ bool rectIsInside(const cv::Rect& rect, const cv::Mat& image)
 bool rectIsInside(const cv::Rect& rect, const cv::Mat& image)
 {
     cv::Rect bbox(0, 0, image.cols, image.rows);
-    return (roi & bbox) == rect; // elegent and efficient
+    return (rect & bbox) == rect; // elegent and efficient
 }
 ```
 
