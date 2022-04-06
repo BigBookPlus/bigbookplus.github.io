@@ -14,7 +14,7 @@ tags:
 
 OpenCV has a DNN module, which is powerful, efficient, and easy to use. To Implement a image classification inference, we need only to call a couple of APIs by DNN module.
 
-## Importent APIs
+## Important APIs
 
 To load the weights into device, DNN module provide loadNet method. It supports ONNX/Caffe/TF/OpenVINO...
 
