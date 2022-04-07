@@ -12,18 +12,27 @@ tags:
   - OpenCV DNN
 ---
 
-OpenCV has a DNN module, which is powerful, efficient, and easy to use. To Implement a image classification inference, we need only to call a couple of APIs by DNN module.
+OpenCV has a DNN module, which is powerful, efficient, and easy to use. To Implement a image classification inference, we need only to call a couple of APIs by DNN module. The basic routine of DNN inference code written though OpenCV is as below. 
+
+> - Create the dnn Net object by reading in the network weight. (caffe/onnx...)
+> - determine the input data shape of network 
+> - rearrange the raw input image(s) to match the input data shape. This step always combined with Preprocessing.
+> - invoke inference method from the dnn net object.
+> - decode the output data. which is also called postprocessing.
+
+In my opinion, as the network weights are already determined, the most important parts in the deployment are pre/post processing. You need to figure out exactly what shape of input data is, and what the mean value/std values are. For post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks like object detection/segmentation will be much harder to implement. You need to do a lot of work to crack the data wrangling problems, and sometimes  may need to rewrite some operatations from scratch, just because there is no corresponding method in C++ with the original python code.
 
 ## Important APIs
 
-To load the weights into device, DNN module provide loadNet method. It supports ONNX/Caffe/TF/OpenVINO...
+To load the weights into device and create the DNN Net object, Opencv DNN module provided a readNet method. It supports ONNX/Caffe/TF/OpenVINO...
 
-In this article, we use Caffe model as example.
+In this article, we use Caffe model as the example.
 
 ```cpp
-Net cv::dnn::readNetFromCaffe(const String & prototxt, const String & caffeModel = String())
+Net cv::dnn::readNetFromCaffe(  const String & prototxt, \
+                                const String & caffeModel = String())
 ```
->Reads a network model stored in Caffe framework's format.
+>This API will read the network weights in Caffe format.
 >
 >Parameters
 > - `prototxt`	path to the .prototxt file with text description of the network architecture.
