@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Easiest Demo for Displaying CNN/AI Image Processing Results by Qt6 in Python"
+title: "Simplest Demo for Displaying Image Processing Results using PySide6"
 subtitle: ''
 author: "BigBook"
 header-style: text
