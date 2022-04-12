@@ -12,7 +12,7 @@ tags:
   - Neural Network Training
 ---
 
-今天写一个关于Vision Transformer的实验代码，复习了一下几种常见的LR_Scheduler:
+几种常见的LR_Scheduler:
 
 - [StepLR](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html#torch.optim.lr_scheduler.StepLR)
 - [MultiStepLR](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.MultiStepLR.html#torch.optim.lr_scheduler.MultiStepLR)

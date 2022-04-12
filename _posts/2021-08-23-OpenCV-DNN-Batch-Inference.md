@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Image Classification Batch Inference By OpenCV DNN Module in C++"
+title: "OpenCV DNN Batch Inference in C++"
 subtitle: 'OpenCV DNN Batch Inference'
 author: "BigBook"
 header-style: text
@@ -12,15 +12,16 @@ tags:
   - OpenCV DNN
 ---
 
-OpenCV has a DNN module, which is powerful, efficient, and easy to use. To Implement a image classification inference, we need only to call a couple of APIs by DNN module. The basic routine of DNN inference code written though OpenCV is as below. 
+OpenCV has a DNN module, which is powerful, efficient, and easy to use. To implement a DNN inference application, we need only to call a couple of APIs which are offered by OpenCV DNN module. The basic routine of implementation a DNN inference code by OpenCV is as below. 
 
-> - Create the dnn Net object by reading in the network weight. (caffe/onnx...)
-> - determine the input data shape of network 
-> - rearrange the raw input image(s) to match the input data shape. This step always combined with Preprocessing.
-> - invoke inference method from the dnn net object.
-> - decode the output data. which is also called postprocessing.
+> - Initialization. Creating the cv::dnn::Net object by reading in the network weight. (caffe/onnx...)
+> - Preprocessing. Determine shape of input data of the network. Reshape the raw input image(s) to match the input data shape. This step always combined some other operatations such as normalization.
+> - Inference. Call inference method by the created cv::dnn::Net object.
+> - Postprocessing. Decoding the output data and do further wrangling.
 
-In my opinion, as the network weights are already determined, the most important parts in the deployment are pre/post processing. You need to figure out exactly what shape of input data is, and what the mean value/std values are. For post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks like object detection/segmentation will be much harder to implement. You need to do a lot of work to crack the data wrangling problems, and sometimes  may need to rewrite some operatations from scratch, just because there is no corresponding method in C++ with the original python code.
+In my opinion, as the network weights are already determined, the most important parts of the deployment are pre&postprocessing. You need to figure out exactly what shape of input data is, and what the normalization method is (mean/std value). In post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks  will be much harder to implement, such as object detection/segmentation tasks. You need to do a lot of work to crack the data wrangling problems, and sometimes may need to rewrite some operatations yourself from scratch, just because there is no corresponding method  with the original python implementation in C++.
+
+In this article, I will describe a simple implementation of image classification by OpenCV DNN module, and give a fast tour of batch inference.
 
 ## Important APIs
 
