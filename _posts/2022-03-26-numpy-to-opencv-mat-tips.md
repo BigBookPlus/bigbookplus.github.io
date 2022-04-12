@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Tips of converting numpy code into C++ by OpenCV cv::Mat"
+title: "Tips of Numpy to C++ by OpenCV"
 subtitle: ''
 author: "BigBook"
 header-style: text
