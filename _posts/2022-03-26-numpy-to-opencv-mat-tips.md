@@ -1,15 +1,15 @@
 ---
 layout: post
-title: "Tips of Numpy to C++ by OpenCV"
+title: "Tips of Migrating Numpy to C++ by OpenCV"
 subtitle: ''
 author: "BigBook"
 header-style: text
 tags:
-  - Deep Learning
-  - Sigmoid
-  - OpenCV
+  - Numpy to C++
   - cv::Mat
 ---
+
+
 
 
 ## Sigmoid
