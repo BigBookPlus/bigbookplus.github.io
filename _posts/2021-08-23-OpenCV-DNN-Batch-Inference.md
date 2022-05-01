@@ -219,3 +219,72 @@ void batch_inference(const std::vector<cv::Mat>& images)
 }
 
 ```
+
+## Overall Demo
+
+We demostrate a full implementation code here to illustrate what we discussed in the previous text. We get the caffe model of ImageNet from ()[https://github.com/cvjena/cnn-models/releases/download/v1.0/cnn-models_cvgj.zip]. 
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "opencv2/core.hpp"
+#include "opencv2/dnn.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+
+typedef std::pair<int, float> Result;
+
+Result post_process(const cv::Mat& out)
+{
+    double min_val, max_val;
+    cv::Point min_loc, max_loc;
+    cv::minMaxLoc(out, &min_val, &max_val, &min_loc, &max_loc);
+    std::cout << max_val << " " << max_loc.x << std::endl;
+    return std::make_pair(max_loc.x, max_val);
+}
+
+std::vector<Result> batch_post_process(const cv::Mat& outs)
+{
+    std::vector<Result> ret;
+    for(int i = 0; i < outs.rows; i++)
+    {
+        cv::Mat out = outs.rowRange(i, i + 1);
+        auto result = post_process(out);
+        ret.push_back(result);
+    }
+    return ret;
+}
+
+int main()
+{
+    cv::dnn::Net net = cv::dnn::readNetFromCaffe("models/deploy.prototxt", "models/resnet50_cvgj_iter_320000.caffemodel");
+    std::vector<std::string> image_files = {"data/a.jpeg", "data/b.jpeg", "data/c.jpeg"};
+    std::vector<cv::Mat> images;
+    for (int i = 0; i < image_files.size(); i++)
+    {
+        cv::Mat img = cv::imread(image_files[i]);
+        images.push_back(img);
+    }
+
+    cv::Mat blobs = cv::dnn::blobFromImages(images, 1.0, cv::Size(224, 224), cv::Scalar(104, 117, 123), false, false);
+    net.setInput(blobs);
+    cv::Mat outs = net.forward();
+    std::cout<<outs.size[0] << " " << outs.size[1] << " " << std::endl;
+    auto results = batch_post_process(outs);
+    for (int i = 0;i<results.size();++i)
+    {
+        auto result = results[i];
+        char result_text[10];
+        sprintf(result_text, "%d %.2f", result.first, result.second);
+        cv::putText(images[i], result_text, cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 255), 2);
+        char window_name[10];
+        sprintf(window_name, "image %d", i);
+        cv::imshow(window_name, images[i]);
+
+    }
+    cv::waitKey(0);
+    return 0;
+}
+```
