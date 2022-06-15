@@ -24,6 +24,7 @@ tags:
 
 我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。
 
+### OpenCV头文件包含方式
 首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：
 
 ```cpp
@@ -35,7 +36,9 @@ tags:
 
 这里特别说明，引入`core_c.h`这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，`core_c.h` 提供了对C类型的兼容。
 
-第一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C++类型的cv::Scalar。下面的`puttext`函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。
+
+### CvScalar类型问题
+下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C++类型的cv::Scalar。下面的`puttext`函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。
 
 ```cpp
 
@@ -52,6 +55,8 @@ int CvxText::putText(cv::Mat &frame, const wchar_t *text, CvPoint pos)
 	return putText(frame, text, pos, s);
 }
 ```
+
+### cv::Mat转为IplImage
 
 另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：
 ```cpp
