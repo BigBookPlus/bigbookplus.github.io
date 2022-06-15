@@ -10,7 +10,7 @@ tags:
   - C/C++
 ---
 
-最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。且不说实现起来是否最easy，主要是这种方法多年来实践了无数次了，一般都是用freetype+cvxtext，老生常谈。不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。
+最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype+cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。
 
 ## 准备
 
@@ -79,6 +79,19 @@ CV_EXPORTS _IplImage cvIplImage(const cv::Mat& m);
 ```
 
 至此，代码就可以正常工作了。
+
+
+## 调用方法
+
+初始化
+```cpp
+    CvxText text;
+```
+
+调用接口
+```cpp
+int putText(cv::Mat &frame, const char    *text, CvPoint pos);
+```
 
 ## CvxText代码
 把我改后的代码分享一下。在OpenCV 4.5下亲测可用。理论上4.X的OpenCV应该都可使用。
