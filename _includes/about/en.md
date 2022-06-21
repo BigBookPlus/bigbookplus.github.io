@@ -1,8 +1,12 @@
-Hi, I am BigBook.
+Hi, I am BigBook. 
 
-Codaholic/Cinephile/Fitness Enthusiasts.
+I am working in a research institute. 
 
-I am currently interested in solving computer vision problems with Deep Learning methods.
+I am currently interested in Computer Vision and Deep Learning. 
+
+contact: xuling.chang@live.com
+
+
 
 
 
