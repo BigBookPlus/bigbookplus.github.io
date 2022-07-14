@@ -20,7 +20,19 @@ dnf -y install   automake autoconf libtool make gcc gcc-c++
 dnf --enablerepo=powertools -y install giflib-devel
 dnf --enablerepo=powertools -y install libexif-devel
 dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel  cairo-devel fribidi-devel
+dnf -y install openssl openssl-devel
 ```
+
+Note that, `powertools` might be `PowerTools` according to different configurations, just replace the name.
+
+To enable the powertools channel, run the following command
+
+```bash
+yum install dnf-plugins-core
+yum config-manager --set-enabled powertools
+```
+
+
 
 ## yasm
 
