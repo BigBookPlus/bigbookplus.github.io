@@ -102,6 +102,11 @@ yum config-manager --set-enabled powertools
     cd nv-codec-headers && sudo make install && cd –
 
 ```
+or
+
+```bash
+sudo dnf -y install nv-codec-headers
+```
 
 ## refresh && update
 
@@ -114,7 +119,7 @@ yum config-manager --set-enabled powertools
 
 ```bash
 git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg/
-./configure --enable-nonfree --enable-cuda-nvcc --enable-libnpp --extra-cflags=-I/usr/local/cuda/include --extra-ldflags=-L/usr/local/cuda/lib64 --disable-static --enable-shared
+./configure --enable-cuda-nvcc --enable-cuda --enable-cuvid --enable-nvdec --enable-nvenc --enable-nonfree --enable-libnpp --disable-static --enable-shared --extra-cflags=-I/usr/local/cuda/include --extra-ldflags=-L/usr/local/cuda/lib64
 make -j8
 sudo make install
 ```
