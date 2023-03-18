@@ -13,7 +13,18 @@ tags:
   - System Design
 ---
 
+### 编译 QtHttpServer 模块
 
+首先拉去代码
+
+```bash
+git clone https://github.com/qt-labs/qthttpserver.git
+cd qthttpserver
+git checkout 5.15
+git submodule update --init --recursive
+```
+
+然后用qtcreator打开工程，编译
 
 ### 最简单的Qt代码
 
@@ -45,6 +56,29 @@ git checkout 5.15
 ```
 
 编译成功后，将头文件和动态库拷贝到所使用的Qt安装路径下的对应目录内即可。
+
+
+```bash
+cd build-qthttpserver-Desktop_Qt_5_12_6_GCC_64bit-Release/
+mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/
+
+cd cmake/
+mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/cmake/
+
+cd ..
+cd pkgconfig/
+mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/pkgconfig/
+
+cd ..
+cd ..
+cd include/
+mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/include/
+
+cd ..
+cd mkspecs
+cd modules
+mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/mkspecs/modules/
+```
 
 #### 启动QtHttpServer
 
