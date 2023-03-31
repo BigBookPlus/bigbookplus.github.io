@@ -1,13 +1,15 @@
 ---
 layout: post
-title: "在Docker中进行GPU和USB相机的应用程序开发"
-subtitle: 'Using Docker for Improving Development Applications with GPU and USB Camera'
+title: "使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络端口映射"
+subtitle: 'Using Docker for Improving Image Recogntion Applications Development : Docker  with GPU and USB Camera and network ports mapping'
 author: "BigBook"
 header-style: text
 tags:
   - Docker
+  - Image Recognition
   - GPU Docker
   - Web Camera
+  - USB Camera
 ---
 
 
@@ -126,7 +128,34 @@ docker push ip:port/image_name:tag
 docker system df
 ```
 
+您可以看到，docker的磁盘空间占用情况，包括镜像、容器、卷和网络的占用情况。
+清理的方式有两种，一种是清理所有的无用镜像，一种是清理指定的镜像。
+
+### 清理所有的无用镜像
+
+```bash
+docker image prune
+```
+
+### 清理指定的镜像
+
+首先列出所有的镜像
+
+```bash
+docker images
+```
+
+删除指定的镜像
+
+```bash
+docker rmi image_id
+```
+
 ## GPU Docker with Anaconda
+
+再进一步，如果想要一个GPU docker，又想要在docker中安装anaconda，那么就需要在docker中安装cuda和anaconda了。
+cuda的docker可以直接从docker hub拉取，anaconda的docker需要自己构建。 
+也是可以考虑两种方式，一种是构建DockerFile，一种是直接手动构建镜像。
 
 ### 第一种方式:构建DockerFile
 
