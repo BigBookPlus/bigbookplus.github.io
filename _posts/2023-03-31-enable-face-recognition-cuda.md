@@ -8,6 +8,9 @@ tags:
   - Docker
   - GPU Docker
   - Web Camera
+  - face_recogntion
+  - Face Recogntion
+  - insightface
 ---
 
 ## 开启face_recognition的CUDA支持的方法
@@ -45,6 +48,7 @@ $ conda install cuda cudnn -c nvidia
 ```
 
 Then find the path to the `nvcc` of this environment. We will use this path for the build step below
+
 ```console
 $which nvcc
 /path/to/your/miniconda3/envs/dlib/bin/
