@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "在Docker中进行GPU和USB相机的应用程序开发"
-subtitle: 'Use Docker for Improving Development Applications with GPU and USB Camera'
+subtitle: 'Using Docker for Improving Development Applications with GPU and USB Camera'
 author: "BigBook"
 header-style: text
 tags:
@@ -53,6 +53,8 @@ xhost +
 ```
 
 注意，这里是启动了GPU docker，--gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为--gpus 0。
+
+完整指令如下：
 
 ```bash
 docker run --name mydocker --gpus all --shm-size=1g --ulimit memlock=-1 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY snn-server:basic
@@ -162,3 +164,7 @@ https://blog.csdn.net/renfeigui0/article/details/103755823
 https://cloud.tencent.com/developer/article/1581147
 
 https://medium.com/better-programming/docker-tips-clean-up-your-local-machine-35f370a01a78
+
+[https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
+
+[https://docs.docker.com/engine/install/ubuntu](https://docs.docker.com/engine/install/ubuntu)
