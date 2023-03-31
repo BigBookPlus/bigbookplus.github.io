@@ -52,6 +52,7 @@ $which nvcc
 
 4. Install dlib.
 Clone and build dlib from source
+
 ```console
 $ git clone https://github.com/davisking/dlib.git
 $ cd dlib
@@ -64,6 +65,7 @@ $ python setup.py install --set DLIB_USE_CUDA=1
 ```
 
 5. Test dlib
+
 ```console
 (dlib) $ ipython
 Python 3.8.12 (default, Oct 12 2021, 13:49:34)
