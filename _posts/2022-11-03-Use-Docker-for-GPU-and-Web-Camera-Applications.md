@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络端口映射"
-subtitle: 'Using Docker for Improving Image Recogntion Applications Development : Docker  with GPU and USB Camera and network ports mapping'
+title: "使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络"
+subtitle: 'Using Docker for Improving Image Recogntion Applications Development : Docker  with GPU and USB Camera and network'
 author: "BigBook"
 header-style: text
 tags:
@@ -90,6 +90,22 @@ Docker中的端口映射，需要在启动docker的时候，加入参数
 ```bash
 docker run --name mydocker -p 8080:8080  --gpus all --shm-size=1g --ulimit memlock=-1 -v /dev/video0:/dev/video0 --device=/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY myimage:latest
 ```
+
+## 开启更多的GPU功能支持
+
+我的程序后面用到了GPU的一些高级功能，比如GPU的nvcuvid解码，这需要做更多的设置，否则在程序启动对应解码库的时候，报错如下：
+
+```console
+[h264_cuvid @ 0x7f2d48048580] Cannot load libnvcuvid.so.1
+```
+
+这是因为docker中的GPU环境，没有开启nvcuvid的支持，需要在启动docker的时候，加入参数
+
+```bash
+--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all -e NVIDIA_DRIVER_CAPABILITIES=compute,utility,video 
+```
+
+当然，这需要可能需要您的宿主机本身可以支持这方面的功能
 
 ## 创建本地镜像中心
 
@@ -197,3 +213,5 @@ https://medium.com/better-programming/docker-tips-clean-up-your-local-machine-35
 [https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
 
 [https://docs.docker.com/engine/install/ubuntu](https://docs.docker.com/engine/install/ubuntu)
+
+https://github.com/NVIDIA/nvidia-docker/issues/766
