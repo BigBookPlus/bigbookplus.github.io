@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>"Tips of Migrating Numpy to C++ by OpenCV"</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="Numpy to C++ cv::Mat Sigmoid A sigmoid function is a mathematical function having a characteristic "S"-shaped curve or sigmoid curve. From..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">BigBook's Tech Blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/tips-of-migrating-numpy-to-c-by-opencv.html" rel="bookmark"
+           title="Permalink to "Tips of Migrating Numpy to C++ by OpenCV"">"Tips of Migrating Numpy to C++ by OpenCV"</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2022-03-26T00:00:00+01:00">
+                Published: Sat 26 March 2022
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bigbook.html">"BigBook"</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->      <ul>
+<li>Numpy to C++</li>
+<li>cv::Mat</li>
+</ul>
+<hr>
+<h2>Sigmoid</h2>
+<div class="highlight"><pre><span></span><code>A sigmoid function is a mathematical function having a characteristic &quot;S&quot;-shaped curve or sigmoid curve.
+</code></pre></div>
+
+<p>From wikipedia: <a href="https://en.wikipedia.org/wiki/Sigmoid_function">Sigmoid_function</a></p>
+<p>It's formula: $S(t)=\frac {1}{1+e^{-t}}$</p>
+<p>We can implement sigmoid function with python and numpy like this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">z</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+</code></pre></div>
+
+<p>Now let's implement it in OpenCV with cpp. Suppose we've got a output from a neural network as a [1, h, w] cv::Mat named <code>pred</code>. We then do something like <code>pred = sigmoid(pred)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="nf">sigmoid</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&amp;</span><span class="w"> </span><span class="n">pred</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="n">z</span><span class="p">;</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">pred</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="p">);</span>
+<span class="w">  </span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.f</span><span class="o">/</span><span class="p">(</span><span class="mf">1.f</span><span class="o">+</span><span class="n">z</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">z</span><span class="p">;</span>
+<span class="p">}</span><span class="w">  </span>
+</code></pre></div>
+
+<p>Done. Simple. 😊 </p>
+<h2>Channels split and merge</h2>
+<p>In numpy or other numpy like apis, we can do a slice operation like this,</p>
+<div class="highlight"><pre><span></span><code>  <span class="n">temp</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</code></pre></div>
+
+<p>This operation will create a snap shot variable of the first two channels. In OpenCV, we can simulate the operations through channels split and merge.</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&gt;</span><span class="w"> </span><span class="n">preds_split</span><span class="p">;</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span><span class="w"> </span><span class="n">preds_split</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// assert(preds_channels.size() == preds.channels())</span>
+
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&gt;</span><span class="w"> </span><span class="n">preds_temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">preds_split</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">preds_split</span><span class="p">[</span><span class="mi">1</span><span class="p">]};</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">merge</span><span class="p">(</span><span class="n">preds_temp</span><span class="p">,</span><span class="w"> </span><span class="n">temp</span><span class="p">);</span>
+</code></pre></div>
+
+<h2>Conditioning Filter Elements of Numpy matrice</h2>
+<p>Suppose we have a numpy 2d array, which the first channel is the score map of input image. Now we need to filter the pixels greater than the threshold. </p>
+<div class="highlight"><pre><span></span><code>  <span class="n">pred_score</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#extract the first channel of preds output</span>
+  <span class="n">pred_mask</span> <span class="o">=</span> <span class="n">pred_score</span> <span class="o">&gt;</span> <span class="n">min_confidence</span> 
+</code></pre></div>
+
+<p>The implementation in c++</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&gt;</span><span class="w"> </span><span class="n">preds</span><span class="p">;</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">split</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">preds</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="n">pred_score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">threshold</span><span class="p">(</span><span class="n">pred_score</span><span class="p">,</span><span class="w"> </span><span class="n">pred_mask</span><span class="p">,</span><span class="w"> </span><span class="n">min_confidence</span><span class="p">,</span><span class="w"> </span><span class="mf">1.f</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">THRESH_BINARY</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cv</span><span class="o">::</span><span class="n">multiply</span><span class="p">(</span><span class="n">pred_mask</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">pred_mask</span><span class="p">);</span>
+<span class="w">  </span><span class="n">pred_mask</span><span class="p">.</span><span class="n">convertTo</span><span class="p">(</span><span class="n">pred_mask</span><span class="p">,</span><span class="w"> </span><span class="n">CV_8U</span><span class="p">);</span>
+</code></pre></div>
+
+<h2>Not finished.</h2>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

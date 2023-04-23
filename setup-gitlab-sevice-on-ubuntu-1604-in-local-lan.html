@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>"Setup GitLab Sevice on Ubuntu 16.04 in Local LAN"</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="GitLab Git Ubuntu 16.04 Setup GitLab Sevice on Ubuntu 16.04 in Local LAN GitLab is as powerful as GitHub. We decide to change the version control..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">BigBook's Tech Blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/setup-gitlab-sevice-on-ubuntu-1604-in-local-lan.html" rel="bookmark"
+           title="Permalink to "Setup GitLab Sevice on Ubuntu 16.04 in Local LAN"">"Setup GitLab Sevice on Ubuntu 16.04 in Local LAN"</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2022-02-08T00:00:00+01:00">
+                Published: Tue 08 February 2022
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bigbook.html">"BigBook"</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->      <ul>
+<li>GitLab</li>
+<li>Git</li>
+<li>Ubuntu 16.04</li>
+</ul>
+<hr>
+<h1>Setup GitLab Sevice on Ubuntu 16.04 in Local LAN</h1>
+<p>GitLab is as powerful as GitHub. We decide to change the version control system from SVN to Git. We run the GitLab server in our local LAN. I found the blogs for GitLab installation are all too long to read and too complicated for using GitLab in local LAN with no domain name, so I wrote this one.</p>
+<p>Before installing GitLab, please update the Ubuntu repository.</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+</code></pre></div>
+
+<p>Install the prerequisites packages.</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>curl<span class="w"> </span>openssh-server<span class="w"> </span>ca-certificates<span class="w"> </span>postfix
+</code></pre></div>
+
+<p>select 'Internet Site' during postfix installation, and type in a server domain name for sending email. If you don't have one, just type something you like.</p>
+<p>Add GitLab repository with the curl command. </p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-sS<span class="w"> </span>https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>bash
+</code></pre></div>
+
+<p>This step is important. I think it's one of the best way for installing the GitLab. Bacause after the repository added, we can install the gitlab packages by a simple command.</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>gitlab-ce
+</code></pre></div>
+
+<p>Then we update the configuration.</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>vim<span class="w"> </span>/etc/gitlab/gitlab.rb
+</code></pre></div>
+
+<p>Since We don't have a domain name for my GitLab server , we use ip address and keep using <code>http</code> protocal.</p>
+<div class="highlight"><pre><span></span><code>external_url &#39;http://your_ipaddress&#39;
+</code></pre></div>
+
+<p>Then we run reconfiguration.</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>gitlab-ctl<span class="w"> </span>reconfigure
+</code></pre></div>
+
+<p>That's it. </p>
+<p>For users who want to setup the GitLab service in Local LAN, just like me, the installation is completed here. There are a bunch of other things needed to be done if you have a domain name and you want to enable the HTTPS protocol for GitLab. By now, we are able to visit GitLab through ip address in local LAN.</p>
+<h3>502 Whoops, GitLab is taking too much time to respond.</h3>
+<p>One more thing, if you keep receiving the error message '502 Whoops, GitLab is taking too much time to respond.' when you visiting GitLab, you need to check ports on your server. In my situation, my server is running another service on port 8080, which is needed by puma in GitLab. Change the Puma port in /etc/gitlab/gitlab.rb and run reconfiguration.</p>
+<div class="highlight"><pre><span></span><code>puma[&#39;port&#39;] = some_port_here
+</code></pre></div>
+
+<p>It works for me, hope it helpful.</p>
+<h2>reference</h2>
+<p><a href="https://www.howtoforge.com/tutorial/how-to-install-and-configure-gitlab-on-ubuntu-16-04/">how-to-install-and-configure-gitlab-on-ubuntu-16-04 [digitalocean]</a></p>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-gitlab-on-ubuntu-16-04">how-to-install-and-configure-gitlab-on-ubuntu-16-04 [howtoforge]</a></p>
+<p><a href="https://forum.gitlab.com/t/502-whoops-gitlab-is-taking-too-much-time-to-respond/52522/11">502-whoops-gitlab-is-taking-too-much-time-to-respond</a></p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

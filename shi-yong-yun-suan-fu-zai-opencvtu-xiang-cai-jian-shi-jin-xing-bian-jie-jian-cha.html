@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>"使用&运算符在OpenCV图像裁剪时进行边界检查"</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="C/C++ Operator & OpenCV Image Processing 边界检查 给定ROI的图像裁剪 假设需要按照既定的ROI对图像进行取窗裁剪，用cv::Rect给定ROI区域，裁剪可以按照如下方式： cv::Mat image =..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">BigBook's Tech Blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/shi-yong-yun-suan-fu-zai-opencvtu-xiang-cai-jian-shi-jin-xing-bian-jie-jian-cha.html" rel="bookmark"
+           title="Permalink to "使用&运算符在OpenCV图像裁剪时进行边界检查"">"使用&运算符在OpenCV图像裁剪时进行边界检查"</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-08-26T00:00:00+02:00">
+                Published: Thu 26 August 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bigbook.html">"BigBook"</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->      <ul>
+<li>C/C++</li>
+<li>Operator &amp;</li>
+<li>OpenCV</li>
+<li>Image Processing</li>
+<li>边界检查</li>
+</ul>
+<hr>
+<h3>给定ROI的图像裁剪</h3>
+<p>假设需要按照既定的ROI对图像进行取窗裁剪，用<code>cv::Rect</code>给定ROI区域，裁剪可以按照如下方式：</p>
+<div class="highlight"><pre><span></span><code><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">imread</span><span class="p">(</span><span class="s">&quot;/path/to/image.jpg&quot;</span><span class="p">);</span>
+<span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="w"> </span><span class="n">roi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">);</span>
+<span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="n">crop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">image</span><span class="p">(</span><span class="n">roi</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>限制边界</h3>
+<p>如果roi的坐标超出了图像的合法区域，会引发运行时错误，导致程序崩溃。此时一般要提前进行边界检查和规范，比如这样：</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="p">(</span><span class="n">roi</span><span class="p">.</span><span class="n">x</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="n">roi</span><span class="p">.</span><span class="n">y</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="n">roi</span><span class="p">.</span><span class="n">x</span><span class="o">+</span><span class="n">roi</span><span class="p">.</span><span class="n">width</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">cols</span><span class="p">)</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">cols</span><span class="o">-</span><span class="n">roi</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="n">roi</span><span class="p">.</span><span class="n">y</span><span class="o">+</span><span class="n">roi</span><span class="p">.</span><span class="n">height</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">rows</span><span class="p">)</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">heigth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">rows</span><span class="o">-</span><span class="n">roi</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</code></pre></div>
+
+<p>这样写代码，看上去不太直观，而且有些冗长，更谈不上优雅或者可读性。</p>
+<p>或者这样：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">cols</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">rows</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">x0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">tl</span><span class="p">().</span><span class="n">x</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">y0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">tl</span><span class="p">().</span><span class="n">y</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">br</span><span class="p">().</span><span class="n">x</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">y1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">roi</span><span class="p">.</span><span class="n">br</span><span class="p">().</span><span class="n">y</span><span class="p">);</span>
+
+<span class="n">roi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="w"> </span><span class="n">y0</span><span class="p">),</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="n">y1</span><span class="p">));</span>
+</code></pre></div>
+
+<p>稍微增加了些可读性，特别是如果习惯于使用stl的max/min函数进行边界检查。但是仍然冗长，不够优雅。冗长有什么坏处？一般来讲，冗长的代码不易于维护，可读性不会太强。另外以上面这段实现为例，由于反复使用同一变量，仅仅为了对其不同的成员做类似的操作，非常容易导致低级错误。</p>
+<h3>Operator &amp; : Get Intersection of cv::Rect</h3>
+<p>这个运算符<code>&amp;</code>比较直观。在C/C++语法中，<code>&amp;</code>属于位运算，是按位与的功能。cv::Rect类型重载了它，可以想象它的功能就是取矩形的相交区域。所以要对图像ROI的cv::Rect进行边界限制，那么将ROI和表示图像区域的Bounding Box求相交区域即可。代码实现如下：</p>
+<div class="highlight"><pre><span></span><code><span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="w"> </span><span class="nf">bbox</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mat</span><span class="p">.</span><span class="n">cols</span><span class="p">,</span><span class="w"> </span><span class="n">mat</span><span class="p">.</span><span class="n">rows</span><span class="p">);</span>
+<span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="w"> </span><span class="n">roi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">roi</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">bbox</span><span class="p">;</span><span class="w"> </span><span class="c1">// that&#39;s all</span>
+</code></pre></div>
+
+<p>这样基本上就一句话完成了边界限制。</p>
+<h3>What's More: verify if rect is inside image</h3>
+<p>进一步说，如果要检查一个rect是否在图像区域内，不用Operator的话，一般按照以下思路实现：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">rectIsInside</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rect</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&amp;</span><span class="w"> </span><span class="n">image</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n">rect</span><span class="p">.</span><span class="n">x</span><span class="o">&gt;=</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>
+<span class="w">        </span><span class="n">rect</span><span class="p">.</span><span class="n">y</span><span class="o">&gt;=</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>
+<span class="w">        </span><span class="n">rect</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rect</span><span class="p">.</span><span class="n">width</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">cols</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>
+<span class="w">        </span><span class="n">rect</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rect</span><span class="p">.</span><span class="n">width</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">rows</span><span class="p">)</span><span class="w"> </span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>但是如果使用了<code>&amp;</code>运算符，life will be much easier.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">rectIsInside</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rect</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&amp;</span><span class="w"> </span><span class="n">image</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">cv</span><span class="o">::</span><span class="n">Rect</span><span class="w"> </span><span class="n">bbox</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">cols</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">rows</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">rect</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">bbox</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rect</span><span class="p">;</span><span class="w"> </span><span class="c1">// elegent and efficient</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>简洁、优雅、可读性强的实现方式。</p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

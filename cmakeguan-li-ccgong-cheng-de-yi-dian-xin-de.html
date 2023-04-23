@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>"CMake管理C/C++工程的一点心得"</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="C/C++ CMake Qt OpenCV Boost CUDA 现在我自己的几乎所有C/C++项目均使用CMake管理。CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代 …" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">BigBook's Tech Blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/cmakeguan-li-ccgong-cheng-de-yi-dian-xin-de.html" rel="bookmark"
+           title="Permalink to "CMake管理C/C++工程的一点心得"">"CMake管理C/C++工程的一点心得"</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-08-20T00:00:00+02:00">
+                Published: Fri 20 August 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bigbook.html">"BigBook"</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->      <ul>
+<li>C/C++</li>
+<li>CMake</li>
+<li>Qt</li>
+<li>OpenCV</li>
+<li>Boost</li>
+<li>CUDA</li>
+</ul>
+<hr>
+<p>现在我自己的几乎所有C/C++项目均使用CMake管理。CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代表性的Lib库：</p>
+<ul>
+<li>
+<p>OpenCV</p>
+<p>OpenCV是Intel维护的开源库，图像处理必备</p>
+</li>
+<li>
+<p>Boost</p>
+<p>Boost是对C++语言最重要的扩展库，提供了对标注库的扩展、标准编译器尚未支持的新特性和一些语法糖</p>
+</li>
+<li>
+<p>Qt</p>
+<p>强大的UI库</p>
+</li>
+<li>
+<p>CUDA</p>
+<p>NVIDIA显卡并行加速支持</p>
+</li>
+</ul>
+<p>下面从一个最简单的<code>Hello CMake</code>程序开始，介绍CMake在实际使用中的一些方式。</p>
+<h3>Nearly Empty C/C++ Project</h3>
+<p>最简单的CMakeLists文件，可以参考<a href="https://github.com/ttroy50/cmake-examples/tree/master/01-basic/A-hello-cmake">hello-cmake</a>，非常的简洁，这里我略加修改引用一下。假设我们的项目里面只有这么一个代码文件，它的内容是这样的：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Hello CMake!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>没有外部依赖，甚至也没有多余的逻辑，这基本就是C++的HelloWorld代码，只不过打印输出变成了<code>Hello CMake</code>。在项目路径下，添加CMakeLists.txt文件，写入如下内容：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.5</span><span class="p">)</span>
+
+<span class="c"># Set the project name</span>
+<span class="nb">project</span><span class="w"> </span><span class="p">(</span><span class="s">hello_cmake</span><span class="p">)</span>
+
+<span class="c"># Add an executable</span>
+<span class="nb">add_executable</span><span class="p">(</span><span class="s">hello_cmake</span><span class="w"> </span><span class="s">main.cpp</span><span class="p">)</span>
+</code></pre></div>
+
+<p>在项目路径下执行如下命令，即可完成编译：</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
+cmake<span class="w"> </span>..
+make
+</code></pre></div>
+
+<p>执行</p>
+<div class="highlight"><pre><span></span><code>./hello_cmake
+</code></pre></div>
+
+<p>输出<code>Hello CMake</code>，编译成功。</p>
+<h3>CMake with OpenCV</h3>
+<p>那么如果想在项目中调用OpenCV，该怎么做呢？</p>
+<p>写一个简单的程序<code>cv-test.cpp</code>，调用OpenCV进行读图像和显示：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;opencv2/opencv.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;opencv2/highgui.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="w"> </span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">argc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">&quot;usage: DisplayImage.out &lt;Image_Path&gt;&quot;</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="n">image</span><span class="p">;</span>
+<span class="w">    </span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">imread</span><span class="p">(</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">&quot;No image data&quot;</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">cv</span><span class="o">::</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Display Image&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cv</span><span class="o">::</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>对应的<code>CMakeLists.txt</code>文件：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">2.8</span><span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span><span class="w"> </span><span class="s">DisplayImage</span><span class="w"> </span><span class="p">)</span>
+
+<span class="nb">find_package</span><span class="p">(</span><span class="w"> </span><span class="s">OpenCV</span><span class="w"> </span><span class="s">REQUIRED</span><span class="w"> </span><span class="p">)</span>
+<span class="nb">include_directories</span><span class="p">(</span><span class="w"> </span><span class="o">${</span><span class="nv">OpenCV_INCLUDE_DIRS</span><span class="o">}</span><span class="w"> </span><span class="p">)</span>
+
+<span class="nb">add_executable</span><span class="p">(</span><span class="w"> </span><span class="s">cv-test</span><span class="w"> </span><span class="s">cv-test.cpp</span><span class="w"> </span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="w"> </span><span class="s">cv-test</span><span class="w"> </span><span class="o">${</span><span class="nv">OpenCV_LIBS</span><span class="o">}</span><span class="w"> </span><span class="p">)</span>
+</code></pre></div>
+
+<p>这样就OK了。其实关键内容主要是这3行：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">find_package</span><span class="p">(</span><span class="w"> </span><span class="s">OpenCV</span><span class="w"> </span><span class="s">REQUIRED</span><span class="w"> </span><span class="p">)</span><span class="w"> </span>
+<span class="nb">include_directories</span><span class="p">(</span><span class="w"> </span><span class="o">${</span><span class="nv">OpenCV_INCLUDE_DIRS</span><span class="o">}</span><span class="w"> </span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="w"> </span><span class="s">cv-test</span><span class="w"> </span><span class="o">${</span><span class="nv">OpenCV_LIBS</span><span class="o">}</span><span class="w"> </span><span class="p">)</span>
+</code></pre></div>
+
+<p>当然前提是你的OpenCV正确安装了，并且环境变量<code>OpenCV_DIR</code>没问题。如果没有设置<code>OpenCV_DIR</code>环境变量，或者系统中有多个版本的OpenCV，想指定某特定版本，比如这里我想指定我自己编译的支持了CUDA11的<code>OpenCV 4.5.2</code>，可以增加如下一行：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">set</span><span class="p">(</span><span class="s">OpenCV_DIR</span><span class="w"> </span><span class="s">D:/WORK/opencv-github/opencv452/build-cuda11/install</span><span class="p">)</span>
+</code></pre></div>
+
+<p>把后面的路径改成自己的即可。</p>
+<h3>CMake with Boost</h3>
+<p>支持Boost的配置更简单，只需要搞定这两个环境变量: <code>Boost_INCLUDE_DIR</code>、<code>Boost_LIBRARY_DIRS</code>。</p>
+<p>为了使用简便，我们开启了<code>Boost_USE_STATIC_LIBS</code>变量支持静态链接，这样可以省掉<code>target_link_libraries</code>指令。静态链接也是Boost库的常用方法。</p>
+<p>个人习惯的原因，我先执行了几个unset对环境变量进行清除，再根据自己的路径，对Boost的变量进行设置，最后加入find_package等指令。这里只列举需要新增的内容：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">set</span><span class="p">(</span><span class="s">Boost_USE_STATIC_LIBS</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Boost_USE_MULTITHREADED</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+
+<span class="nb">unset</span><span class="p">(</span><span class="s">Boost_LIBRARIES</span><span class="p">)</span>
+<span class="nb">unset</span><span class="p">(</span><span class="s">Boost_INCLUDE_DIR</span><span class="w"> </span><span class="s">CACHE</span><span class="p">)</span>
+<span class="nb">unset</span><span class="p">(</span><span class="s">Boost_LIBRARY_DIRS</span><span class="w"> </span><span class="s">CACHE</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">Boost_INCLUDE_DIR</span><span class="w"> </span><span class="s">D:/Lib/boost_1_76_0</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">Boost_LIBRARY_DIRS</span><span class="w"> </span><span class="s">D:/Lib/boost_1_76_0/lib64-msvc-14.2</span><span class="p">)</span>
+
+<span class="nb">find_package</span><span class="p">(</span><span class="s">Boost</span><span class="w"> </span><span class="s">COMPONENTS</span><span class="w"> </span><span class="s">system</span><span class="w"> </span><span class="s">filesystem</span><span class="w"> </span><span class="s">json</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span><span class="w"> </span><span class="c"># for example</span>
+
+<span class="nb">if</span><span class="p">(</span><span class="s">NOT</span><span class="w"> </span><span class="s">Boost_FOUND</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">message</span><span class="p">(</span><span class="s2">&quot;Not found Boost&quot;</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+
+<span class="nb">include_directories</span><span class="p">(</span><span class="o">${</span><span class="nv">Boost_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>CMake with Qt</h3>
+<p>Qt也内建了对CMake的支持。Qt的编译流程比较复杂，因为是GUI的框架，涉及到组织资源文件、生成UI代码等步骤，似乎离不开QtCreator或者VS+Qt Plugin。</p>
+<p>但是如果尝试使用CMake进行组织Qt项目，life will be much easier.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.1.0</span><span class="p">)</span>
+
+<span class="nb">project</span><span class="p">(</span><span class="s">helloworld</span><span class="w"> </span><span class="s">VERSION</span><span class="w"> </span><span class="s">1.0.0</span><span class="w"> </span><span class="s">LANGUAGES</span><span class="w"> </span><span class="s">CXX</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD</span><span class="w"> </span><span class="s">11</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD_REQUIRED</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_AUTOMOC</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_AUTORCC</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_AUTOUIC</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+
+<span class="nb">if</span><span class="p">(</span><span class="s">CMAKE_VERSION</span><span class="w"> </span><span class="s">VERSION_LESS</span><span class="w"> </span><span class="s2">&quot;3.7.0&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_INCLUDE_CURRENT_DIR</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+
+<span class="nb">find_package</span><span class="p">(</span><span class="s">Qt5</span><span class="w"> </span><span class="s">COMPONENTS</span><span class="w"> </span><span class="s">Widgets</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+
+<span class="nb">add_executable</span><span class="p">(</span><span class="s">helloworld</span>
+<span class="w">    </span><span class="s">mainwindow.ui</span>
+<span class="w">    </span><span class="s">mainwindow.cpp</span>
+<span class="w">    </span><span class="s">main.cpp</span>
+<span class="w">    </span><span class="s">resources.qrc</span>
+<span class="p">)</span>
+
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">helloworld</span><span class="w"> </span><span class="s">Qt5::Widgets</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>CMake with CUDA</h3>
+<p>CMake 3.9以上的版本对CUDA开启原生支持，只需要在<code>CMakeLists.txt</code>文件开头的<code>project</code>指令中<code>LANGUAGES</code>参数增加<code>CUDA</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">project</span><span class="p">(</span><span class="s">cuda-demo</span><span class="w"> </span><span class="s">VERSION</span><span class="w"> </span><span class="s">0.1.0</span><span class="w"> </span><span class="s">LANGUAGES</span><span class="w"> </span><span class="s">CXX</span><span class="w"> </span><span class="s">CUDA</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>控制编译生成文件的输出路径</h3>
+<p>有时候一个项目中的多个子项目互相依赖，但是代码往往是分开的。即使上层用<code>add_subdirectory</code>指令进行组织，cmake也会默认按照项目的目录层次进行编译生成，这样会导致互相依赖的可执行文件和动态库生成在不同的子目录，互相访问不到。为了调试方便，可以令所有生成的可执行文件在指定目录下：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">set</span><span class="p">(</span><span class="s">EXECUTABLE_OUTPUT_PATH</span><span class="w"> </span><span class="o">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="o">}</span><span class="s">/bin</span><span class="p">)</span><span class="w">   </span><span class="c"># set executable file output dir </span>
+<span class="nb">set</span><span class="p">(</span><span class="s">LIBRARY_OUTPUT_PATH</span><span class="w"> </span><span class="o">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="o">}</span><span class="s">/bin</span><span class="p">)</span><span class="w">      </span><span class="c"># set library file output dir </span>
+</code></pre></div>
+
+<h3>Reference</h3>
+<p><a href="https://github.com/ttroy50/cmake-examples">cmake-examples</a></p>
+<p><a href="https://docs.opencv.org/4.5.2/db/df5/tutorial_linux_gcc_cmake.html">Using OpenCV with gcc and CMake</a></p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

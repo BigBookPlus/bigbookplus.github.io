@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>"OpenCV 4.X 使用CvxText在图片显示汉字"</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="CvxText OpenCV 4.5 C/C++ 最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最 …" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">BigBook's Tech Blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/opencv-4x-shi-yong-cvxtextzai-tu-pian-xian-shi-yi-zi.html" rel="bookmark"
+           title="Permalink to "OpenCV 4.X 使用CvxText在图片显示汉字"">"OpenCV 4.X 使用CvxText在图片显示汉字"</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2022-06-15T00:00:00+02:00">
+                Published: Wed 15 June 2022
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bigbook.html">"BigBook"</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->      <ul>
+<li>CvxText</li>
+<li>OpenCV 4.5</li>
+<li>C/C++</li>
+</ul>
+<hr>
+<p>最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype+cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。</p>
+<h2>准备</h2>
+<p>需要的依赖有：
+- C/C++ 编译环境（似乎是废话）
+- OpenCV (仍然废话)
+- freetype的lib： 提前编译好，官网是 https://freetype.org/，我使用的版本是2.9.1
+- 字体文件，一般用<code>simhei.ttf</code>。在操作系统的字体里面哦。</p>
+<h2>修改 CvxText 代码</h2>
+<p>我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。</p>
+<h3>OpenCV头文件包含方式</h3>
+<p>首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/core/core.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/core/core_c.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/highgui/highgui.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/imgproc/imgproc.hpp&quot;</span>
+</code></pre></div>
+
+<p>这里特别说明，引入<code>core_c.h</code>这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，<code>core_c.h</code> 提供了对C类型的兼容。</p>
+<h3>CvScalar类型问题</h3>
+<p>下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C++类型的cv::Scalar。下面的<code>puttext</code>函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">CvxText::putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">//return putText(frame, text, pos, CV_RGB(255, 255, 255));</span>
+<span class="w">    </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">};</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">CvxText::putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">//return putText(frame, text, pos, CV_RGB(255, 255, 255));</span>
+<span class="w">    </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">};</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>cv::Mat转为IplImage</h3>
+<p>另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">CvxText::putWChar</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="n">wc</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">color</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">IplImage</span><span class="o">*</span><span class="w"> </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="p">(</span><span class="n">IplImage</span><span class="p">)</span><span class="n">frame</span><span class="p">;</span>
+
+<span class="w">    </span><span class="p">...</span>
+
+<span class="p">}</span>
+</code></pre></div>
+
+<p>很不幸，现在这样做在似乎不work了。好在cv::Mat转IplImage仍然有提供接口可用。打开core_c.h文件，可以看到一个很显眼的函数声明，</p>
+<div class="highlight"><pre><span></span><code><span class="n">CV_EXPORTS</span><span class="w"> </span><span class="n">_IplImage</span><span class="w"> </span><span class="n">cvIplImage</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&amp;</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+</code></pre></div>
+
+<p>所以调用该接口，传入cv::Mat对象会返回转换好的IplImage类型的对象。直接修改代码如下</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="n">IplImage</span><span class="o">*</span><span class="w"> </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="p">(</span><span class="n">cvIplImage</span><span class="p">(</span><span class="n">frame</span><span class="p">));</span>
+</code></pre></div>
+
+<p>至此，代码就可以正常工作了。</p>
+<h2>调用方法</h2>
+<p>初始化</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="n">CvxText</span><span class="w"> </span><span class="n">text</span><span class="p">;</span>
+</code></pre></div>
+
+<p>调用接口</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span>
+</code></pre></div>
+
+<h2>CvxText代码</h2>
+<p>把我改后的代码分享一下。在OpenCV 4.5下亲测可用。理论上4.X的OpenCV应该都可使用。</p>
+<h3>头文件 CvxText.h</h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#ifndef CVX_TEXT_H</span>
+<span class="cp">#define CVX_TEXT_H</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ft2build.h&gt;</span><span class="c1">  </span>
+<span class="cp">#include FT_FREETYPE_H  </span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/core/core.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/core/core_c.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/highgui/highgui.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/imgproc/imgproc.hpp&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CvxText</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// ��ֹcopy  </span>
+<span class="w">    </span><span class="n">CvxText</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">CvxText</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">CvxText</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">freeType</span><span class="p">);</span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">CvxText</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * ��ȡ���塣Ŀǰ��Щ�����в�֧�֡�</span>
+<span class="cm">    *</span>
+<span class="cm">    * \param font        ��������, Ŀǰ��֧��</span>
+<span class="cm">    * \param size        �����С/�հױ���/�������/��ת�Ƕ�</span>
+<span class="cm">    * \param underline   �»���</span>
+<span class="cm">    * \param diaphaneity ͸����</span>
+<span class="cm">    *</span>
+<span class="cm">    * \sa setFont, restoreFont</span>
+<span class="cm">    */</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">getFont</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">type</span><span class="p">,</span>
+<span class="w">        </span><span class="n">CvScalar</span><span class="w"> </span><span class="o">*</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="o">*</span><span class="n">underline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">diaphaneity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * �������塣Ŀǰ��Щ�����в�֧�֡�</span>
+<span class="cm">    *</span>
+<span class="cm">    * \param font        ��������, Ŀǰ��֧��</span>
+<span class="cm">    * \param size        �����С/�հױ���/�������/��ת�Ƕ�</span>
+<span class="cm">    * \param underline   �»���</span>
+<span class="cm">    * \param diaphaneity ͸����</span>
+<span class="cm">    *</span>
+<span class="cm">    * \sa getFont, restoreFont</span>
+<span class="cm">    */</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">setFont</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">type</span><span class="p">,</span>
+<span class="w">        </span><span class="n">CvScalar</span><span class="w"> </span><span class="o">*</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="o">*</span><span class="n">underline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">diaphaneity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * �ָ�ԭʼ���������á�</span>
+<span class="cm">    *</span>
+<span class="cm">    * \sa getFont, setFont</span>
+<span class="cm">    */</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">restoreFont</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">//================================================================  </span>
+<span class="w">    </span><span class="c1">//================================================================  </span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * �������(��ɫĬ��Ϊ��ɫ)����������������ַ���ֹͣ��</span>
+<span class="cm">    *</span>
+<span class="cm">    * \param img  �����Ӱ��</span>
+<span class="cm">    * \param text �ı�����</span>
+<span class="cm">    * \param pos  �ı�λ��</span>
+<span class="cm">    *</span>
+<span class="cm">    * \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��</span>
+<span class="cm">    */</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * �������(��ɫĬ��Ϊ��ɫ)����������������ַ���ֹͣ��</span>
+<span class="cm">    *</span>
+<span class="cm">    * \param img  �����Ӱ��</span>
+<span class="cm">    * \param text �ı�����</span>
+<span class="cm">    * \param pos  �ı�λ��</span>
+<span class="cm">    *</span>
+<span class="cm">    * \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��</span>
+<span class="cm">    */</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * ������֡���������������ַ���ֹͣ��</span>
+<span class="cm">    *</span>
+<span class="cm">    * \param img   �����Ӱ��</span>
+<span class="cm">    * \param text  �ı�����</span>
+<span class="cm">    * \param pos   �ı�λ��</span>
+<span class="cm">    * \param color �ı���ɫ</span>
+<span class="cm">    *</span>
+<span class="cm">    * \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��</span>
+<span class="cm">    */</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">color</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">    * ������֡���������������ַ���ֹͣ��</span>
+<span class="cm">    *</span>
+<span class="cm">    * \param img   �����Ӱ��</span>
+<span class="cm">    * \param text  �ı�����</span>
+<span class="cm">    * \param pos   �ı�λ��</span>
+<span class="cm">    * \param color �ı���ɫ</span>
+<span class="cm">    *</span>
+<span class="cm">    * \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��</span>
+<span class="cm">    */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">color</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">//================================================================  </span>
+<span class="w">    </span><span class="c1">//================================================================  </span>
+
+<span class="k">private</span><span class="o">:</span>
+
+<span class="w">    </span><span class="c1">// �����ǰ�ַ�, ����m_posλ��  </span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">putWChar</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="n">wc</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">color</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">//================================================================  </span>
+<span class="w">    </span><span class="c1">//================================================================  </span>
+
+<span class="k">private</span><span class="o">:</span>
+
+<span class="w">    </span><span class="n">FT_Library</span><span class="w">   </span><span class="n">m_library</span><span class="p">;</span><span class="w">   </span><span class="c1">// �ֿ�  </span>
+<span class="w">    </span><span class="n">FT_Face</span><span class="w">      </span><span class="n">m_face</span><span class="p">;</span><span class="w">      </span><span class="c1">// ����  </span>
+
+<span class="w">    </span><span class="c1">//================================================================  </span>
+<span class="w">    </span><span class="c1">//================================================================  </span>
+
+<span class="w">    </span><span class="c1">// Ĭ�ϵ������������  </span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">m_fontType</span><span class="p">;</span>
+<span class="w">    </span><span class="n">CvScalar</span><span class="w">   </span><span class="n">m_fontSize</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">      </span><span class="n">m_fontUnderline</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w">      </span><span class="n">m_fontDiaphaneity</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif</span>
+</code></pre></div>
+
+<h3>实现文件 CvxText.cpp</h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;CvxText.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;wchar.h&gt;</span><span class="c1">  </span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;assert.h&gt;</span><span class="c1">  </span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;locale.h&gt;</span><span class="c1">  </span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ctype.h&gt;</span><span class="c1"> </span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/core/core.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/highgui/highgui.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;opencv2/imgproc/imgproc.hpp&quot;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">cv</span><span class="p">;</span>
+<span class="c1">// ���ֿ�  </span>
+
+<span class="n">CvxText</span><span class="o">::</span><span class="n">CvxText</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">freeType</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">freeType</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// ���ֿ��ļ�, ����һ������  </span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">FT_Init_FreeType</span><span class="p">(</span><span class="o">&amp;</span><span class="n">m_library</span><span class="p">))</span><span class="w"> </span><span class="k">throw</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">//result = FT_New_Face(m_library, freeType, 0, &amp;m_face);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FT_New_Face</span><span class="p">(</span><span class="n">m_library</span><span class="p">,</span><span class="w"> </span><span class="n">freeType</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">m_face</span><span class="p">))</span><span class="w"> </span><span class="k">throw</span><span class="p">;</span>
+
+
+<span class="w">    </span><span class="c1">// ���������������  </span>
+
+<span class="w">    </span><span class="n">restoreFont</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// ����C���Ե��ַ�������  </span>
+
+<span class="w">    </span><span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// �ͷ�FreeType��Դ  </span>
+
+<span class="n">CvxText</span><span class="o">::~</span><span class="n">CvxText</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">FT_Done_Face</span><span class="p">(</span><span class="n">m_face</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FT_Done_FreeType</span><span class="p">(</span><span class="n">m_library</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// �����������:  </span>
+<span class="c1">//  </span>
+<span class="c1">// font         - ��������, Ŀǰ��֧��  </span>
+<span class="c1">// size         - �����С/�հױ���/�������/��ת�Ƕ�  </span>
+<span class="c1">// underline   - �»���  </span>
+<span class="c1">// diaphaneity   - ͸����  </span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">getFont</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="o">*</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="o">*</span><span class="n">underline</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">diaphaneity</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_fontType</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_fontSize</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">underline</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="n">underline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_fontUnderline</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diaphaneity</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="n">diaphaneity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_fontDiaphaneity</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">setFont</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="o">*</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="o">*</span><span class="n">underline</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">diaphaneity</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// �����Ϸ��Լ��  </span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">m_fontType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fabs</span><span class="p">(</span><span class="n">size</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fabs</span><span class="p">(</span><span class="n">size</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fabs</span><span class="p">(</span><span class="n">size</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fabs</span><span class="p">(</span><span class="n">size</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">underline</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">m_fontUnderline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">underline</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diaphaneity</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">m_fontDiaphaneity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">diaphaneity</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// �ָ�ԭʼ����������  </span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">restoreFont</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">m_fontType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">            </span><span class="c1">// ��������(��֧��)  </span>
+
+<span class="w">    </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">40</span><span class="p">;</span><span class="w">      </span><span class="c1">// �����С  </span>
+<span class="w">    </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span><span class="w">   </span><span class="c1">// �հ��ַ���С����  </span>
+<span class="w">    </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="p">;</span><span class="w">   </span><span class="c1">// �����С����  </span>
+<span class="w">    </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">      </span><span class="c1">// ��ת�Ƕ�(��֧��)  </span>
+
+<span class="w">    </span><span class="n">m_fontUnderline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w">   </span><span class="c1">// �»���(��֧��)  </span>
+
+<span class="w">    </span><span class="n">m_fontDiaphaneity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w">   </span><span class="c1">// ɫ�ʱ���(�ɲ���͸��Ч��)  </span>
+
+<span class="w">    </span><span class="c1">// �����ַ���С  </span>
+
+<span class="w">    </span><span class="n">FT_Set_Pixel_Sizes</span><span class="p">(</span><span class="n">m_face</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// �������(��ɫĬ��Ϊ��ɫ)  </span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">//return putText(frame, text, pos, CV_RGB(255, 255, 255));</span>
+<span class="w">    </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">};</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">//return putText(frame, text, pos, CV_RGB(255, 255, 255));</span>
+<span class="w">    </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">};</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">//  </span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w">    </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">color</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">text</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//  </span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">wchar_t</span><span class="w"> </span><span class="n">wc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+<span class="w">        </span><span class="c1">// ����˫�ֽڷ���  </span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isascii</span><span class="p">(</span><span class="n">wc</span><span class="p">))</span><span class="w"> </span><span class="n">mbtowc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wc</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="o">++</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// �����ǰ���ַ�  </span>
+
+<span class="w">        </span><span class="n">putWChar</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">wc</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">putText</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">color</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">text</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//  </span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// �����ǰ���ַ�  </span>
+
+<span class="w">        </span><span class="n">putWChar</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// �����ǰ�ַ�, ����m_posλ��  </span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">CvxText</span><span class="o">::</span><span class="n">putWChar</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="w"> </span><span class="o">&amp;</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="kt">wchar_t</span><span class="w"> </span><span class="n">wc</span><span class="p">,</span><span class="w"> </span><span class="n">CvPoint</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">color</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">IplImage</span><span class="o">*</span><span class="w"> </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<span class="w">    </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="p">(</span><span class="n">cvIplImage</span><span class="p">(</span><span class="n">frame</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// ����unicode��������Ķ�ֵλͼ  </span>
+
+<span class="w">    </span><span class="n">FT_UInt</span><span class="w"> </span><span class="n">glyph_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FT_Get_Char_Index</span><span class="p">(</span><span class="n">m_face</span><span class="p">,</span><span class="w"> </span><span class="n">wc</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FT_Load_Glyph</span><span class="p">(</span><span class="n">m_face</span><span class="p">,</span><span class="w"> </span><span class="n">glyph_index</span><span class="p">,</span><span class="w"> </span><span class="n">FT_LOAD_DEFAULT</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FT_Render_Glyph</span><span class="p">(</span><span class="n">m_face</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="p">,</span><span class="w"> </span><span class="n">FT_RENDER_MODE_MONO</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">//  </span>
+
+<span class="w">    </span><span class="n">FT_GlyphSlot</span><span class="w"> </span><span class="n">slot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_face</span><span class="o">-&gt;</span><span class="n">glyph</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// ������  </span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">slot</span><span class="o">-&gt;</span><span class="n">bitmap</span><span class="p">.</span><span class="n">rows</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">cols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">slot</span><span class="o">-&gt;</span><span class="n">bitmap</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//  </span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">rows</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cols</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">off</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">img</span><span class="o">-&gt;</span><span class="n">origin</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">rows</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">))</span>
+<span class="w">                </span><span class="o">*</span><span class="w"> </span><span class="n">slot</span><span class="o">-&gt;</span><span class="n">bitmap</span><span class="p">.</span><span class="n">pitch</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">slot</span><span class="o">-&gt;</span><span class="n">bitmap</span><span class="p">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">off</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="mh">0xC0</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">8</span><span class="p">)))</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">img</span><span class="o">-&gt;</span><span class="n">origin</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">pos</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">rows</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">pos</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;;</span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pos</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">;</span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">img</span><span class="o">-&gt;</span><span class="n">height</span>
+<span class="w">                    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">img</span><span class="o">-&gt;</span><span class="n">width</span><span class="p">)</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">CvScalar</span><span class="w"> </span><span class="n">scalar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cvGet2D</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">);</span>
+
+<span class="w">                    </span><span class="c1">// ����ɫ���ں�  </span>
+
+<span class="w">                    </span><span class="kt">float</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_fontDiaphaneity</span><span class="p">;</span>
+<span class="w">                    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">k</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">{</span>
+<span class="w">                        </span><span class="n">scalar</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scalar</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">color</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+<span class="w">                    </span><span class="p">}</span>
+
+<span class="w">                    </span><span class="n">cvSet2D</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">scalar</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="c1">// end for  </span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="c1">// end for  </span>
+
+<span class="w">    </span><span class="c1">// �޸���һ���ֵ����λ��  </span>
+
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m_fontSize</span><span class="p">.</span><span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">pos</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)((</span><span class="n">cols</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">cols</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">space</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sep</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

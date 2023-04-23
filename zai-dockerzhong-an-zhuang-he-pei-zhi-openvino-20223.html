@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>"在Docker中安装和配置OpenVino 2022.3"</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="OpenVino Docker GPU Docker 从代码安装 官方推荐从代码安装 开局不利 选择通过gitee clone安装，但是反复clone失败。报错如下： # git clone -b 2022.3.0..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">BigBook's Tech Blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/zai-dockerzhong-an-zhuang-he-pei-zhi-openvino-20223.html" rel="bookmark"
+           title="Permalink to "在Docker中安装和配置OpenVino 2022.3"">"在Docker中安装和配置OpenVino 2022.3"</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2023-04-11T00:00:00+02:00">
+                Published: Tue 11 April 2023
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bigbook.html">"BigBook"</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->      <ul>
+<li>OpenVino</li>
+<li>Docker</li>
+<li>GPU Docker</li>
+</ul>
+<hr>
+<h2>从代码安装</h2>
+<p>官方推荐从代码安装</p>
+<h3>开局不利</h3>
+<p>选择通过gitee clone安装，但是反复clone失败。报错如下：</p>
+<div class="highlight"><pre><span></span><code><span class="gp"># </span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span><span class="m">2022</span>.3.0<span class="w"> </span>https://gitee.com/openvinotoolkit-prc/openvino.git
+<span class="go">Cloning into &#39;openvino&#39;...</span>
+<span class="go">remote: Enumerating objects: 345561, done.</span>
+<span class="go">remote: Counting objects: 100% (59023/59023), done.</span>
+<span class="go">remote: Compressing objects: 100% (33490/33490), done.</span>
+<span class="go">error: RPC failed; curl 56 GnuTLS recv error (-9): Error decoding the received TLS packet.</span>
+<span class="go">fatal: the remote end hung up unexpectedly</span>
+<span class="go">fatal: early EOF</span>
+<span class="go">fatal: index-pack failed</span>
+</code></pre></div>
+
+<h3>解决方法</h3>
+<div class="highlight"><pre><span></span><code><span class="go">git config --global http.postBuffer 500M</span>
+<span class="go">git config --global http.maxRequestBuffer 100M</span>
+<span class="go">git config --global core.compression 0</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

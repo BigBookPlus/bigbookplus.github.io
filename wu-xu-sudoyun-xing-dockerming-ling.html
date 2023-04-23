@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>"无需sudo运行docker命令"</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="Docker GPU Docker Run Docker commands without sudo 新安装的Docker，有可能需要使用sudo才能运行docker命令。 比如，运行一个GPU docker镜像，需要使用sudo，否则会报错： $ docker run --rm..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">BigBook's Tech Blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/wu-xu-sudoyun-xing-dockerming-ling.html" rel="bookmark"
+           title="Permalink to "无需sudo运行docker命令"">"无需sudo运行docker命令"</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2023-04-08T00:00:00+02:00">
+                Published: Sat 08 April 2023
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bigbook.html">"BigBook"</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->      <ul>
+<li>Docker</li>
+<li>GPU Docker</li>
+</ul>
+<hr>
+<h2>Run Docker commands without sudo</h2>
+<p>新安装的Docker，有可能需要使用sudo才能运行docker命令。</p>
+<p>比如，运行一个GPU docker镜像，需要使用sudo，否则会报错：</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--runtime<span class="o">=</span>nvidia<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>nvidia/cuda:11.6.2-base-ubuntu20.04<span class="w"> </span>nvidia-smi
+
+<span class="go">docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post &quot;http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create&quot;: dial unix /var/run/docker.sock: connect: permission denied.</span>
+<span class="go">See &#39;docker run --help&#39;.</span>
+</code></pre></div>
+
+<p>报错信息就是说，没有权限访问docker daemon。这是因为docker默认情况下是不允许普通用户使用的，需要使用sudo才能运行docker命令。</p>
+<p>这样很不方便，下面介绍一下如何让docker不需要sudo就能运行。</p>
+<h3>1. Add the <code>docker</code> group if it doesn't already exist</h3>
+<p>首先创建一个Docker 用户组，如果用户组已经存在，可以跳过这一步。</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>sudo<span class="w"> </span>groupadd<span class="w"> </span>docker
+</code></pre></div>
+
+<h3>2. Add the connected user <code>$USER</code> to the docker group</h3>
+<p>然后把当前用户加入到docker用户组中。</p>
+<p>Optionally change the username to match your preferred user.</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>sudo<span class="w"> </span>gpasswd<span class="w"> </span>-a<span class="w"> </span><span class="nv">$USER</span><span class="w"> </span>docker
+</code></pre></div>
+
+<p><strong>IMPORTANT</strong>: Log out and log back in so that your group membership is re-evaluated.
+提示：退出当前用户，重新登录，这样用户组的权限才会生效。</p>
+<h3>3. Restart the <code>docker</code> daemon</h3>
+<p>重启docker服务。</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>sudo<span class="w"> </span>service<span class="w"> </span>docker<span class="w"> </span>restart
+</code></pre></div>
+
+<h2>另外一种情况</h2>
+<p>如果是在root安装且运行过docker，然后切换到普通用户，并且按照上述操作将当前用户加入到docker用户组，可能仍会报错。</p>
+<div class="highlight"><pre><span></span><code><span class="go">docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post &quot;http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create&quot;: dial unix /var/run/docker.sock: connect: permission denied.</span>
+</code></pre></div>
+
+<p>这是因为docker的socket文件的权限问题，需要修改一下。</p>
+<div class="highlight"><pre><span></span><code><span class="go">sudo chown $USER /var/run/docker.sock```console</span>
+</code></pre></div>
+
+<p>参考 referecne: </p>
+<p>https://docs.docker.com/engine/install/linux-postinstall/</p>
+<p>https://docs.docker.com/engine/security/rootless/</p>
+<p>https://raw.githubusercontent.com/sindresorhus/guides/main/docker-without-sudo.md</p>
+<p>https://stackoverflow.com/questions/48568172/docker-sock-permission-denied</p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
