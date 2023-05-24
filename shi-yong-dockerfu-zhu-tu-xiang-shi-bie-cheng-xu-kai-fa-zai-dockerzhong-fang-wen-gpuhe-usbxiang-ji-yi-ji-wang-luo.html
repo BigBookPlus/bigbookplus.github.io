@@ -51,8 +51,8 @@
 <p>参考链接 <a href="https://docs.docker.com/engine/install/ubuntu">https://docs.docker.com/engine/install/ubuntu</a></p>
 <h3>安装nvidia-docker</h3>
 <p>参考链接 <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker</a></p>
-<h2>启动支持GUI的docker镜像</h2>
-<p>如果在Docker中开发的是带有GUI的应用程序，需要在docker中显示GUI。</p>
+<h2>在docker中显示GUI</h2>
+<p>如果在Docker中开发的是带有GUI的应用程序，也就是在docker中显示GUI，需要启动支持GUI的docker镜像。</p>
 <p>首先配置一下xhost</p>
 <div class="highlight"><pre><span></span><code>xhost<span class="w"> </span>+local:docker
 </code></pre></div>
@@ -65,11 +65,11 @@
 <div class="highlight"><pre><span></span><code>-v<span class="w"> </span>/tmp/.X11-unix:/tmp/.X11-unix<span class="w"> </span>-e<span class="w"> </span><span class="nv">DISPLAY</span><span class="o">=</span><span class="nv">$DISPLAY</span>
 </code></pre></div>
 
-<p>注意，这里是启动了GPU docker，--gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为--gpus 0。</p>
 <p>完整指令如下：</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>mydocker<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>--shm-size<span class="o">=</span>1g<span class="w"> </span>--ulimit<span class="w"> </span><span class="nv">memlock</span><span class="o">=</span>-1<span class="w"> </span>-it<span class="w"> </span>-v<span class="w"> </span>/tmp/.X11-unix:/tmp/.X11-unix<span class="w"> </span>-e<span class="w"> </span><span class="nv">DISPLAY</span><span class="o">=</span><span class="nv">$DISPLAY</span><span class="w"> </span>snn-server:basic
 </code></pre></div>
 
+<p>注意，这里是启动了GPU docker，--gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为--gpus 0。</p>
 <h2>在Docker中访问usb相机</h2>
 <p>如果需要在docker中访问usb相机，需要在启动docker的时候，追加以下参数</p>
 <div class="highlight"><pre><span></span><code>-v<span class="w"> </span>/dev/video0:/dev/video0<span class="w"> </span>--device<span class="o">=</span>/dev/video0
