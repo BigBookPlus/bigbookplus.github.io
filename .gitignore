@@ -1,13 +1,25 @@
-_site
-_posts/_draft
-_posts/_archive
-_archive
-node_modules
-.vscode
-*.log
-*.lock
-*.sh
+# Node modules
+**/node_modules/**
+
+# Build files
+docs-shared/lib/
+packages/*/lib/
+
+# Vuepress Cache
+**/.vuepress/.cache/**
+# Vuepress Temp
+**/.vuepress/.temp/**
+# Vuepress Output
+dist/
+
+# npm config
+.npmrc
+
+# Typescript build info
+*.tsbuildinfo
+
+# Coverage Files
+coverage/
+
+# macOS
 .DS_Store
-.jekyll-cache
-*/.DS_Store
-*/*/.DS_Store
