@@ -24,13 +24,13 @@ OpenCV功能比较丰富，包含了传统图像处理的绝大部分经典算�
 git clone https://github.com/opencv/opencv.git
 ```
 
-![image](images/opencv_cmake_vs2019/0.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/0.png)
 
 ```console
 git clone https://github.com/opencv/opencv_contrib.git
 ```
 
-![image](images/opencv_cmake_vs2019/1.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/1.png)
 
 如果安装了visual stuido 2019，cmake-gui大概率可以从cmd控制台直接呼出来。打开cmake-gui后，配置一下源码路径和编译路径。我的配置如下:
 
@@ -38,17 +38,17 @@ git clone https://github.com/opencv/opencv_contrib.git
 
 编译路径 D:/WORK/opencv-github/opencv/build
 
-![image](images/opencv_cmake_vs2019/2.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/2.png)
 
 点击Configure，选择vs2019 x64编译
 
-![image](images/opencv_cmake_vs2019/3.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/3.png)
 
-![image](images/opencv_cmake_vs2019/4.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/4.png)
 
 第一次Configure，ippicv依赖包下载失败，重新configure了一次，这次成功了。
 
-![image](images/opencv_cmake_vs2019/5.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/5.png)
 
 搜索OPENCV_EXTRA_MODULES_PATH选型，填入OpenCV Contrib的路径
 
@@ -56,7 +56,7 @@ git clone https://github.com/opencv/opencv_contrib.git
 D:/WORK/opencv-github/opencv_contrib/modules
 ```
 
-![image](images/opencv_cmake_vs2019/6.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/6.png)
 
 搜索cuda，勾选OPENCV DNN CUDA和WITH CUDA。不要勾选 BUILD CUDA STUBS。
 
@@ -64,31 +64,31 @@ cuda是要提前安装的，cudnn最好也安装上，注意cuda和cudnn版本�
 
 再次点击configure。
 
-![image](images/opencv_cmake_vs2019/7.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/7.png)
 
 选中BUILD opencv world选项。这里主要是为了使用便捷，一个胜过你所有，不必单独一个个去链接。当然，单独选择链接组件的方式更有利于控制release程序的体积，有利有弊吧。
 
-![image](images/opencv_cmake_vs2019/8.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/8.png)
 
 选中 enable nonfree选项，打开这个选项会把一些不能免费商用的算法编译进去，做些研究和实验还是可以的。之前的nonfree算法中最著名的当属sift，不过现在sift已经免费啦。
 
-![image](images/opencv_cmake_vs2019/9.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/9.png)
 
 现在点击generate
 
-![image](images/opencv_cmake_vs2019/10.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/10.png)
 
 Generate结束。可以点击Open Project了。
 
-![image](images/opencv_cmake_vs2019/11.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/11.png)
 
 这样就呼出了宇宙第一IDE 2019。然后就可以开始编译啦~
 
-![image](images/opencv_cmake_vs2019/12.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/12.png)
 
 展开CMakeTargets，选择ALL BUILD
 
-![image](images/opencv_cmake_vs2019/13.png)
+![image](/assets/image/in-post/opencv_cmake_vs2019/13.png)
 
 右键菜单选择build或者直接f7键，即可开始编译。ALL BUILD编译结束后，再选中INSTALL执行编译，这样编译出来的头文件、lib文件、dll文件和cmake文件就在开头提到的build目录下的install目录下面了。其实这里的ALL BUILD和INSTALL，相当于linux下面常见的make和make install。
 

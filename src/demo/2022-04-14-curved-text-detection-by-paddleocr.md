@@ -10,7 +10,7 @@ tag:
   - PaddleOCR
 ---
 
-![Detection Result](/img/in-post/curved_text_paddleocr/det_res_img623.jpg)
+![Detection Result](/assets/image/in-post/curved_text_paddleocr/det_res_img623.jpg)
 
 Text Detection Task is an old topic of Detction tasks. Curved text is much more free form. in this Post, we show you how to run the curved text detection by PaddleOCR.
 
@@ -85,4 +85,4 @@ python tools/infer/predict_det.py --det_algorithm="SAST" \
         --det_sast_polygon=True
 ```
 
-![Detection Result](/img/in-post/curved_text_paddleocr/det_res_img623.jpg)
+![Detection Result](/assets/image/in-post/curved_text_paddleocr/det_res_img623.jpg)

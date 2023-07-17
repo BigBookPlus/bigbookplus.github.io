@@ -57,15 +57,15 @@ Now a blank window is created.
 
 Create a qt form file by Disigner.
 
-![](/img/in-post/pyside6_opencv/0.png)
+![image](/assets/image/in-post/pyside6_opencv/0.png)
 
 add label widget on window.
 
-![](/img/in-post/pyside6_opencv/1.png)
+![image](/assets/image/in-post/pyside6_opencv/1.png)
 
 Clear the text in label and change label’s object name into `image_label`
 
-![](/img/in-post/pyside6_opencv/2.png)
+![image](/assets/image/in-post/pyside6_opencv/2.png)
 
 Add code for data capture. We use OpenCV to open the camera device,  and add a timer to keep on getting images from camera. We define a method named `display_video_stream` to read image from camera and display it on MainWindow. The timer object will connected with this method and call it every 30ms. 
 
