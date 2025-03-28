@@ -1,600 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-    <title>Build FFMpeg with CUDA on CentOS 8</title>
-    <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-
-<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
-
-
-
-
-
-  
-
-  
-  
-  
-    
-  
-  
-
-  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
-
-
-
-<meta property="og:url" content="//localhost:1313/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/">
-  <meta property="og:title" content="Build FFMpeg with CUDA on CentOS 8">
-  <meta property="og:description" content="Prepareing CUDA toolkits need to be installed. Then the following listed packages should be installed too.
-dnf -y install automake autoconf libtool make gcc gcc-c&#43;&#43; dnf --enablerepo=powertools -y install giflib-devel dnf --enablerepo=powertools -y install libexif-devel dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel cairo-devel fribidi-devel dnf -y install openssl openssl-devel Note that, powertools might be PowerTools according to different configurations, just replace the name.">
-  <meta property="og:locale" content="en">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-
-    
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Build FFMpeg with CUDA on CentOS 8">
-  <meta name="twitter:description" content="Prepareing CUDA toolkits need to be installed. Then the following listed packages should be installed too.
-dnf -y install automake autoconf libtool make gcc gcc-c&#43;&#43; dnf --enablerepo=powertools -y install giflib-devel dnf --enablerepo=powertools -y install libexif-devel dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel cairo-devel fribidi-devel dnf -y install openssl openssl-devel Note that, powertools might be PowerTools according to different configurations, just replace the name.">
-
-    
-    
-<meta name="description" content="Build FFMpeg with CUDA on CentOS 8" />
-
-
-
-    
-
-    
-        
-            
-            
-                
-            
-
-            
-            
-
-            
-            
-
-            
-            
-
-            
-
-            
-
-            
-        
-    
-
-
-
-
-
-    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
-     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
-if (theme === 'system') {
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    theme = 'dark'
-  } else {
-    theme = 'light'
-  }
-}
-document.documentElement.setAttribute('data-theme', theme)
-
-    </script>
-    
-  </head>
-
-  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
-    <div class="container-fluid bg-secondary wrapper">
-      
-      
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-  
-
-
-
-
-
-  
-  
-    
-  
-  
-
-
-
-  
-  
-    
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-  
-
-
-<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
-  <div class="container">
-    
-    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
-      <i data-feather="sidebar"></i>
-    </button>
-    
-    <a class="navbar-brand" href="//localhost:1313/">
-      
-        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
-      </a>
-    <button
-      class="navbar-toggler navbar-light"
-      id="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#top-nav-items"
-      aria-label="menu"
-    >
-      <i data-feather="menu"></i>
-    </button>
-
-    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
-      <ul class="nav navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="//localhost:1313/#home">Home</a>
-        </li>
-        
-          
-          
-            
-              
-              
-                <li class="nav-item">
-                  <a class="nav-link" href="//localhost:1313/#about">About</a>
-                </li>
-              
-            
-            
-              
-              
-                <li class="nav-item">
-                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
-                </li>
-              
-            
-          
-        
-        
-          <div id="top-navbar-divider"></div>
-        
-        
-          <li class="nav-item">
-            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
-          </li>
-        
-        
-        
-        
-        
-      </ul>
-    </div>
-  </div>
-  
-  
-    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
-  
-  
-    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
-  
-  
-</nav>
-
-
-
-      
-      
-  <section class="sidebar-section" id="sidebar-section">
-    <div class="sidebar-holder">
-      <div class="sidebar" id="sidebar">
-        <form class="mx-auto" method="get" action="/search">
-          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
-        </form>
-        <div class="sidebar-tree">
-          <ul class="tree" id="tree">
-            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
-            <div class="subtree">
-                
-  
-  
-  
-  
-    
-    
-  
-  
-    
-    <li><a class="active list-link" href="/posts/blogs/" title="Blogs">Blogs</a></li>
-  
-
-
-            </div>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-      
-      
-<section class="content-section" id="content-section">
-  <div class="content">
-    <div class="container p-0 read-area">
-      
-      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
-      </div>
-
-      
-      <div class="page-content">
-        
-        <div class="author-profile ms-auto align-self-lg-center">
-          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
-          <h5 class="author-name">Xuling Chang</h5>
-          <p class="text-muted">Monday, January 1, 1</p>
-        </div>
-        
-
-        <div class="title">
-          <h1>Build FFMpeg with CUDA on CentOS 8</h1>
-        </div>
-
-        
-
-        
-        <div class="post-content" id="post-content">
-          <h2 id="prepareing">Prepareing</h2>
-<p>CUDA toolkits need to be installed.
-Then the following listed packages should be installed too.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>dnf -y install   automake autoconf libtool make gcc gcc-c++
-</span></span><span style="display:flex;"><span>dnf --enablerepo<span style="color:#f92672">=</span>powertools -y install giflib-devel
-</span></span><span style="display:flex;"><span>dnf --enablerepo<span style="color:#f92672">=</span>powertools -y install libexif-devel
-</span></span><span style="display:flex;"><span>dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel  cairo-devel fribidi-devel
-</span></span><span style="display:flex;"><span>dnf -y install openssl openssl-devel
-</span></span></code></pre></div><p>Note that, <code>powertools</code> might be <code>PowerTools</code> according to different configurations, just replace the name.</p>
-<p>To enable the powertools channel, run the following command</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>yum install dnf-plugins-core
-</span></span><span style="display:flex;"><span>yum config-manager --set-enabled powertools
-</span></span></code></pre></div><h2 id="yasm">yasm</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>   cd /tmp
-</span></span><span style="display:flex;"><span>   wget http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz
-</span></span><span style="display:flex;"><span>   tar zxvf yasm-1.3.0.tar.gz
-</span></span><span style="display:flex;"><span>   cd  yasm-1.3.0
-</span></span><span style="display:flex;"><span>   ./configure 
-</span></span><span style="display:flex;"><span>   make 
-</span></span><span style="display:flex;"><span>   make install
-</span></span></code></pre></div><h2 id="nasm">nasm</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>  cd /tmp
-</span></span><span style="display:flex;"><span>  wget https://www.nasm.us/pub/nasm/releasebuilds/2.15/nasm-2.15.tar.gz
-</span></span><span style="display:flex;"><span>  tar xvf nasm-2.15.tar.gz
-</span></span><span style="display:flex;"><span>  cd nasm-2.15
-</span></span><span style="display:flex;"><span>  ./configure 
-</span></span><span style="display:flex;"><span>  make 
-</span></span><span style="display:flex;"><span>  make install
-</span></span></code></pre></div><h2 id="libx264">libx264</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>   cd /tmp
-</span></span><span style="display:flex;"><span>   yum install git <span style="color:#f92672">(</span>可选<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>   git clone https://code.videolan.org/videolan/x264.git
-</span></span><span style="display:flex;"><span>   cd x264
-</span></span><span style="display:flex;"><span>   ./configure  --enable-shared
-</span></span><span style="display:flex;"><span>   make 
-</span></span><span style="display:flex;"><span>   make install
-</span></span></code></pre></div><h2 id="libmp3lame">libmp3lame</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>   cd /tmp
-</span></span><span style="display:flex;"><span>   wget https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz
-</span></span><span style="display:flex;"><span>   tar zxvf lame-3.100.tar.gz
-</span></span><span style="display:flex;"><span>   cd lame-3.100
-</span></span><span style="display:flex;"><span>   ./configure --enable-shared
-</span></span><span style="display:flex;"><span>   make 
-</span></span><span style="display:flex;"><span>   make install
-</span></span></code></pre></div><h2 id="libgdiplus">libgdiplus</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>  cd /tmp
-</span></span><span style="display:flex;"><span>  wget http://download.mono-project.com/sources/libgdiplus/libgdiplus0-6.0.5.tar.gz
-</span></span><span style="display:flex;"><span>  tar zxvf libgdiplus0-6.0.5.tar.gz
-</span></span><span style="display:flex;"><span>  cd libgdiplus-6.0.5
-</span></span><span style="display:flex;"><span>  ./configure
-</span></span><span style="display:flex;"><span>  make 
-</span></span><span style="display:flex;"><span>  make install
-</span></span></code></pre></div><h2 id="ffnvcodec">ffnvcodec</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    cd /tmp
-</span></span><span style="display:flex;"><span>    git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
-</span></span><span style="display:flex;"><span>    cd nv-codec-headers <span style="color:#f92672">&amp;&amp;</span> sudo make install <span style="color:#f92672">&amp;&amp;</span> cd –
-</span></span></code></pre></div><p>or</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo dnf -y install nv-codec-headers
-</span></span></code></pre></div><h2 id="refresh--update">refresh &amp;&amp; update</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;/usr/local/lib&#34;</span> &gt;&gt; /etc/ld.so.conf
-</span></span><span style="display:flex;"><span>  ldconfig
-</span></span></code></pre></div><h2 id="ffmpeg-with-cuda">FFMpeg with CUDA</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg/
-</span></span><span style="display:flex;"><span>./configure --enable-cuda-nvcc --enable-cuda --enable-cuvid --enable-nvdec --enable-nvenc --enable-nonfree --enable-libnpp --disable-static --enable-shared --extra-cflags<span style="color:#f92672">=</span>-I/usr/local/cuda/include --extra-ldflags<span style="color:#f92672">=</span>-L/usr/local/cuda/lib64
-</span></span><span style="display:flex;"><span>make -j8
-</span></span><span style="display:flex;"><span>sudo make install
-</span></span></code></pre></div><h2 id="test">test</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ffmepg
-</span></span></code></pre></div>
-        </div>
-
-        
-        <div class="row ps-3 pe-3">
-        
-          <div class="col-md-6 share-buttons">
-          
-          </div>
-
-        
-        
-        </div>
-
-
-
-      
-      <hr />
-        
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-  
-
-
-<div class="row next-prev-navigator">
-  
-  
-</div>
-
-      <hr />
-
-      
-      
-
-      
-      
-
-      </div>
-    </div>
-  </div>
-  
-  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
-    <i class="fas fa-chevron-circle-up"></i>
-  </a>
-</section>
-
-
-      
-      
-  <section class="toc-section" id="toc-section">
-    
-    <div class="toc-holder">
-      <h5 class="text-center ps-3">Table of Contents</h5>
-      <hr>
-      <div class="toc">
-        <nav id="TableOfContents">
-  <ul>
-    <li><a href="#prepareing">Prepareing</a></li>
-    <li><a href="#yasm">yasm</a></li>
-    <li><a href="#nasm">nasm</a></li>
-    <li><a href="#libx264">libx264</a></li>
-    <li><a href="#libmp3lame">libmp3lame</a></li>
-    <li><a href="#libgdiplus">libgdiplus</a></li>
-    <li><a href="#ffnvcodec">ffnvcodec</a></li>
-    <li><a href="#refresh--update">refresh &amp;&amp; update</a></li>
-    <li><a href="#ffmpeg-with-cuda">FFMpeg with CUDA</a></li>
-    <li><a href="#test">test</a></li>
-  </ul>
-</nav>
-      </div>
-    </div>
-    
-  </section>
-
-    </div>
-
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-    
-  
-
-  
-  
-    
-  
-
-  
-  
-
-  
-  
-
-
-  
-  
-  
-
-  
-  
-  
-
-  
-  
-  
-    
-  
-  
-
-  
-  
-  
-
-  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
-    <div class="container pt-5">
-      <div class="row text-start">
-        
-        <div class="col-md-4 col-sm-12">
-          <h5>Navigation</h5>
-          
-          <ul>
-              
-                
-                
-                  
-                
-                <li class="nav-item">
-                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
-                </li>
-              
-              
-                
-                
-                  
-                
-                <li class="nav-item">
-                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
-                </li>
-              
-            
-              
-            
-          </ul>
-          
-        </div>
-        
-        
-        <div class="col-md-4 col-sm-12">
-          <h5>Contact me:</h5>
-          <ul>
-            
-              
-                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
-                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
-                </a></li>
-              
-            
-          </ul>
-        </div>
-        
-        
-        
-          
-          <div class="col-md-4 col-sm-12">
-            <p>Stay up to date with email notification</p>
-            
-              <form method='post' action='https://blogtrottr.com'>
-              <div class="form-group">
-              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
-              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
-              <input type='hidden' name='schedule_type' value='1' />
-              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
-              <button type="submit" class="btn btn-info"> Submit </button>
-              </div>
-              </form>
-            
-          </div>
-        
-      </div>
-    </div>
-    
-    
-    <hr />
-    <div class="container">
-      <div class="row text-start">
-        <div class="col-md-4">
-          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
-            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
-            Toha
-          </a>
-        </div>
-        <div class="col-md-4 text-center">© 2025 Copyright.</div>
-        <div class="col-md-4 text-end">
-          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
-          <img
-            src="/images/hugo-logo.svg"
-            alt="Hugo Logo"
-            height="18"
-          />
-          </a>
-        </div>
-      </div>
-    </div>
-    
-  </footer>
-
-
-    <script src="/application.2a80058f1561f5213cf5925f05222466be52a7bddb403e735f8abc61d89a849d.js" integrity="sha256-KoAFjxVh9SE89ZJfBSIkZr5Sp73bQD5zX4q8YdiahJ0=" defer></script>
-
-
-    
-     
-
-    
-</body>
-</html>
+<!doctype html><html lang=en><head><title>Build FFMpeg with CUDA on CentOS 8</title>
+<meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><link rel=stylesheet href=/application.6a5cdf7499f781bae02ed80dbc345e1b18e8cf6108d1808a7d1fbbf08e5c006e.css integrity="sha256-alzfdJn3gbrgLtgNvDReGxjoz2EI0YCKfR+78I5cAG4="><link rel=icon type=image/png href=/images/favicon_hu_a23dc4244bee30eb.png><meta property="og:url" content="https://bigbookplus.github.io/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/"><meta property="og:title" content="Build FFMpeg with CUDA on CentOS 8"><meta property="og:description" content="Prepareing CUDA toolkits need to be installed. Then the following listed packages should be installed too.
+dnf -y install automake autoconf libtool make gcc gcc-c++ dnf --enablerepo=powertools -y install giflib-devel dnf --enablerepo=powertools -y install libexif-devel dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel cairo-devel fribidi-devel dnf -y install openssl openssl-devel Note that, powertools might be PowerTools according to different configurations, just replace the name."><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content="Build FFMpeg with CUDA on CentOS 8"><meta name=twitter:description content="Prepareing CUDA toolkits need to be installed. Then the following listed packages should be installed too.
+dnf -y install automake autoconf libtool make gcc gcc-c++ dnf --enablerepo=powertools -y install giflib-devel dnf --enablerepo=powertools -y install libexif-devel dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel cairo-devel fribidi-devel dnf -y install openssl openssl-devel Note that, powertools might be PowerTools according to different configurations, just replace the name."><meta name=description content="Build FFMpeg with CUDA on CentOS 8"><script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">let theme=localStorage.getItem("theme-scheme")||localStorage.getItem("darkmode:color-scheme")||"light";theme==="system"&&(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?theme="dark":theme="light"),document.documentElement.setAttribute("data-theme",theme)</script></head><body class="type-posts kind-page" data-bs-spy=scroll data-bs-target=#TableOfContents data-bs-offset=80><div class="container-fluid bg-secondary wrapper"><nav class="navbar navbar-expand-xl top-navbar shadow" id=top-navbar><div class=container><button class="navbar-toggler navbar-light" id=sidebar-toggler type=button>
+<i data-feather=sidebar></i>
+</button>
+<a class=navbar-brand href=/><img src=/images/main-logo_hu_715d6024c143d0ec.png id=logo alt=Logo>
+</a><button class="navbar-toggler navbar-light" id=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#top-nav-items aria-label=menu>
+<i data-feather=menu></i></button><div class="collapse navbar-collapse dynamic-navbar" id=top-nav-items><ul class="nav navbar-nav ms-auto"><li class=nav-item><a class=nav-link href=/#home>Home</a></li><li class=nav-item><a class=nav-link href=/#about>About</a></li><li class=nav-item><a class=nav-link href=/#skills>Skills</a></li><div id=top-navbar-divider></div><li class=nav-item><a class=nav-link id=blog-link href=/posts>Posts</a></li></ul></div></div><img src=/images/main-logo_hu_715d6024c143d0ec.png class=d-none id=main-logo alt=Logo>
+<img src=/images/inverted-logo_hu_a23dc4244bee30eb.png class=d-none id=inverted-logo alt="Inverted Logo"></nav><section class=sidebar-section id=sidebar-section><div class=sidebar-holder><div class=sidebar id=sidebar><form class=mx-auto method=get action=/search><input type=text name=keyword placeholder=Search data-search id=search-box></form><div class=sidebar-tree><ul class=tree id=tree><li id=list-heading><a href=/posts/ data-filter=all>Posts</a></li><div class=subtree><li><a class="active list-link" href=/posts/blogs/ title=Blogs>Blogs</a></li></div></ul></div></div></div></section><section class=content-section id=content-section><div class=content><div class="container p-0 read-area"><div class="hero-area col-sm-12" id=hero-area style=background-image:url(/images/default-hero.jpg)></div><div class=page-content><div class="author-profile ms-auto align-self-lg-center"><img class=rounded-circle src=/images/avatar1_hu_14556e3998f22ee9.jpg alt="Author Image"><h5 class=author-name>Xuling Chang</h5><p class=text-muted>Monday, January 1, 1</p></div><div class=title><h1>Build FFMpeg with CUDA on CentOS 8</h1></div><div class=post-content id=post-content><h2 id=prepareing>Prepareing</h2><p>CUDA toolkits need to be installed.
+Then the following listed packages should be installed too.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>dnf -y install   automake autoconf libtool make gcc gcc-c++
+</span></span><span style=display:flex><span>dnf --enablerepo<span style=color:#f92672>=</span>powertools -y install giflib-devel
+</span></span><span style=display:flex><span>dnf --enablerepo<span style=color:#f92672>=</span>powertools -y install libexif-devel
+</span></span><span style=display:flex><span>dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel  cairo-devel fribidi-devel
+</span></span><span style=display:flex><span>dnf -y install openssl openssl-devel
+</span></span></code></pre></div><p>Note that, <code>powertools</code> might be <code>PowerTools</code> according to different configurations, just replace the name.</p><p>To enable the powertools channel, run the following command</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>yum install dnf-plugins-core
+</span></span><span style=display:flex><span>yum config-manager --set-enabled powertools
+</span></span></code></pre></div><h2 id=yasm>yasm</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>   cd /tmp
+</span></span><span style=display:flex><span>   wget http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz
+</span></span><span style=display:flex><span>   tar zxvf yasm-1.3.0.tar.gz
+</span></span><span style=display:flex><span>   cd  yasm-1.3.0
+</span></span><span style=display:flex><span>   ./configure 
+</span></span><span style=display:flex><span>   make 
+</span></span><span style=display:flex><span>   make install
+</span></span></code></pre></div><h2 id=nasm>nasm</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>  cd /tmp
+</span></span><span style=display:flex><span>  wget https://www.nasm.us/pub/nasm/releasebuilds/2.15/nasm-2.15.tar.gz
+</span></span><span style=display:flex><span>  tar xvf nasm-2.15.tar.gz
+</span></span><span style=display:flex><span>  cd nasm-2.15
+</span></span><span style=display:flex><span>  ./configure 
+</span></span><span style=display:flex><span>  make 
+</span></span><span style=display:flex><span>  make install
+</span></span></code></pre></div><h2 id=libx264>libx264</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>   cd /tmp
+</span></span><span style=display:flex><span>   yum install git <span style=color:#f92672>(</span>可选<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>   git clone https://code.videolan.org/videolan/x264.git
+</span></span><span style=display:flex><span>   cd x264
+</span></span><span style=display:flex><span>   ./configure  --enable-shared
+</span></span><span style=display:flex><span>   make 
+</span></span><span style=display:flex><span>   make install
+</span></span></code></pre></div><h2 id=libmp3lame>libmp3lame</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>   cd /tmp
+</span></span><span style=display:flex><span>   wget https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz
+</span></span><span style=display:flex><span>   tar zxvf lame-3.100.tar.gz
+</span></span><span style=display:flex><span>   cd lame-3.100
+</span></span><span style=display:flex><span>   ./configure --enable-shared
+</span></span><span style=display:flex><span>   make 
+</span></span><span style=display:flex><span>   make install
+</span></span></code></pre></div><h2 id=libgdiplus>libgdiplus</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>  cd /tmp
+</span></span><span style=display:flex><span>  wget http://download.mono-project.com/sources/libgdiplus/libgdiplus0-6.0.5.tar.gz
+</span></span><span style=display:flex><span>  tar zxvf libgdiplus0-6.0.5.tar.gz
+</span></span><span style=display:flex><span>  cd libgdiplus-6.0.5
+</span></span><span style=display:flex><span>  ./configure
+</span></span><span style=display:flex><span>  make 
+</span></span><span style=display:flex><span>  make install
+</span></span></code></pre></div><h2 id=ffnvcodec>ffnvcodec</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>    cd /tmp
+</span></span><span style=display:flex><span>    git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
+</span></span><span style=display:flex><span>    cd nv-codec-headers <span style=color:#f92672>&amp;&amp;</span> sudo make install <span style=color:#f92672>&amp;&amp;</span> cd –
+</span></span></code></pre></div><p>or</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>sudo dnf -y install nv-codec-headers
+</span></span></code></pre></div><h2 id=refresh--update>refresh && update</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>  echo <span style=color:#e6db74>&#34;/usr/local/lib&#34;</span> &gt;&gt; /etc/ld.so.conf
+</span></span><span style=display:flex><span>  ldconfig
+</span></span></code></pre></div><h2 id=ffmpeg-with-cuda>FFMpeg with CUDA</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg/
+</span></span><span style=display:flex><span>./configure --enable-cuda-nvcc --enable-cuda --enable-cuvid --enable-nvdec --enable-nvenc --enable-nonfree --enable-libnpp --disable-static --enable-shared --extra-cflags<span style=color:#f92672>=</span>-I/usr/local/cuda/include --extra-ldflags<span style=color:#f92672>=</span>-L/usr/local/cuda/lib64
+</span></span><span style=display:flex><span>make -j8
+</span></span><span style=display:flex><span>sudo make install
+</span></span></code></pre></div><h2 id=test>test</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>ffmepg
+</span></span></code></pre></div></div><div class="row ps-3 pe-3"><div class="col-md-6 share-buttons"></div></div><hr><div class="row next-prev-navigator"></div><hr></div></div></div><a id=scroll-to-top class=btn type=button data-bs-toggle=tooltip data-bs-placement=left title="Scroll to top"><i class="fas fa-chevron-circle-up"></i></a></section><section class=toc-section id=toc-section><div class=toc-holder><h5 class="text-center ps-3">Table of Contents</h5><hr><div class=toc><nav id=TableOfContents><ul><li><a href=#prepareing>Prepareing</a></li><li><a href=#yasm>yasm</a></li><li><a href=#nasm>nasm</a></li><li><a href=#libx264>libx264</a></li><li><a href=#libmp3lame>libmp3lame</a></li><li><a href=#libgdiplus>libgdiplus</a></li><li><a href=#ffnvcodec>ffnvcodec</a></li><li><a href=#refresh--update>refresh && update</a></li><li><a href=#ffmpeg-with-cuda>FFMpeg with CUDA</a></li><li><a href=#test>test</a></li></ul></nav></div></div></section></div><footer id=footer class="container-fluid text-center align-content-center footer pb-2"><div class="container pt-5"><div class="row text-start"><div class="col-md-4 col-sm-12"><h5>Navigation</h5><ul><li class=nav-item><a class=smooth-scroll href=https://bigbookplus.github.io/#about>About</a></li><li class=nav-item><a class=smooth-scroll href=https://bigbookplus.github.io/#skills>Skills</a></li></ul></div><div class="col-md-4 col-sm-12"><h5>Contact me:</h5><ul><li><a href=mailto:xuling.chang@live.com target=_blank rel=noopener><span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span></a></li></ul></div><div class="col-md-4 col-sm-12"><p>Stay up to date with email notification</p><form method=post action=https://blogtrottr.com><div class=form-group><input type=email class=form-control name=btr_email placeholder="Enter email"><br><input type=hidden name=btr_url value=https://bigbookplus.github.io//index.xml>
+<input type=hidden name=schedule_type value=1>
+<small id=emailHelp class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+<button type=submit class="btn btn-info"> Submit</button></div></form></div></div></div><hr><div class=container><div class="row text-start"><div class=col-md-4><a id=theme href=https://github.com/hugo-toha/toha target=_blank rel=noopener><img src=/images/theme-logo_hu_b3360284c55cf72d.png alt="Toha Theme Logo">
+Toha</a></div><div class="col-md-4 text-center">© 2025 Copyright.</div><div class="col-md-4 text-end"><a id=hugo href=https://gohugo.io/ target=_blank rel=noopener>Powered by
+<img src=/images/hugo-logo.svg alt="Hugo Logo" height=18></a></div></div></div></footer><script src=/application.0748c49f8dba141977308c83638a1587e4ad98a2ffeef8cdd20e5d57dcf95dbc.js integrity="sha256-B0jEn426FBl3MIyDY4oVh+StmKL/7vjN0g5dV9z5Xbw=" defer></script></body></html>

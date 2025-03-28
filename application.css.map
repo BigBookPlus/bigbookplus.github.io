@@ -1,7 +1,7 @@
 {
 	"version": 3,
 	"file": "application.css",
-	"sourceRoot": "/home/x/projects/toha-main",
+	"sourceRoot": "/home/x/projects/bigbook.github.io-source",
 	"sources": [
 		"assets/styles/application.template.scss",
 		"node_modules/bootstrap/scss/bootstrap.scss",

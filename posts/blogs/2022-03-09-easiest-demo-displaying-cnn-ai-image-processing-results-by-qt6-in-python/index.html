@@ -1,626 +1,105 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
-    <title>Simplest Demo for Displaying Image Processing Results using PySide6</title>
-    <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-
-<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
-
-
-
-
-
-  
-
-  
-  
-  
-    
-  
-  
-
-  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
-
-
-
-<meta property="og:url" content="//localhost:1313/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/">
-  <meta property="og:title" content="Simplest Demo for Displaying Image Processing Results using PySide6">
-  <meta property="og:description" content="The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV imshow stuff is simple but not enough, failed on expansibility and maintainability. The Qt library, on the other side, is a well-developed UI framework that is evolved from C/C&#43;&#43; and is available in python now. The PyQt4/PyQt5 packages are from the community, and PySide2/PySide6 packages are from Qt officially. We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, Qt, takes over the results display work.">
-  <meta property="og:locale" content="en">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-
-    
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Simplest Demo for Displaying Image Processing Results using PySide6">
-  <meta name="twitter:description" content="The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV imshow stuff is simple but not enough, failed on expansibility and maintainability. The Qt library, on the other side, is a well-developed UI framework that is evolved from C/C&#43;&#43; and is available in python now. The PyQt4/PyQt5 packages are from the community, and PySide2/PySide6 packages are from Qt officially. We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, Qt, takes over the results display work.">
-
-    
-    
-<meta name="description" content="Simplest Demo for Displaying Image Processing Results using PySide6" />
-
-
-
-    
-
-    
-        
-            
-            
-                
-            
-
-            
-            
-
-            
-            
-
-            
-            
-
-            
-
-            
-
-            
-        
-    
-
-
-
-
-
-    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
-     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
-if (theme === 'system') {
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    theme = 'dark'
-  } else {
-    theme = 'light'
-  }
-}
-document.documentElement.setAttribute('data-theme', theme)
-
-    </script>
-    
-  </head>
-
-  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
-    <div class="container-fluid bg-secondary wrapper">
-      
-      
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-  
-
-
-
-
-
-  
-  
-    
-  
-  
-
-
-
-  
-  
-    
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-  
-
-
-<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
-  <div class="container">
-    
-    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
-      <i data-feather="sidebar"></i>
-    </button>
-    
-    <a class="navbar-brand" href="//localhost:1313/">
-      
-        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
-      </a>
-    <button
-      class="navbar-toggler navbar-light"
-      id="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#top-nav-items"
-      aria-label="menu"
-    >
-      <i data-feather="menu"></i>
-    </button>
-
-    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
-      <ul class="nav navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="//localhost:1313/#home">Home</a>
-        </li>
-        
-          
-          
-            
-              
-              
-                <li class="nav-item">
-                  <a class="nav-link" href="//localhost:1313/#about">About</a>
-                </li>
-              
-            
-            
-              
-              
-                <li class="nav-item">
-                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
-                </li>
-              
-            
-          
-        
-        
-          <div id="top-navbar-divider"></div>
-        
-        
-          <li class="nav-item">
-            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
-          </li>
-        
-        
-        
-        
-        
-      </ul>
-    </div>
-  </div>
-  
-  
-    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
-  
-  
-    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
-  
-  
-</nav>
-
-
-
-      
-      
-  <section class="sidebar-section" id="sidebar-section">
-    <div class="sidebar-holder">
-      <div class="sidebar" id="sidebar">
-        <form class="mx-auto" method="get" action="/search">
-          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
-        </form>
-        <div class="sidebar-tree">
-          <ul class="tree" id="tree">
-            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
-            <div class="subtree">
-                
-  
-  
-  
-  
-    
-    
-  
-  
-    
-    <li><a class="active list-link" href="/posts/blogs/" title="Blogs">Blogs</a></li>
-  
-
-
-            </div>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-      
-      
-<section class="content-section" id="content-section">
-  <div class="content">
-    <div class="container p-0 read-area">
-      
-      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
-      </div>
-
-      
-      <div class="page-content">
-        
-        <div class="author-profile ms-auto align-self-lg-center">
-          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
-          <h5 class="author-name">Xuling Chang</h5>
-          <p class="text-muted">Monday, January 1, 1</p>
-        </div>
-        
-
-        <div class="title">
-          <h1>Simplest Demo for Displaying Image Processing Results using PySide6</h1>
-        </div>
-
-        
-
-        
-        <div class="post-content" id="post-content">
-          <p>The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV <code>imshow</code> stuff is simple but not enough, failed on expansibility and maintainability. The <code>Qt</code> library, on the other side, is a well-developed UI framework that is evolved from C/C++ and is available in python now. The <code>PyQt4/PyQt5</code> packages are from the community, and <code>PySide2/PySide6</code> packages are from <code>Qt</code> officially.  We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, <code>Qt</code>, takes over the results display work.</p>
-<p>Import packages,</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> sys <span style="color:#75715e"># needed by PySide6</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6 <span style="color:#f92672">import</span> QtWidgets
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6 <span style="color:#f92672">import</span> QtGui, QtCore
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6.QtCore <span style="color:#f92672">import</span> <span style="color:#f92672">*</span> 
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6.QtGui <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6.QtWidgets <span style="color:#f92672">import</span> QFileDialog, QMainWindow, QMessageBox
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> generated_files.uic.mainwindow <span style="color:#f92672">import</span> Ui_MainWindow
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> cv2
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np <span style="color:#75715e"># cv2 mat is wrapped by numpy</span>
-</span></span></code></pre></div><p>Create a main window class from <code>Qt QMainWindow</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainWindow</span>(QMainWindow):
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#QWidget.__init__(self)</span>
-</span></span><span style="display:flex;"><span>        super(MainWindow, self)<span style="color:#f92672">.</span>__init__()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ui <span style="color:#f92672">=</span> Ui_MainWindow()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ui<span style="color:#f92672">.</span>setupUi(self)
-</span></span></code></pre></div><p>Create main function,</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
-</span></span><span style="display:flex;"><span>    app <span style="color:#f92672">=</span> QtWidgets<span style="color:#f92672">.</span>QApplication(sys<span style="color:#f92672">.</span>argv)
-</span></span><span style="display:flex;"><span>    win <span style="color:#f92672">=</span> MainWindow()
-</span></span><span style="display:flex;"><span>    win<span style="color:#f92672">.</span>show()
-</span></span><span style="display:flex;"><span>    sys<span style="color:#f92672">.</span>exit(app<span style="color:#f92672">.</span>exec_())
-</span></span></code></pre></div><p>Now a blank window is created.</p>
-<p>Create a qt form file by Disigner.</p>
-<p><img src="/assets/image/in-post/pyside6_opencv/0.png" alt="image"></p>
-<p>add label widget on window.</p>
-<p><img src="/assets/image/in-post/pyside6_opencv/1.png" alt="image"></p>
-<p>Clear the text in label and change label’s object name into <code>image_label</code></p>
-<p><img src="/assets/image/in-post/pyside6_opencv/2.png" alt="image"></p>
-<p>Add code for data capture. We use OpenCV to open the camera device,  and add a timer to keep on getting images from camera. We define a method named <code>display_video_stream</code> to read image from camera and display it on MainWindow. The timer object will connected with this method and call it every 30ms.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainWindow</span>(QMainWindow):
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#QWidget.__init__(self)</span>
-</span></span><span style="display:flex;"><span>        super(MainWindow, self)<span style="color:#f92672">.</span>__init__()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ui <span style="color:#f92672">=</span> Ui_MainWindow()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ui<span style="color:#f92672">.</span>setupUi(self)
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>timer<span style="color:#f92672">=</span>QTimer()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>timer<span style="color:#f92672">.</span>timeout<span style="color:#f92672">.</span>connect(self<span style="color:#f92672">.</span>display_video_stream)
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>cap <span style="color:#f92672">=</span> cv2<span style="color:#f92672">.</span>VideoCapture(<span style="color:#ae81ff">0</span>) <span style="color:#75715e"># call default camera device</span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>timer<span style="color:#f92672">.</span>start()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">display_video_stream</span>(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;&#39;&#39;Display video stream from usb camera&#39;&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>        ret, frame <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>cap<span style="color:#f92672">.</span>read() <span style="color:#75715e"># get status and frame</span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>display(frame) 
-</span></span></code></pre></div><p>The format of image data captured by OpenCV is needed to be converted to display on Qt Label widget correctly. We define a method named <code>display</code> to do this work.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">display</span>(self, frame):
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;&#39;&#39;display frame from opencv&#39;&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>    frame <span style="color:#f92672">=</span> cv2<span style="color:#f92672">.</span>cvtColor(frame, cv2<span style="color:#f92672">.</span>COLOR_BGR2RGB)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    image <span style="color:#f92672">=</span> QImage(frame, frame<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>], frame<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>], 
-</span></span><span style="display:flex;"><span>                    frame<span style="color:#f92672">.</span>strides[<span style="color:#ae81ff">0</span>], QImage<span style="color:#f92672">.</span>Format_RGB888)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>ui<span style="color:#f92672">.</span>image_label<span style="color:#f92672">.</span>setPixmap(QPixmap<span style="color:#f92672">.</span>fromImage(image))
-</span></span></code></pre></div><p>Done.</p>
-<p>The whole file is like below.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> sys
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6 <span style="color:#f92672">import</span> QtWidgets
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6 <span style="color:#f92672">import</span> QtGui, QtCore
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6.QtCore <span style="color:#f92672">import</span> <span style="color:#f92672">*</span> 
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6.QtGui <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PySide6.QtWidgets <span style="color:#f92672">import</span> QFileDialog, QMainWindow, QMessageBox
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> generated_files.uic.mainwindow <span style="color:#f92672">import</span> Ui_MainWindow
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> cv2
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainWindow</span>(QMainWindow):
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#QWidget.__init__(self)</span>
-</span></span><span style="display:flex;"><span>        super(MainWindow, self)<span style="color:#f92672">.</span>__init__()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ui <span style="color:#f92672">=</span> Ui_MainWindow()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ui<span style="color:#f92672">.</span>setupUi(self)
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>timer<span style="color:#f92672">=</span>QTimer()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>timer<span style="color:#f92672">.</span>timeout<span style="color:#f92672">.</span>connect(self<span style="color:#f92672">.</span>display_video_stream)
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>cap <span style="color:#f92672">=</span> cv2<span style="color:#f92672">.</span>VideoCapture(<span style="color:#ae81ff">0</span>) <span style="color:#75715e"># call default camera device</span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>timer<span style="color:#f92672">.</span>start()
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">display</span>(self, frame):
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;&#39;&#39;display frame from opencv&#39;&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>        frame <span style="color:#f92672">=</span> cv2<span style="color:#f92672">.</span>cvtColor(frame, cv2<span style="color:#f92672">.</span>COLOR_BGR2RGB)
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        image <span style="color:#f92672">=</span> QImage(frame, frame<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>], frame<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>], 
-</span></span><span style="display:flex;"><span>                        frame<span style="color:#f92672">.</span>strides[<span style="color:#ae81ff">0</span>], QImage<span style="color:#f92672">.</span>Format_RGB888)
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ui<span style="color:#f92672">.</span>image_label<span style="color:#f92672">.</span>setPixmap(QPixmap<span style="color:#f92672">.</span>fromImage(image))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">display_video_stream</span>(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;&#39;&#39;Display video stream from usb camera&#39;&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>        ret, frame <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>cap<span style="color:#f92672">.</span>read() <span style="color:#75715e"># get status and frame</span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>display(frame)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
-</span></span><span style="display:flex;"><span>    app <span style="color:#f92672">=</span> QtWidgets<span style="color:#f92672">.</span>QApplication(sys<span style="color:#f92672">.</span>argv)
-</span></span><span style="display:flex;"><span>    win <span style="color:#f92672">=</span> MainWindow()
-</span></span><span style="display:flex;"><span>    win<span style="color:#f92672">.</span>show()
-</span></span><span style="display:flex;"><span>    sys<span style="color:#f92672">.</span>exit(app<span style="color:#f92672">.</span>exec_())
-</span></span></code></pre></div><p>Simple. 😊</p>
-<p>The whole project is here <a href="https://github.com/BigBookPlus/PythonQtWithOpenCV.git" target="_blank" rel="noopener">https://github.com/BigBookPlus/PythonQtWithOpenCV.git</a>.</p>
-
-        </div>
-
-        
-        <div class="row ps-3 pe-3">
-        
-          <div class="col-md-6 share-buttons">
-          
-          </div>
-
-        
-        
-        </div>
-
-
-
-      
-      <hr />
-        
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-  
-
-
-<div class="row next-prev-navigator">
-  
-  
-</div>
-
-      <hr />
-
-      
-      
-
-      
-      
-
-      </div>
-    </div>
-  </div>
-  
-  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
-    <i class="fas fa-chevron-circle-up"></i>
-  </a>
-</section>
-
-
-      
-      
-  <section class="toc-section" id="toc-section">
-    
-    <div class="toc-holder">
-      <h5 class="text-center ps-3">Table of Contents</h5>
-      <hr>
-      <div class="toc">
-        <nav id="TableOfContents"></nav>
-      </div>
-    </div>
-    
-  </section>
-
-    </div>
-
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-    
-  
-
-  
-  
-    
-  
-
-  
-  
-
-  
-  
-
-
-  
-  
-  
-
-  
-  
-  
-
-  
-  
-  
-    
-  
-  
-
-  
-  
-  
-
-  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
-    <div class="container pt-5">
-      <div class="row text-start">
-        
-        <div class="col-md-4 col-sm-12">
-          <h5>Navigation</h5>
-          
-          <ul>
-              
-                
-                
-                  
-                
-                <li class="nav-item">
-                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
-                </li>
-              
-              
-                
-                
-                  
-                
-                <li class="nav-item">
-                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
-                </li>
-              
-            
-              
-            
-          </ul>
-          
-        </div>
-        
-        
-        <div class="col-md-4 col-sm-12">
-          <h5>Contact me:</h5>
-          <ul>
-            
-              
-                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
-                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
-                </a></li>
-              
-            
-          </ul>
-        </div>
-        
-        
-        
-          
-          <div class="col-md-4 col-sm-12">
-            <p>Stay up to date with email notification</p>
-            
-              <form method='post' action='https://blogtrottr.com'>
-              <div class="form-group">
-              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
-              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
-              <input type='hidden' name='schedule_type' value='1' />
-              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
-              <button type="submit" class="btn btn-info"> Submit </button>
-              </div>
-              </form>
-            
-          </div>
-        
-      </div>
-    </div>
-    
-    
-    <hr />
-    <div class="container">
-      <div class="row text-start">
-        <div class="col-md-4">
-          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
-            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
-            Toha
-          </a>
-        </div>
-        <div class="col-md-4 text-center">© 2025 Copyright.</div>
-        <div class="col-md-4 text-end">
-          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
-          <img
-            src="/images/hugo-logo.svg"
-            alt="Hugo Logo"
-            height="18"
-          />
-          </a>
-        </div>
-      </div>
-    </div>
-    
-  </footer>
-
-
-    <script src="/application.2a80058f1561f5213cf5925f05222466be52a7bddb403e735f8abc61d89a849d.js" integrity="sha256-KoAFjxVh9SE89ZJfBSIkZr5Sp73bQD5zX4q8YdiahJ0=" defer></script>
-
-
-    
-     
-
-    
-</body>
-</html>
+<!doctype html><html lang=en><head><title>Simplest Demo for Displaying Image Processing Results using PySide6</title>
+<meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="ie=edge"><link rel=stylesheet href=/application.6a5cdf7499f781bae02ed80dbc345e1b18e8cf6108d1808a7d1fbbf08e5c006e.css integrity="sha256-alzfdJn3gbrgLtgNvDReGxjoz2EI0YCKfR+78I5cAG4="><link rel=icon type=image/png href=/images/favicon_hu_a23dc4244bee30eb.png><meta property="og:url" content="https://bigbookplus.github.io/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/"><meta property="og:title" content="Simplest Demo for Displaying Image Processing Results using PySide6"><meta property="og:description" content="The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV imshow stuff is simple but not enough, failed on expansibility and maintainability. The Qt library, on the other side, is a well-developed UI framework that is evolved from C/C++ and is available in python now. The PyQt4/PyQt5 packages are from the community, and PySide2/PySide6 packages are from Qt officially. We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, Qt, takes over the results display work."><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content="Simplest Demo for Displaying Image Processing Results using PySide6"><meta name=twitter:description content="The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV imshow stuff is simple but not enough, failed on expansibility and maintainability. The Qt library, on the other side, is a well-developed UI framework that is evolved from C/C++ and is available in python now. The PyQt4/PyQt5 packages are from the community, and PySide2/PySide6 packages are from Qt officially. We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, Qt, takes over the results display work."><meta name=description content="Simplest Demo for Displaying Image Processing Results using PySide6"><script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">let theme=localStorage.getItem("theme-scheme")||localStorage.getItem("darkmode:color-scheme")||"light";theme==="system"&&(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?theme="dark":theme="light"),document.documentElement.setAttribute("data-theme",theme)</script></head><body class="type-posts kind-page" data-bs-spy=scroll data-bs-target=#TableOfContents data-bs-offset=80><div class="container-fluid bg-secondary wrapper"><nav class="navbar navbar-expand-xl top-navbar shadow" id=top-navbar><div class=container><button class="navbar-toggler navbar-light" id=sidebar-toggler type=button>
+<i data-feather=sidebar></i>
+</button>
+<a class=navbar-brand href=/><img src=/images/main-logo_hu_715d6024c143d0ec.png id=logo alt=Logo>
+</a><button class="navbar-toggler navbar-light" id=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=#top-nav-items aria-label=menu>
+<i data-feather=menu></i></button><div class="collapse navbar-collapse dynamic-navbar" id=top-nav-items><ul class="nav navbar-nav ms-auto"><li class=nav-item><a class=nav-link href=/#home>Home</a></li><li class=nav-item><a class=nav-link href=/#about>About</a></li><li class=nav-item><a class=nav-link href=/#skills>Skills</a></li><div id=top-navbar-divider></div><li class=nav-item><a class=nav-link id=blog-link href=/posts>Posts</a></li></ul></div></div><img src=/images/main-logo_hu_715d6024c143d0ec.png class=d-none id=main-logo alt=Logo>
+<img src=/images/inverted-logo_hu_a23dc4244bee30eb.png class=d-none id=inverted-logo alt="Inverted Logo"></nav><section class=sidebar-section id=sidebar-section><div class=sidebar-holder><div class=sidebar id=sidebar><form class=mx-auto method=get action=/search><input type=text name=keyword placeholder=Search data-search id=search-box></form><div class=sidebar-tree><ul class=tree id=tree><li id=list-heading><a href=/posts/ data-filter=all>Posts</a></li><div class=subtree><li><a class="active list-link" href=/posts/blogs/ title=Blogs>Blogs</a></li></div></ul></div></div></div></section><section class=content-section id=content-section><div class=content><div class="container p-0 read-area"><div class="hero-area col-sm-12" id=hero-area style=background-image:url(/images/default-hero.jpg)></div><div class=page-content><div class="author-profile ms-auto align-self-lg-center"><img class=rounded-circle src=/images/avatar1_hu_14556e3998f22ee9.jpg alt="Author Image"><h5 class=author-name>Xuling Chang</h5><p class=text-muted>Monday, January 1, 1</p></div><div class=title><h1>Simplest Demo for Displaying Image Processing Results using PySide6</h1></div><div class=post-content id=post-content><p>The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV <code>imshow</code> stuff is simple but not enough, failed on expansibility and maintainability. The <code>Qt</code> library, on the other side, is a well-developed UI framework that is evolved from C/C++ and is available in python now. The <code>PyQt4/PyQt5</code> packages are from the community, and <code>PySide2/PySide6</code> packages are from <code>Qt</code> officially. We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, <code>Qt</code>, takes over the results display work.</p><p>Import packages,</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> sys <span style=color:#75715e># needed by PySide6</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6 <span style=color:#f92672>import</span> QtWidgets
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6 <span style=color:#f92672>import</span> QtGui, QtCore
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtCore <span style=color:#f92672>import</span> <span style=color:#f92672>*</span> 
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtGui <span style=color:#f92672>import</span> <span style=color:#f92672>*</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtWidgets <span style=color:#f92672>import</span> QFileDialog, QMainWindow, QMessageBox
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> generated_files.uic.mainwindow <span style=color:#f92672>import</span> Ui_MainWindow
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> cv2
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> numpy <span style=color:#66d9ef>as</span> np <span style=color:#75715e># cv2 mat is wrapped by numpy</span>
+</span></span></code></pre></div><p>Create a main window class from <code>Qt QMainWindow</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MainWindow</span>(QMainWindow):
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>        <span style=color:#75715e>#QWidget.__init__(self)</span>
+</span></span><span style=display:flex><span>        super(MainWindow, self)<span style=color:#f92672>.</span>__init__()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ui <span style=color:#f92672>=</span> Ui_MainWindow()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ui<span style=color:#f92672>.</span>setupUi(self)
+</span></span></code></pre></div><p>Create main function,</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    app <span style=color:#f92672>=</span> QtWidgets<span style=color:#f92672>.</span>QApplication(sys<span style=color:#f92672>.</span>argv)
+</span></span><span style=display:flex><span>    win <span style=color:#f92672>=</span> MainWindow()
+</span></span><span style=display:flex><span>    win<span style=color:#f92672>.</span>show()
+</span></span><span style=display:flex><span>    sys<span style=color:#f92672>.</span>exit(app<span style=color:#f92672>.</span>exec_())
+</span></span></code></pre></div><p>Now a blank window is created.</p><p>Create a qt form file by Disigner.</p><p><img src=/assets/image/in-post/pyside6_opencv/0.png alt=image></p><p>add label widget on window.</p><p><img src=/assets/image/in-post/pyside6_opencv/1.png alt=image></p><p>Clear the text in label and change label’s object name into <code>image_label</code></p><p><img src=/assets/image/in-post/pyside6_opencv/2.png alt=image></p><p>Add code for data capture. We use OpenCV to open the camera device, and add a timer to keep on getting images from camera. We define a method named <code>display_video_stream</code> to read image from camera and display it on MainWindow. The timer object will connected with this method and call it every 30ms.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MainWindow</span>(QMainWindow):
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>        <span style=color:#75715e>#QWidget.__init__(self)</span>
+</span></span><span style=display:flex><span>        super(MainWindow, self)<span style=color:#f92672>.</span>__init__()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ui <span style=color:#f92672>=</span> Ui_MainWindow()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ui<span style=color:#f92672>.</span>setupUi(self)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>timer<span style=color:#f92672>=</span>QTimer()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>timer<span style=color:#f92672>.</span>timeout<span style=color:#f92672>.</span>connect(self<span style=color:#f92672>.</span>display_video_stream)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>cap <span style=color:#f92672>=</span> cv2<span style=color:#f92672>.</span>VideoCapture(<span style=color:#ae81ff>0</span>) <span style=color:#75715e># call default camera device</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>timer<span style=color:#f92672>.</span>start()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>display_video_stream</span>(self):
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;&#39;&#39;Display video stream from usb camera&#39;&#39;&#39;</span>
+</span></span><span style=display:flex><span>        ret, frame <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>cap<span style=color:#f92672>.</span>read() <span style=color:#75715e># get status and frame</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>display(frame) 
+</span></span></code></pre></div><p>The format of image data captured by OpenCV is needed to be converted to display on Qt Label widget correctly. We define a method named <code>display</code> to do this work.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>display</span>(self, frame):
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#39;&#39;&#39;display frame from opencv&#39;&#39;&#39;</span>
+</span></span><span style=display:flex><span>    frame <span style=color:#f92672>=</span> cv2<span style=color:#f92672>.</span>cvtColor(frame, cv2<span style=color:#f92672>.</span>COLOR_BGR2RGB)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    image <span style=color:#f92672>=</span> QImage(frame, frame<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>1</span>], frame<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>0</span>], 
+</span></span><span style=display:flex><span>                    frame<span style=color:#f92672>.</span>strides[<span style=color:#ae81ff>0</span>], QImage<span style=color:#f92672>.</span>Format_RGB888)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    self<span style=color:#f92672>.</span>ui<span style=color:#f92672>.</span>image_label<span style=color:#f92672>.</span>setPixmap(QPixmap<span style=color:#f92672>.</span>fromImage(image))
+</span></span></code></pre></div><p>Done.</p><p>The whole file is like below.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> sys
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6 <span style=color:#f92672>import</span> QtWidgets
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6 <span style=color:#f92672>import</span> QtGui, QtCore
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtCore <span style=color:#f92672>import</span> <span style=color:#f92672>*</span> 
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtGui <span style=color:#f92672>import</span> <span style=color:#f92672>*</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> PySide6.QtWidgets <span style=color:#f92672>import</span> QFileDialog, QMainWindow, QMessageBox
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> generated_files.uic.mainwindow <span style=color:#f92672>import</span> Ui_MainWindow
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> cv2
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> numpy <span style=color:#66d9ef>as</span> np
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MainWindow</span>(QMainWindow):
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self):
+</span></span><span style=display:flex><span>        <span style=color:#75715e>#QWidget.__init__(self)</span>
+</span></span><span style=display:flex><span>        super(MainWindow, self)<span style=color:#f92672>.</span>__init__()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ui <span style=color:#f92672>=</span> Ui_MainWindow()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ui<span style=color:#f92672>.</span>setupUi(self)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>timer<span style=color:#f92672>=</span>QTimer()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>timer<span style=color:#f92672>.</span>timeout<span style=color:#f92672>.</span>connect(self<span style=color:#f92672>.</span>display_video_stream)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>cap <span style=color:#f92672>=</span> cv2<span style=color:#f92672>.</span>VideoCapture(<span style=color:#ae81ff>0</span>) <span style=color:#75715e># call default camera device</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>timer<span style=color:#f92672>.</span>start()
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>display</span>(self, frame):
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;&#39;&#39;display frame from opencv&#39;&#39;&#39;</span>
+</span></span><span style=display:flex><span>        frame <span style=color:#f92672>=</span> cv2<span style=color:#f92672>.</span>cvtColor(frame, cv2<span style=color:#f92672>.</span>COLOR_BGR2RGB)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        image <span style=color:#f92672>=</span> QImage(frame, frame<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>1</span>], frame<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>0</span>], 
+</span></span><span style=display:flex><span>                        frame<span style=color:#f92672>.</span>strides[<span style=color:#ae81ff>0</span>], QImage<span style=color:#f92672>.</span>Format_RGB888)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ui<span style=color:#f92672>.</span>image_label<span style=color:#f92672>.</span>setPixmap(QPixmap<span style=color:#f92672>.</span>fromImage(image))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>display_video_stream</span>(self):
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;&#39;&#39;Display video stream from usb camera&#39;&#39;&#39;</span>
+</span></span><span style=display:flex><span>        ret, frame <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>cap<span style=color:#f92672>.</span>read() <span style=color:#75715e># get status and frame</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>display(frame)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    app <span style=color:#f92672>=</span> QtWidgets<span style=color:#f92672>.</span>QApplication(sys<span style=color:#f92672>.</span>argv)
+</span></span><span style=display:flex><span>    win <span style=color:#f92672>=</span> MainWindow()
+</span></span><span style=display:flex><span>    win<span style=color:#f92672>.</span>show()
+</span></span><span style=display:flex><span>    sys<span style=color:#f92672>.</span>exit(app<span style=color:#f92672>.</span>exec_())
+</span></span></code></pre></div><p>Simple. 😊</p><p>The whole project is here <a href=https://github.com/BigBookPlus/PythonQtWithOpenCV.git target=_blank rel=noopener>https://github.com/BigBookPlus/PythonQtWithOpenCV.git</a>.</p></div><div class="row ps-3 pe-3"><div class="col-md-6 share-buttons"></div></div><hr><div class="row next-prev-navigator"></div><hr></div></div></div><a id=scroll-to-top class=btn type=button data-bs-toggle=tooltip data-bs-placement=left title="Scroll to top"><i class="fas fa-chevron-circle-up"></i></a></section><section class=toc-section id=toc-section><div class=toc-holder><h5 class="text-center ps-3">Table of Contents</h5><hr><div class=toc><nav id=TableOfContents></nav></div></div></section></div><footer id=footer class="container-fluid text-center align-content-center footer pb-2"><div class="container pt-5"><div class="row text-start"><div class="col-md-4 col-sm-12"><h5>Navigation</h5><ul><li class=nav-item><a class=smooth-scroll href=https://bigbookplus.github.io/#about>About</a></li><li class=nav-item><a class=smooth-scroll href=https://bigbookplus.github.io/#skills>Skills</a></li></ul></div><div class="col-md-4 col-sm-12"><h5>Contact me:</h5><ul><li><a href=mailto:xuling.chang@live.com target=_blank rel=noopener><span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span></a></li></ul></div><div class="col-md-4 col-sm-12"><p>Stay up to date with email notification</p><form method=post action=https://blogtrottr.com><div class=form-group><input type=email class=form-control name=btr_email placeholder="Enter email"><br><input type=hidden name=btr_url value=https://bigbookplus.github.io//index.xml>
+<input type=hidden name=schedule_type value=1>
+<small id=emailHelp class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+<button type=submit class="btn btn-info"> Submit</button></div></form></div></div></div><hr><div class=container><div class="row text-start"><div class=col-md-4><a id=theme href=https://github.com/hugo-toha/toha target=_blank rel=noopener><img src=/images/theme-logo_hu_b3360284c55cf72d.png alt="Toha Theme Logo">
+Toha</a></div><div class="col-md-4 text-center">© 2025 Copyright.</div><div class="col-md-4 text-end"><a id=hugo href=https://gohugo.io/ target=_blank rel=noopener>Powered by
+<img src=/images/hugo-logo.svg alt="Hugo Logo" height=18></a></div></div></div></footer><script src=/application.0748c49f8dba141977308c83638a1587e4ad98a2ffeef8cdd20e5d57dcf95dbc.js integrity="sha256-B0jEn426FBl3MIyDY4oVh+StmKL/7vjN0g5dV9z5Xbw=" defer></script></body></html>
