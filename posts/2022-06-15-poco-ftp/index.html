@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>How to Implement FTP Upload by C&#43;&#43; and POCO</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/2022-06-15-poco-ftp/">
+  <meta property="og:title" content="How to Implement FTP Upload by C&#43;&#43; and POCO">
+  <meta property="og:description" content="POCO POCO is a lightweight and flexible network library for C&#43;&#43; users. You can refer to the POCO library at its homepage: https://pocoproject.org/ or its github project page: https://github.com/pocoproject/poco . You can simply git clone from the POCO repository, and build it follows its official mannual. For me, I built it simply with the CMake-GUI tool on Windows, with all default settings.
+How to Upload Includes Stuffs Most of the FTP related APIs are in the Poco/Net/FTPClientSession.h header file. The Exception Processing tools are used all the time, so that we include it too. When you need to do the uploading to FTP server, Poco/StreamCopier.h is must be included.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="How to Implement FTP Upload by C&#43;&#43; and POCO">
+  <meta name="twitter:description" content="POCO POCO is a lightweight and flexible network library for C&#43;&#43; users. You can refer to the POCO library at its homepage: https://pocoproject.org/ or its github project page: https://github.com/pocoproject/poco . You can simply git clone from the POCO repository, and build it follows its official mannual. For me, I built it simply with the CMake-GUI tool on Windows, with all default settings.
+How to Upload Includes Stuffs Most of the FTP related APIs are in the Poco/Net/FTPClientSession.h header file. The Exception Processing tools are used all the time, so that we include it too. When you need to do the uploading to FTP server, Poco/StreamCopier.h is must be included.">
+
+    
+    
+<meta name="description" content="How to Implement FTP Upload by C&#43;&#43; and POCO" />
+
+
+
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+  
+    
+    <li><a class=" list-link" href="/posts/blogs/2021-08-16-opencv-cmake-vs2019/" title="blogs">blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>How to Implement FTP Upload by C&#43;&#43; and POCO</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <h2 id="poco">POCO</h2>
+<p>POCO is a lightweight and flexible network library for C++ users.
+You can refer to the POCO library at its homepage: <a href="https://pocoproject.org/" target="_blank" rel="noopener">https://pocoproject.org/</a> or its github project page: <a href="https://github.com/pocoproject/poco" target="_blank" rel="noopener">https://github.com/pocoproject/poco</a> .
+You can simply git clone from the POCO repository, and build it follows its official mannual.
+For me, I built it simply with the CMake-GUI tool on Windows, with all default settings.</p>
+<h2 id="how-to-upload">How to Upload</h2>
+<h3 id="includes-stuffs">Includes Stuffs</h3>
+<p>Most of the FTP related APIs are in the <code>Poco/Net/FTPClientSession.h</code> header file. The Exception Processing tools are used all the time, so that we include it too. When you need to do the uploading to FTP server, <code>Poco/StreamCopier.h</code> is must be included.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Poco/Net/FTPClientSession.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Poco/Net/NetException.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Poco/StreamCopier.h&#34;</span><span style="color:#75715e">
+</span></span></span></code></pre></div><p>The StreamCopier need the std streams, so we include them too.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;fstream&gt;</span><span style="color:#75715e">
+</span></span></span></code></pre></div><h3 id="create-an-object">Create an Object</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">auto</span><span style="color:#f92672">*</span> ftp <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Poco<span style="color:#f92672">::</span>Net<span style="color:#f92672">::</span>FTPClientSession(<span style="color:#e6db74">&#34;192.168.1.3&#34;</span>, <span style="color:#ae81ff">21</span>, <span style="color:#e6db74">&#34;username&#34;</span>, <span style="color:#e6db74">&#34;password&#34;</span>);
+</span></span></code></pre></div><h3 id="do-upload">Do Upload.</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">try</span>{
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>ostream <span style="color:#f92672">&amp;</span>ftpOStream <span style="color:#f92672">=</span> ftp<span style="color:#f92672">-&gt;</span>beginUpload(<span style="color:#e6db74">&#34;target_file_name.png&#34;</span>);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>ifstream localIFStream(<span style="color:#e6db74">&#34;/path/to/local_file.png&#34;</span>, std<span style="color:#f92672">::</span>ifstream<span style="color:#f92672">::</span>in <span style="color:#f92672">|</span> std<span style="color:#f92672">::</span>ifstream<span style="color:#f92672">::</span>binary);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">auto</span> numBytes <span style="color:#f92672">=</span> Poco<span style="color:#f92672">::</span>StreamCopier<span style="color:#f92672">::</span>copyStream(localIFStream, ftpOStream);
+</span></span><span style="display:flex;"><span>    ftp<span style="color:#f92672">-&gt;</span>endUpload();
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">catch</span>( Poco<span style="color:#f92672">::</span>Net<span style="color:#f92672">::</span>FTPException<span style="color:#f92672">&amp;</span> e)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>cerr<span style="color:#f92672">&lt;&lt;</span>e.what()<span style="color:#f92672">&lt;&lt;</span>e.message()<span style="color:#f92672">&lt;&lt;</span>std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#poco">POCO</a></li>
+    <li><a href="#how-to-upload">How to Upload</a>
+      <ul>
+        <li><a href="#includes-stuffs">Includes Stuffs</a></li>
+        <li><a href="#create-an-object">Create an Object</a></li>
+        <li><a href="#do-upload">Do Upload.</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.a341acbc0f62a8685e8f7efb2bd46fffb5f3e61917ea04a490962ea59a29b4e9.js" integrity="sha256-o0GsvA9iqGhej377K9Rv/7Xz5hkX6gSkkJYupZoptOk=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

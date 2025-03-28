@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>Setup GitLab Sevice on Ubuntu 16.04 in Local LAN</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/2022-02-08-install-configure-gitlab-ce/">
+  <meta property="og:title" content="Setup GitLab Sevice on Ubuntu 16.04 in Local LAN">
+  <meta property="og:description" content="Setup GitLab Sevice on Ubuntu 16.04 in Local LAN GitLab is as powerful as GitHub. We decide to change the version control system from SVN to Git. We run the GitLab server in our local LAN. I found the blogs for GitLab installation are all too long to read and too complicated for using GitLab in local LAN with no domain name, so I wrote this one.
+Before installing GitLab, please update the Ubuntu repository.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Setup GitLab Sevice on Ubuntu 16.04 in Local LAN">
+  <meta name="twitter:description" content="Setup GitLab Sevice on Ubuntu 16.04 in Local LAN GitLab is as powerful as GitHub. We decide to change the version control system from SVN to Git. We run the GitLab server in our local LAN. I found the blogs for GitLab installation are all too long to read and too complicated for using GitLab in local LAN with no domain name, so I wrote this one.
+Before installing GitLab, please update the Ubuntu repository.">
+
+    
+    
+<meta name="description" content="Setup GitLab Sevice on Ubuntu 16.04 in Local LAN" />
+
+
+
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+  
+    
+    <li><a class=" list-link" href="/posts/blogs/2021-08-16-opencv-cmake-vs2019/" title="blogs">blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>Setup GitLab Sevice on Ubuntu 16.04 in Local LAN</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <h1 id="setup-gitlab-sevice-on-ubuntu-1604-in-local-lan">Setup GitLab Sevice on Ubuntu 16.04 in Local LAN</h1>
+<p>GitLab is as powerful as GitHub. We decide to change the version control system from SVN to Git. We run the GitLab server in our local LAN. I found the blogs for GitLab installation are all too long to read and too complicated for using GitLab in local LAN with no domain name, so I wrote this one.</p>
+<p>Before installing GitLab, please update the Ubuntu repository.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt-get update
+</span></span></code></pre></div><p>Install the prerequisites packages.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt install curl openssh-server ca-certificates postfix
+</span></span></code></pre></div><p>select &lsquo;Internet Site&rsquo; during postfix installation, and type in a server domain name for sending email. If you don&rsquo;t have one, just type something you like.</p>
+<p>Add GitLab repository with the curl command.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
+</span></span></code></pre></div><p>This step is important. I think it&rsquo;s one of the best way for installing the GitLab. Bacause after the repository added, we can install the gitlab packages by a simple command.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt install gitlab-ce
+</span></span></code></pre></div><p>Then we update the configuration.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo vim /etc/gitlab/gitlab.rb
+</span></span></code></pre></div><p>Since We don&rsquo;t have a domain name for my GitLab server , we use ip address and keep using <code>http</code> protocal.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>external_url &#39;http://your_ipaddress&#39;
+</span></span></code></pre></div><p>Then we run reconfiguration.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo gitlab-ctl reconfigure
+</span></span></code></pre></div><p>That&rsquo;s it.</p>
+<p>For users who want to setup the GitLab service in Local LAN, just like me, the installation is completed here. There are a bunch of other things needed to be done if you have a domain name and you want to enable the HTTPS protocol for GitLab. By now, we are able to visit GitLab through ip address in local LAN.</p>
+<h3 id="502-whoops-gitlab-is-taking-too-much-time-to-respond">502 Whoops, GitLab is taking too much time to respond.</h3>
+<p>One more thing, if you keep receiving the error message &lsquo;502 Whoops, GitLab is taking too much time to respond.&rsquo; when you visiting GitLab, you need to check ports on your server. In my situation, my server is running another service on port 8080, which is needed by puma in GitLab. Change the Puma port in /etc/gitlab/gitlab.rb and run reconfiguration.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>puma[&#39;port&#39;] = some_port_here
+</span></span></code></pre></div><p>It works for me, hope it helpful.</p>
+<h2 id="reference">reference</h2>
+<p><a href="https://www.howtoforge.com/tutorial/how-to-install-and-configure-gitlab-on-ubuntu-16-04/" target="_blank" rel="noopener">how-to-install-and-configure-gitlab-on-ubuntu-16-04 [digitalocean]</a></p>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-gitlab-on-ubuntu-16-04" target="_blank" rel="noopener">how-to-install-and-configure-gitlab-on-ubuntu-16-04 [howtoforge]</a></p>
+<p><a href="https://forum.gitlab.com/t/502-whoops-gitlab-is-taking-too-much-time-to-respond/52522/11" target="_blank" rel="noopener">502-whoops-gitlab-is-taking-too-much-time-to-respond</a></p>
+
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#502-whoops-gitlab-is-taking-too-much-time-to-respond">502 Whoops, GitLab is taking too much time to respond.</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">reference</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.a341acbc0f62a8685e8f7efb2bd46fffb5f3e61917ea04a490962ea59a29b4e9.js" integrity="sha256-o0GsvA9iqGhej377K9Rv/7Xz5hkX6gSkkJYupZoptOk=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>C&#43;&#43;中正则表达式的用法</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/blogs/2022-06-15-cpp-regex/">
+  <meta property="og:title" content="C&#43;&#43;中正则表达式的用法">
+  <meta property="og:description" content="C&#43;&#43;11引入了 &lt;regex&gt; 标准库，为开发人员提供了强大的正则表达式支持。正则表达式（RegEx）可用于字符串匹配、搜索、替换等操作，是处理文本数据的利器。本文将从基础语法到高级用法，逐步介绍C&#43;&#43;正则表达式如何高效使用。
+一、基础准备 1. 引入库和命名空间 在使用正则表达式之前，需包含头文件并使用相关命名空间：
+#include &lt;regex&gt; #include &lt;string&gt; #include &lt;iostream&gt; using namespace std; 2. 构建正则表达式 使用 std::regex 对象存储正则表达式：
+regex re(&#34;\\d&#43;&#34;); // 匹配数字，注意转义字符 二、正则表达式语法基础 1. 常见元字符 元字符 含义 . 匹配任意单个字符（除换行符） * 匹配前一个字符 0 次或多次 &#43; 匹配前一个字符 1 次或多次 ? 匹配前一个字符 0 次或 1 次 ^ 匹配字符串开头 $ 匹配字符串结尾 [] 匹配括号内的任意一个字符（如 [abc]） \d 匹配数字 [0-9] \D 匹配非数字 [^0-9] \w 匹配字母、数字、下划线 [A-Za-z0-9_] 2. 分组和捕获（Groups） regex re(&#34;(\\d{4})-(\\d{2})-(\\d{2})&#34;); // 解析日期格式 YYYY-MM-DD smatch result; if(regex_search(&#34;2023-04-01&#34;, result, re)) { cout &lt;&lt; &#34;年份: &#34; &lt;&lt; result[1] &lt;&lt; endl; // 输出 &#34;2023&#34; cout &lt;&lt; &#34;月份: &#34; &lt;&lt; result[2] &lt;&lt; endl; // 输出 &#34;04&#34; } 三、核心函数与用法 1. 检查匹配（regex_match） 检查整个字符串是否匹配：">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="C&#43;&#43;中正则表达式的用法">
+  <meta name="twitter:description" content="C&#43;&#43;11引入了 &lt;regex&gt; 标准库，为开发人员提供了强大的正则表达式支持。正则表达式（RegEx）可用于字符串匹配、搜索、替换等操作，是处理文本数据的利器。本文将从基础语法到高级用法，逐步介绍C&#43;&#43;正则表达式如何高效使用。
+一、基础准备 1. 引入库和命名空间 在使用正则表达式之前，需包含头文件并使用相关命名空间：
+#include &lt;regex&gt; #include &lt;string&gt; #include &lt;iostream&gt; using namespace std; 2. 构建正则表达式 使用 std::regex 对象存储正则表达式：
+regex re(&#34;\\d&#43;&#34;); // 匹配数字，注意转义字符 二、正则表达式语法基础 1. 常见元字符 元字符 含义 . 匹配任意单个字符（除换行符） * 匹配前一个字符 0 次或多次 &#43; 匹配前一个字符 1 次或多次 ? 匹配前一个字符 0 次或 1 次 ^ 匹配字符串开头 $ 匹配字符串结尾 [] 匹配括号内的任意一个字符（如 [abc]） \d 匹配数字 [0-9] \D 匹配非数字 [^0-9] \w 匹配字母、数字、下划线 [A-Za-z0-9_] 2. 分组和捕获（Groups） regex re(&#34;(\\d{4})-(\\d{2})-(\\d{2})&#34;); // 解析日期格式 YYYY-MM-DD smatch result; if(regex_search(&#34;2023-04-01&#34;, result, re)) { cout &lt;&lt; &#34;年份: &#34; &lt;&lt; result[1] &lt;&lt; endl; // 输出 &#34;2023&#34; cout &lt;&lt; &#34;月份: &#34; &lt;&lt; result[2] &lt;&lt; endl; // 输出 &#34;04&#34; } 三、核心函数与用法 1. 检查匹配（regex_match） 检查整个字符串是否匹配：">
+
+    
+    
+<meta name="description" content="C&#43;&#43;中正则表达式的用法" />
+
+
+
+    
+
+    
+        
+            
+            
+                
+            
+
+            
+            
+
+            
+            
+
+            
+            
+
+            
+
+            
+
+            
+        
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+    
+    
+  
+  
+    
+    <li><a class="active list-link" href="/posts/blogs/" title="Blogs">Blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>C&#43;&#43;中正则表达式的用法</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <p>C++11引入了 <code>&lt;regex&gt;</code> 标准库，为开发人员提供了强大的正则表达式支持。正则表达式（RegEx）可用于字符串匹配、搜索、替换等操作，是处理文本数据的利器。本文将从基础语法到高级用法，逐步介绍C++正则表达式如何高效使用。</p>
+<hr>
+<h2 id="一基础准备">一、基础准备</h2>
+<h3 id="1-引入库和命名空间">1. 引入库和命名空间</h3>
+<p>在使用正则表达式之前，需包含头文件并使用相关命名空间：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;regex&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> std;
+</span></span></code></pre></div><h3 id="2-构建正则表达式">2. 构建正则表达式</h3>
+<p>使用 <code>std::regex</code> 对象存储正则表达式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">d+&#34;</span>);  <span style="color:#75715e">// 匹配数字，注意转义字符
+</span></span></span></code></pre></div><hr>
+<h2 id="二正则表达式语法基础">二、正则表达式语法基础</h2>
+<h3 id="1-常见元字符">1. 常见元字符</h3>
+<table>
+  <thead>
+      <tr>
+          <th>元字符</th>
+          <th>含义</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>.</code></td>
+          <td>匹配任意单个字符（除换行符）</td>
+      </tr>
+      <tr>
+          <td><code>*</code></td>
+          <td>匹配前一个字符 0 次或多次</td>
+      </tr>
+      <tr>
+          <td><code>+</code></td>
+          <td>匹配前一个字符 1 次或多次</td>
+      </tr>
+      <tr>
+          <td><code>?</code></td>
+          <td>匹配前一个字符 0 次或 1 次</td>
+      </tr>
+      <tr>
+          <td><code>^</code></td>
+          <td>匹配字符串开头</td>
+      </tr>
+      <tr>
+          <td><code>$</code></td>
+          <td>匹配字符串结尾</td>
+      </tr>
+      <tr>
+          <td><code>[]</code></td>
+          <td>匹配括号内的任意一个字符（如 [abc]）</td>
+      </tr>
+      <tr>
+          <td><code>\d</code></td>
+          <td>匹配数字 [0-9]</td>
+      </tr>
+      <tr>
+          <td><code>\D</code></td>
+          <td>匹配非数字 [^0-9]</td>
+      </tr>
+      <tr>
+          <td><code>\w</code></td>
+          <td>匹配字母、数字、下划线 [A-Za-z0-9_]</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="2-分组和捕获groups">2. 分组和捕获（Groups）</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;(</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">d{4})</span><span style="color:#f92672">-</span>(<span style="color:#960050;background-color:#1e0010">\\</span>d{<span style="color:#ae81ff">2</span>})<span style="color:#f92672">-</span>(<span style="color:#960050;background-color:#1e0010">\\</span>d{<span style="color:#ae81ff">2</span>})<span style="color:#e6db74">&#34;); // 解析日期格式 YYYY-MM-DD</span>
+</span></span><span style="display:flex;"><span>smatch result;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(regex_search(<span style="color:#e6db74">&#34;2023-04-01&#34;</span>, result, re)) {
+</span></span><span style="display:flex;"><span>    cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;年份: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> result[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">&lt;&lt;</span> endl; <span style="color:#75715e">// 输出 &#34;2023&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;月份: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> result[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">&lt;&lt;</span> endl; <span style="color:#75715e">// 输出 &#34;04&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><hr>
+<h2 id="三核心函数与用法">三、核心函数与用法</h2>
+<h3 id="1-检查匹配regex_match">1. 检查匹配（<code>regex_match</code>）</h3>
+<p>检查<strong>整个字符串</strong>是否匹配：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(regex_match(<span style="color:#e6db74">&#34;123abc&#34;</span>, regex(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">d+&#34;</span>))) {
+</span></span><span style="display:flex;"><span>    cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;整个字符串全为数字！&#34;</span>; <span style="color:#75715e">// 不触发
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;不匹配&#34;</span>; <span style="color:#75715e">// 触发
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h3 id="2-查找匹配regex_search">2. 查找匹配（<code>regex_search</code>）</h3>
+<p>搜索字符串中的<strong>任意位置</strong>匹配：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>string s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;苹果30元，香蕉20元&#34;</span>;
+</span></span><span style="display:flex;"><span>smatch res;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span>(regex_search(s, res, regex(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">d+&#34;</span>))) {
+</span></span><span style="display:flex;"><span>    cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;价格: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> res[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">&lt;&lt;</span> endl; <span style="color:#75715e">// 输出 &#34;30&#34; 和 &#34;20&#34; 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    s <span style="color:#f92672">=</span> res.suffix().str(); <span style="color:#75715e">// 处理剩余部分
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h3 id="3-替换字符串regex_replace">3. 替换字符串（<code>regex_replace</code>）</h3>
+<p>替换所有匹配项：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>string s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello World!&#34;</span>;
+</span></span><span style="display:flex;"><span>string replaced <span style="color:#f92672">=</span> regex_replace(s, regex(<span style="color:#e6db74">&#34;World&#34;</span>), <span style="color:#e6db74">&#34;C++&#34;</span>);
+</span></span><span style="display:flex;"><span>cout <span style="color:#f92672">&lt;&lt;</span> replaced; <span style="color:#75715e">// 输出 &#34;Hello C++!&#34;
+</span></span></span></code></pre></div><h3 id="4-分割字符串">4. 分割字符串</h3>
+<p>使用起始迭代器 <code>sregex_token_iterator</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>string s <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;apple,banana,cherry&#34;</span>;
+</span></span><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;,&#34;</span>);
+</span></span><span style="display:flex;"><span>vector<span style="color:#f92672">&lt;</span>string<span style="color:#f92672">&gt;</span> parts{
+</span></span><span style="display:flex;"><span>    sregex_token_iterator(s.begin(), s.end(), re, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>),
+</span></span><span style="display:flex;"><span>    sregex_token_iterator()
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 输出: parts = {&#34;apple&#34;, &#34;banana&#34;, &#34;cherry&#34;}
+</span></span></span></code></pre></div><hr>
+<h2 id="四正则表达式的修饰符flags">四、正则表达式的修饰符（Flags）</h2>
+<p>通过修改构造函数参数控制匹配行为：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">w+&#34;</span>, regex_constants<span style="color:#f92672">::</span>icase); <span style="color:#75715e">// 忽略大小写
+</span></span></span></code></pre></div><table>
+  <thead>
+      <tr>
+          <th>修饰符</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>std::regex::icase</code></td>
+          <td>忽略大小写匹配</td>
+      </tr>
+      <tr>
+          <td><code>std::regex::ECMAScript</code></td>
+          <td>采用 ECMAScript 兼容模式（默认）</td>
+      </tr>
+      <tr>
+          <td><code>std::regex::extended</code></td>
+          <td>启用扩展语法（允许分隔符）</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="五高级技巧">五、高级技巧</h2>
+<h3 id="1-动态构建正则表达式">1. 动态构建正则表达式</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>string pattern <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;error&#34;</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;(</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">d+)&#34;</span>; 
+</span></span><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(pattern); 
+</span></span></code></pre></div><h3 id="2-懒惰匹配与贪婪模式">2. 懒惰匹配与贪婪模式</h3>
+<p>使用 <code>*?</code> 或 <code>+?</code> 实现懒惰匹配：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;&lt;(.*?)</span><span style="color:#f92672">&gt;</span><span style="color:#e6db74">&#34;)</span>; <span style="color:#75715e">// 匹配最小长度的标签内容
+</span></span></span></code></pre></div><h3 id="3-多行模式">3. 多行模式</h3>
+<p>启用多行匹配：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;^end$&#34;</span>, regex<span style="color:#f92672">::</span>extended <span style="color:#f92672">|</span> regex<span style="color:#f92672">::</span>icase <span style="color:#f92672">|</span> regex<span style="color:#f92672">::</span> multiline);
+</span></span></code></pre></div><hr>
+<h2 id="六常见问题与解决方案">六、常见问题与解决方案</h2>
+<ol>
+<li>
+<p><strong>中文字符匹配</strong><br>
+使用 <code>[\u4e00-\u9fa5]</code> 表示中文范围：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;^[</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">u4e00-</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">u9fa5]+$&#34;</span>); <span style="color:#75715e">// 匹配纯中文字符串
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>转义字符问题</strong><br>
+C++字符串需要转义反斜杠，例如 <code>\\d</code> 表示 <code>\d</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex(<span style="color:#e6db74">&#34;^[A-Za-z]+:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">/</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">/&#34;</span>); <span style="color:#75715e">// 匹配 URL 协议头如 http://
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>性能优化</strong><br>
+对于频繁使用的正则表达式，建议提前编译：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>regex <span style="color:#a6e22e">re</span>(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">d+&#34;</span>); <span style="color:#75715e">// 第一次调用时编译
+</span></span></span></code></pre></div></li>
+</ol>
+<hr>
+<h2 id="七实战案例">七、实战案例</h2>
+<h3 id="案例1邮箱地址验证">案例1：邮箱地址验证</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">checkEmail</span>(<span style="color:#66d9ef">const</span> string <span style="color:#f92672">&amp;</span>email) {
+</span></span><span style="display:flex;"><span>    regex re(R<span style="color:#e6db74">&#34;(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$)&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> regex_match(email, re);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="案例2提取-url-路径">案例2：提取 URL 路径</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>string <span style="color:#a6e22e">extractPath</span>(<span style="color:#66d9ef">const</span> string <span style="color:#f92672">&amp;</span>url) {
+</span></span><span style="display:flex;"><span>    regex re(<span style="color:#e6db74">&#34;https?://[^/]+(/[^?]*)&#34;</span>, regex<span style="color:#f92672">::</span>ECMAScript);
+</span></span><span style="display:flex;"><span>    smatch res;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span>(regex_search(url, res, re)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> res[<span style="color:#ae81ff">1</span>]; <span style="color:#75715e">// 返回如 &#34;/path/to/resource&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;&#34;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="八注意事项">八、注意事项</h2>
+<ol>
+<li>
+<p><strong>避免过度复杂化</strong><br>
+复杂的正则表达式可能影响可读性和性能，建议拆分为小规则。</p>
+</li>
+<li>
+<p><strong>兼容性检查</strong><br>
+确保编译器支持 C++11 及以上（如 GCC 需要 <code>std=c++11</code> 标志）。</p>
+</li>
+<li>
+<p><strong>性能影响</strong><br>
+正则表达式在极端情况下（如超长字符串或回溯爆炸）可能导致显著延迟。</p>
+</li>
+</ol>
+<hr>
+<h2 id="九参考文献">九、参考文献</h2>
+<ul>
+<li><a href="https://en.cppreference.com/w/cpp/regex" target="_blank" rel="noopener">C++ Regex 官方文档</a></li>
+<li>正则表达式30分钟入门教程（<a href="https://www.regular-expressions.info/" target="_blank" rel="noopener">Regular-Expressions.info</a>）</li>
+</ul>
+<hr>
+<p>通过灵活运用 C++正则表达式库，可以极大简化文本处理工作。希望本文示例能帮助你快速上手并解决实际问题！如果需要更复杂的模式匹配，建议逐步拆解需求并结合在线测试工具调试表达式。</p>
+
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一基础准备">一、基础准备</a>
+      <ul>
+        <li><a href="#1-引入库和命名空间">1. 引入库和命名空间</a></li>
+        <li><a href="#2-构建正则表达式">2. 构建正则表达式</a></li>
+      </ul>
+    </li>
+    <li><a href="#二正则表达式语法基础">二、正则表达式语法基础</a>
+      <ul>
+        <li><a href="#1-常见元字符">1. 常见元字符</a></li>
+        <li><a href="#2-分组和捕获groups">2. 分组和捕获（Groups）</a></li>
+      </ul>
+    </li>
+    <li><a href="#三核心函数与用法">三、核心函数与用法</a>
+      <ul>
+        <li><a href="#1-检查匹配regex_match">1. 检查匹配（<code>regex_match</code>）</a></li>
+        <li><a href="#2-查找匹配regex_search">2. 查找匹配（<code>regex_search</code>）</a></li>
+        <li><a href="#3-替换字符串regex_replace">3. 替换字符串（<code>regex_replace</code>）</a></li>
+        <li><a href="#4-分割字符串">4. 分割字符串</a></li>
+      </ul>
+    </li>
+    <li><a href="#四正则表达式的修饰符flags">四、正则表达式的修饰符（Flags）</a></li>
+    <li><a href="#五高级技巧">五、高级技巧</a>
+      <ul>
+        <li><a href="#1-动态构建正则表达式">1. 动态构建正则表达式</a></li>
+        <li><a href="#2-懒惰匹配与贪婪模式">2. 懒惰匹配与贪婪模式</a></li>
+        <li><a href="#3-多行模式">3. 多行模式</a></li>
+      </ul>
+    </li>
+    <li><a href="#六常见问题与解决方案">六、常见问题与解决方案</a></li>
+    <li><a href="#七实战案例">七、实战案例</a>
+      <ul>
+        <li><a href="#案例1邮箱地址验证">案例1：邮箱地址验证</a></li>
+        <li><a href="#案例2提取-url-路径">案例2：提取 URL 路径</a></li>
+      </ul>
+    </li>
+    <li><a href="#八注意事项">八、注意事项</a></li>
+    <li><a href="#九参考文献">九、参考文献</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.2a80058f1561f5213cf5925f05222466be52a7bddb403e735f8abc61d89a849d.js" integrity="sha256-KoAFjxVh9SE89ZJfBSIkZr5Sp73bQD5zX4q8YdiahJ0=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>OpenCV DNN Batch Inference in C&#43;&#43;</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/blogs/2021-08-23-opencv-dnn-batch-inference/">
+  <meta property="og:title" content="OpenCV DNN Batch Inference in C&#43;&#43;">
+  <meta property="og:description" content="OpenCV has a DNN module, which is powerful, efficient, and easy to use. To implement a DNN inference application, we need only to call a couple of APIs which are offered by OpenCV DNN module. The basic routine of implementation a DNN inference code by OpenCV is as below.
+Initialization. Creating the cv::dnn::Net object by reading in the network weight. (caffe/onnx…) Preprocessing. Determine shape of input data of the network. Reshape the raw input image(s) to match the input data shape. This step always combined some other operatations such as normalization. Inference. Call inference method by the created cv::dnn::Net object. Postprocessing. Decoding the output data and do further wrangling. In my opinion, as the network weights are already determined, the most important parts of the deployment are pre&amp;postprocessing. You need to figure out exactly what shape of input data is, and what the normalization method is (mean/std value). In post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks will be much harder to implement, such as object detection/segmentation tasks. You need to do a lot of work to crack the data wrangling problems, and sometimes may need to rewrite some operatations yourself from scratch, just because there is no corresponding method with the original python implementation in C&#43;&#43;.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="OpenCV DNN Batch Inference in C&#43;&#43;">
+  <meta name="twitter:description" content="OpenCV has a DNN module, which is powerful, efficient, and easy to use. To implement a DNN inference application, we need only to call a couple of APIs which are offered by OpenCV DNN module. The basic routine of implementation a DNN inference code by OpenCV is as below.
+Initialization. Creating the cv::dnn::Net object by reading in the network weight. (caffe/onnx…) Preprocessing. Determine shape of input data of the network. Reshape the raw input image(s) to match the input data shape. This step always combined some other operatations such as normalization. Inference. Call inference method by the created cv::dnn::Net object. Postprocessing. Decoding the output data and do further wrangling. In my opinion, as the network weights are already determined, the most important parts of the deployment are pre&amp;postprocessing. You need to figure out exactly what shape of input data is, and what the normalization method is (mean/std value). In post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks will be much harder to implement, such as object detection/segmentation tasks. You need to do a lot of work to crack the data wrangling problems, and sometimes may need to rewrite some operatations yourself from scratch, just because there is no corresponding method with the original python implementation in C&#43;&#43;.">
+
+    
+    
+<meta name="description" content="OpenCV DNN Batch Inference in C&#43;&#43;" />
+
+
+
+    
+
+    
+        
+            
+            
+                
+            
+
+            
+            
+
+            
+            
+
+            
+            
+
+            
+
+            
+
+            
+        
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+    
+    
+  
+  
+    
+    <li><a class="active list-link" href="/posts/blogs/" title="Blogs">Blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>OpenCV DNN Batch Inference in C&#43;&#43;</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <p>OpenCV has a DNN module, which is powerful, efficient, and easy to use. To implement a DNN inference application, we need only to call a couple of APIs which are offered by OpenCV DNN module. The basic routine of implementation a DNN inference code by OpenCV is as below.</p>
+<blockquote>
+<ul>
+<li>Initialization. Creating the cv::dnn::Net object by reading in the network weight. (caffe/onnx&hellip;)</li>
+<li>Preprocessing. Determine shape of input data of the network. Reshape the raw input image(s) to match the input data shape. This step always combined some other operatations such as normalization.</li>
+<li>Inference. Call inference method by the created cv::dnn::Net object.</li>
+<li>Postprocessing. Decoding the output data and do further wrangling.</li>
+</ul></blockquote>
+<p>In my opinion, as the network weights are already determined, the most important parts of the deployment are pre&amp;postprocessing. You need to figure out exactly what shape of input data is, and what the normalization method is (mean/std value). In post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks  will be much harder to implement, such as object detection/segmentation tasks. You need to do a lot of work to crack the data wrangling problems, and sometimes may need to rewrite some operatations yourself from scratch, just because there is no corresponding method  with the original python implementation in C++.</p>
+<p>In this article, I will describe a simple implementation of image classification by OpenCV DNN module, and give a fast tour of batch inference.</p>
+<h2 id="important-apis">Important APIs</h2>
+<p>To load the weights into device and create the DNN Net object, Opencv DNN module provided a readNet method. It supports ONNX/Caffe/TF/OpenVINO&hellip;</p>
+<p>In this article, we use Caffe model as the example.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>Net cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>readNetFromCaffe(  <span style="color:#66d9ef">const</span> String <span style="color:#f92672">&amp;</span> prototxt, \
+</span></span><span style="display:flex;"><span>                                <span style="color:#66d9ef">const</span> String <span style="color:#f92672">&amp;</span> caffeModel <span style="color:#f92672">=</span> String())
+</span></span></code></pre></div><blockquote>
+<p>This API will read the network weights in Caffe format.</p>
+<p>Parameters</p>
+<ul>
+<li><code>prototxt</code>	path to the .prototxt file with text description of the network architecture.</li>
+<li><code>caffeModel</code> path to the .caffemodel file with learned network.</li>
+</ul>
+<p>Returns
+Net object.</p></blockquote>
+<p>We also need to call <code>blobFromImage</code> to do some preprocessing on the input cv::Mat image.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>Mat cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>blobFromImage( InputArray image,
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">double</span> scalefactor <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.0</span>,
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">const</span> Size <span style="color:#f92672">&amp;</span> size <span style="color:#f92672">=</span> Size(),
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">const</span> Scalar <span style="color:#f92672">&amp;</span> mean <span style="color:#f92672">=</span> Scalar(),
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">bool</span> swapRB <span style="color:#f92672">=</span> false,
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">bool</span> crop <span style="color:#f92672">=</span> false,
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">int</span> ddepth <span style="color:#f92672">=</span> CV_32F)
+</span></span></code></pre></div><blockquote>
+<p>Creates 4-dimensional blob from image. Optionally resizes and crops image from center, subtract mean values, scales values by scalefactor, swap Blue and Red channels.</p>
+<p>Parameters</p>
+<ul>
+<li><code>image</code>	input image (with 1-, 3- or 4-channels).</li>
+<li><code>size</code>	spatial size for output image</li>
+<li><code>mean</code>	scalar with mean values which are subtracted from channels. Values are intended to be in (mean-R, mean-G, mean-B) order if image has BGR ordering and swapRB is true.</li>
+<li><code>scalefactor</code>	multiplier for image values.</li>
+<li><code>swapRB</code>	flag which indicates that swap first and last channels in 3-channel image is necessary.</li>
+<li><code>crop</code>	flag which indicates whether image will be cropped after resize or not</li>
+<li><code>ddepth</code>	Depth of output blob. Choose CV_32F or CV_8U.
+if crop is true, input image is resized so one side after resize is equal to corresponding dimension in size and another one is equal or larger. Then, crop from the center is performed. If crop is false, direct resize without cropping and preserving aspect ratio is performed.</li>
+</ul>
+<p>Returns
+4-dimensional Mat with NCHW dimensions order.</p></blockquote>
+<h2 id="difference-between-cvmat-image-and-blob">Difference Between cv::Mat Image and Blob</h2>
+<p>The mainly difference is the data format. In normal cv::Mat image, the data is arranged in HWC format, like <code>RGBRGB...RGB</code>. But when turned into blobs, it becomes NCHW format, as most neural networks does.</p>
+<p>In normal cv::Mat image, we get width and height by member <code>cols</code> and <code>rows</code>, but in blob, these two vars is -1. We get blob size by <code>blob.size(0)</code> <code>blob.size(1)</code> etc. This is useful when we need to decompose the result mat from batch inference.</p>
+<h2 id="include-stuffs-we-need">Include stuffs we need</h2>
+<p>We firstly include all the stuffs to use OpenCV DNN. Then we  declare a Global cv::dnn:Net Variable. This var will load net weights from your disk and do nearly all the nn calculation tasks.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/dnn.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core/cuda.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Global net variable.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>Net net;
+</span></span></code></pre></div><p>Suppose we have a caffe model, we pass the <code>.prototxt</code> file name to the var <code>model_deploy</code>, and <code>.caffemodel</code> file to var <code>model_bin</code>. We do the init works in this <code>init</code> function:</p>
+<p>Note that, we open the cuda support for faster inference. If you want to add CUDA support too, please refer to <a href="http://bigbook.plus/2021/08/16/opencv-cmake-vs2019/" target="_blank" rel="noopener">Build OpenCV 4.5.2 with CUDA support</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> model_deploy, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> model_bin)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    net <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>readNetFromCaffe(model_deploy, model_bin);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Let CUDA be the calculation device.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    cv<span style="color:#f92672">::</span>cuda<span style="color:#f92672">::</span>setDevice(cuda_id);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>net.setPreferableBackend(cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>DNN_BACKEND_CUDA);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>net.setPreferableTarget(cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>DNN_TARGET_CUDA);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="single-image-inference">Single Image Inference</h2>
+<p>Now we try to do the single image inference.</p>
+<p>It&rsquo;s simple. Call <code>blobFromImage</code> method to turn the image into a blob, then set this blob as the input to <code>net</code> by <code>net.setInput</code>, finally we got the output <code>cv::Mat</code> by <code>net.forward()</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">single_inference</span>(<span style="color:#66d9ef">const</span> cv<span style="color:#f92672">::</span>Mat<span style="color:#f92672">&amp;</span> image)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (image.empty()) 
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;empty image!!!&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Mat blob <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>blobFromImage(image, <span style="color:#ae81ff">1</span>, cv<span style="color:#f92672">::</span>Size(<span style="color:#ae81ff">224</span>, <span style="color:#ae81ff">224</span>), \
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Scalar(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>), false, false);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    net.setInput(blob);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Mat out <span style="color:#f92672">=</span> net.forward();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    post_process(out);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>After we got the original output by neural network, we need to do the post-processing. In this sample, we assume that the final layer of model is just softmax layer, which as most model does, and we only use the <code>cv::minMaxLoc</code> to get the biggest score and position.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">post_process</span>(<span style="color:#66d9ef">const</span> cv<span style="color:#f92672">::</span>Mat<span style="color:#f92672">&amp;</span> out)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> _size <span style="color:#f92672">=</span> out.cols <span style="color:#f92672">*</span> out.rows;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> min_val;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> max_val;
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Point min_pos;
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Point max_pos;
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>minMaxLoc(out, <span style="color:#f92672">&amp;</span>min_val, <span style="color:#f92672">&amp;</span>max_val, <span style="color:#f92672">&amp;</span>min_pos, <span style="color:#f92672">&amp;</span>max_pos);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> label <span style="color:#f92672">=</span> max_pos.x;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>cout<span style="color:#f92672">&lt;&lt;</span><span style="color:#e6db74">&#34;result: &#34;</span><span style="color:#f92672">&lt;&lt;</span>label<span style="color:#f92672">&lt;&lt;</span>std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Now we can do the calculation in the main function.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (argc<span style="color:#f92672">!=</span><span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Usage: ./cv-dnn-test /path/to/prototxt /path/to/caffemodel /path/to/image.jpg&#34;</span>;
+</span></span><span style="display:flex;"><span>        exit(<span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Mat image <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>imread(argv[<span style="color:#ae81ff">3</span>]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    init(argv[<span style="color:#ae81ff">1</span>], argv[<span style="color:#ae81ff">2</span>]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    single_inference(image);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="batch-inference">Batch Inference</h2>
+<p>Batch inference swallowed multiple images in one forward pass. So we call <code>blobFromImages</code> to turn multiple images into a blob. Dimension <code>N</code> in <code>NCHW</code> is the image count.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>Mat cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>blobFromImages(InputArrayOfArrays images,
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">double</span> scalefactor <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.0</span>,
+</span></span><span style="display:flex;"><span>                            Size size <span style="color:#f92672">=</span> Size(),
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">const</span> Scalar <span style="color:#f92672">&amp;</span> mean <span style="color:#f92672">=</span> Scalar(),
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">bool</span> swapRB <span style="color:#f92672">=</span> false,
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">bool</span> crop <span style="color:#f92672">=</span> false,
+</span></span><span style="display:flex;"><span>                            <span style="color:#66d9ef">int</span> ddepth <span style="color:#f92672">=</span> CV_32F)
+</span></span></code></pre></div><blockquote>
+<p>Creates 4-dimensional blob from series of images. Optionally resizes and crops images from center, subtract mean values, scales values by scalefactor, swap Blue and Red channels.</p>
+<p>Parameters</p>
+<ul>
+<li><code>images</code>	input images (all with 1-, 3- or 4-channels).</li>
+<li><code>size</code>	spatial size for output image</li>
+<li><code>mean</code>	scalar with mean values which are subtracted from channels. Values are intended to be in (mean-R, mean-G, mean-B) order if image has BGR ordering and swapRB is true.</li>
+<li><code>scalefactor</code>	multiplier for images values.</li>
+<li><code>swapRB</code>	flag which indicates that swap first and last channels in 3-channel image is necessary.</li>
+<li><code>crop</code>	flag which indicates whether image will be cropped after resize or not</li>
+<li><code>ddepth</code>	Depth of output blob. Choose CV_32F or CV_8U.</li>
+</ul>
+<p>if crop is true, input image is resized so one side after resize is equal to corresponding dimension in size and another one is equal or larger. Then, crop from the center is performed. If crop is false, direct resize without cropping and preserving aspect ratio is performed</p></blockquote>
+<p>The output need to be decomposed. In this model, every single image output is a 1-d softmax results. After Batch Inference, we got N times 1-d softmax arrays, which is a 2-d cv::Mat. Every line represents a single image softmax results. We use the <code>rowRange</code> method to cut the cv::Mat result.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">batch_inference</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>cv<span style="color:#f92672">::</span>Mat<span style="color:#f92672">&gt;&amp;</span> images)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Mat blob <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>blobFromImages(images, <span style="color:#ae81ff">1</span>, cv<span style="color:#f92672">::</span>Size(<span style="color:#ae81ff">224</span>, <span style="color:#ae81ff">224</span>), cv<span style="color:#f92672">::</span>Scalar(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>), false, false);
+</span></span><span style="display:flex;"><span>    net.setInput(blob);
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Mat out <span style="color:#f92672">=</span> net.forward();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> out.rows; <span style="color:#f92672">++</span>i)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        cv<span style="color:#f92672">::</span>Mat out_single <span style="color:#f92672">=</span> out.rowRange(i, i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>        post_process(out_single);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="overall-demo">Overall Demo</h2>
+<p>We demostrate a full implementation code here to illustrate what we discussed in the previous text. We get the caffe model of ImageNet from ()[https://github.com/cvjena/cnn-models/releases/download/v1.0/cnn-models_cvgj.zip].</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/dnn.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/highgui.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/imgproc.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">float</span><span style="color:#f92672">&gt;</span> Result;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Result <span style="color:#a6e22e">post_process</span>(<span style="color:#66d9ef">const</span> cv<span style="color:#f92672">::</span>Mat<span style="color:#f92672">&amp;</span> out)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> min_val, max_val;
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Point min_loc, max_loc;
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>minMaxLoc(out, <span style="color:#f92672">&amp;</span>min_val, <span style="color:#f92672">&amp;</span>max_val, <span style="color:#f92672">&amp;</span>min_loc, <span style="color:#f92672">&amp;</span>max_loc);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> max_val <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">&lt;&lt;</span> max_loc.x <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> std<span style="color:#f92672">::</span>make_pair(max_loc.x, max_val);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Result<span style="color:#f92672">&gt;</span> batch_post_process(<span style="color:#66d9ef">const</span> cv<span style="color:#f92672">::</span>Mat<span style="color:#f92672">&amp;</span> outs)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Result<span style="color:#f92672">&gt;</span> ret;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> outs.rows; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        cv<span style="color:#f92672">::</span>Mat out <span style="color:#f92672">=</span> outs.rowRange(i, i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">auto</span> result <span style="color:#f92672">=</span> post_process(out);
+</span></span><span style="display:flex;"><span>        ret.push_back(result);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> ret;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>Net net <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>readNetFromCaffe(<span style="color:#e6db74">&#34;models/deploy.prototxt&#34;</span>, <span style="color:#e6db74">&#34;models/resnet50_cvgj_iter_320000.caffemodel&#34;</span>);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> image_files <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#34;data/a.jpeg&#34;</span>, <span style="color:#e6db74">&#34;data/b.jpeg&#34;</span>, <span style="color:#e6db74">&#34;data/c.jpeg&#34;</span>};
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>cv<span style="color:#f92672">::</span>Mat<span style="color:#f92672">&gt;</span> images;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> image_files.size(); i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        cv<span style="color:#f92672">::</span>Mat img <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>imread(image_files[i]);
+</span></span><span style="display:flex;"><span>        images.push_back(img);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Mat blobs <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>blobFromImages(images, <span style="color:#ae81ff">1.0</span>, cv<span style="color:#f92672">::</span>Size(<span style="color:#ae81ff">224</span>, <span style="color:#ae81ff">224</span>), cv<span style="color:#f92672">::</span>Scalar(<span style="color:#ae81ff">104</span>, <span style="color:#ae81ff">117</span>, <span style="color:#ae81ff">123</span>), false, false);
+</span></span><span style="display:flex;"><span>    net.setInput(blobs);
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>Mat outs <span style="color:#f92672">=</span> net.forward();
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>cout<span style="color:#f92672">&lt;&lt;</span>outs.size[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">&lt;&lt;</span> outs.size[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">auto</span> results <span style="color:#f92672">=</span> batch_post_process(outs);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;i<span style="color:#f92672">&lt;</span>results.size();<span style="color:#f92672">++</span>i)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">auto</span> result <span style="color:#f92672">=</span> results[i];
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">char</span> result_text[<span style="color:#ae81ff">10</span>];
+</span></span><span style="display:flex;"><span>        sprintf(result_text, <span style="color:#e6db74">&#34;%d %.2f&#34;</span>, result.first, result.second);
+</span></span><span style="display:flex;"><span>        cv<span style="color:#f92672">::</span>putText(images[i], result_text, cv<span style="color:#f92672">::</span>Point(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">20</span>), cv<span style="color:#f92672">::</span>FONT_HERSHEY_SIMPLEX, <span style="color:#ae81ff">0.5</span>, cv<span style="color:#f92672">::</span>Scalar(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">255</span>), <span style="color:#ae81ff">2</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">char</span> window_name[<span style="color:#ae81ff">10</span>];
+</span></span><span style="display:flex;"><span>        sprintf(window_name, <span style="color:#e6db74">&#34;image %d&#34;</span>, i);
+</span></span><span style="display:flex;"><span>        cv<span style="color:#f92672">::</span>imshow(window_name, images[i]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    cv<span style="color:#f92672">::</span>waitKey(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#important-apis">Important APIs</a></li>
+    <li><a href="#difference-between-cvmat-image-and-blob">Difference Between cv::Mat Image and Blob</a></li>
+    <li><a href="#include-stuffs-we-need">Include stuffs we need</a></li>
+    <li><a href="#single-image-inference">Single Image Inference</a></li>
+    <li><a href="#batch-inference">Batch Inference</a></li>
+    <li><a href="#overall-demo">Overall Demo</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.2a80058f1561f5213cf5925f05222466be52a7bddb403e735f8abc61d89a849d.js" integrity="sha256-KoAFjxVh9SE89ZJfBSIkZr5Sp73bQD5zX4q8YdiahJ0=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

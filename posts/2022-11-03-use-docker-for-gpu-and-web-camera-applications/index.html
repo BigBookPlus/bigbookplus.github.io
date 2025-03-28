@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/2022-11-03-use-docker-for-gpu-and-web-camera-applications/">
+  <meta property="og:title" content="使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络">
+  <meta property="og:description" content="引言 在操作系统中发行应用程序，尤其是python应用程序，其环境配置常常是分发过程中的重要一环。如果像开发的时候那样手动构建，一方面工作量难以承受，另一方面经常会出现各种各样的问题。在不同的目标主机上手动构建环境，会受到目标操作系统的版本、文件系统、所安装软件包的情况影响。而且开发时所使用的一些默认安装包，到了发布的时候可能已经都被更新过，所以手动构建要求使用的包版本号也精确记录。
+安装和配置 安装GPU docker，首先需要安装docker，然后在docker的基础上安装nvidia-docker。
+安装docker 参考链接 https://docs.docker.com/engine/install/ubuntu
+安装nvidia-docker 参考链接 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker
+在docker中显示GUI 如果在Docker中开发的是带有GUI的应用程序，也就是在docker中显示GUI，需要启动支持GUI的docker镜像。
+首先配置一下xhost
+xhost &#43;local:docker 或者
+xhost &#43; 启动docker，由于需要docker中显示GUI，所以加入参数
+-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY 完整指令如下：
+docker run --name mydocker --gpus all --shm-size=1g --ulimit memlock=-1 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY snn-server:basic 注意，这里是启动了GPU docker，–gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为–gpus 0。
+在Docker中访问usb相机 如果需要在docker中访问usb相机，需要在启动docker的时候，追加以下参数
+-v /dev/video0:/dev/video0 --device=/dev/video0 这样就把宿主机的/dev/video0映射到docker中的/dev/video0，然后在docker中就可以访问到相机了。
+docker run --name mydocker --gpus all --shm-size=1g --ulimit memlock=-1 -v /dev/video0:/dev/video0 --device=/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY myimage:latest 在Docker镜像中开放端口 如果需要从docker中对外提供服务，需要在docker中向宿主机进行端口映射，才可以从宿主机访问到docker中的服务。
+Docker中的端口映射，需要在启动docker的时候，加入参数
+-p 8080:8080 这样，宿主机的8080端口就映射到docker中的8080端口了。">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络">
+  <meta name="twitter:description" content="引言 在操作系统中发行应用程序，尤其是python应用程序，其环境配置常常是分发过程中的重要一环。如果像开发的时候那样手动构建，一方面工作量难以承受，另一方面经常会出现各种各样的问题。在不同的目标主机上手动构建环境，会受到目标操作系统的版本、文件系统、所安装软件包的情况影响。而且开发时所使用的一些默认安装包，到了发布的时候可能已经都被更新过，所以手动构建要求使用的包版本号也精确记录。
+安装和配置 安装GPU docker，首先需要安装docker，然后在docker的基础上安装nvidia-docker。
+安装docker 参考链接 https://docs.docker.com/engine/install/ubuntu
+安装nvidia-docker 参考链接 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker
+在docker中显示GUI 如果在Docker中开发的是带有GUI的应用程序，也就是在docker中显示GUI，需要启动支持GUI的docker镜像。
+首先配置一下xhost
+xhost &#43;local:docker 或者
+xhost &#43; 启动docker，由于需要docker中显示GUI，所以加入参数
+-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY 完整指令如下：
+docker run --name mydocker --gpus all --shm-size=1g --ulimit memlock=-1 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY snn-server:basic 注意，这里是启动了GPU docker，–gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为–gpus 0。
+在Docker中访问usb相机 如果需要在docker中访问usb相机，需要在启动docker的时候，追加以下参数
+-v /dev/video0:/dev/video0 --device=/dev/video0 这样就把宿主机的/dev/video0映射到docker中的/dev/video0，然后在docker中就可以访问到相机了。
+docker run --name mydocker --gpus all --shm-size=1g --ulimit memlock=-1 -v /dev/video0:/dev/video0 --device=/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY myimage:latest 在Docker镜像中开放端口 如果需要从docker中对外提供服务，需要在docker中向宿主机进行端口映射，才可以从宿主机访问到docker中的服务。
+Docker中的端口映射，需要在启动docker的时候，加入参数
+-p 8080:8080 这样，宿主机的8080端口就映射到docker中的8080端口了。">
+
+    
+    
+<meta name="description" content="使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络" />
+
+
+
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+  
+    
+    <li><a class=" list-link" href="/posts/blogs/2021-08-16-opencv-cmake-vs2019/" title="blogs">blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <h2 id="引言">引言</h2>
+<p>在操作系统中发行应用程序，尤其是python应用程序，其环境配置常常是分发过程中的重要一环。如果像开发的时候那样手动构建，一方面工作量难以承受，另一方面经常会出现各种各样的问题。在不同的目标主机上手动构建环境，会受到目标操作系统的版本、文件系统、所安装软件包的情况影响。而且开发时所使用的一些默认安装包，到了发布的时候可能已经都被更新过，所以手动构建要求使用的包版本号也精确记录。</p>
+<h2 id="安装和配置">安装和配置</h2>
+<p>安装GPU docker，首先需要安装docker，然后在docker的基础上安装nvidia-docker。</p>
+<h3 id="安装docker">安装docker</h3>
+<p>参考链接 <a href="https://docs.docker.com/engine/install/ubuntu" target="_blank" rel="noopener">https://docs.docker.com/engine/install/ubuntu</a></p>
+<h3 id="安装nvidia-docker">安装nvidia-docker</h3>
+<p>参考链接 <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker" target="_blank" rel="noopener">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker</a></p>
+<h2 id="在docker中显示gui">在docker中显示GUI</h2>
+<p>如果在Docker中开发的是带有GUI的应用程序，也就是在docker中显示GUI，需要启动支持GUI的docker镜像。</p>
+<p>首先配置一下xhost</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>xhost +local:docker
+</span></span></code></pre></div><p>或者</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>xhost +
+</span></span></code></pre></div><p>启动docker，由于需要docker中显示GUI，所以加入参数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY<span style="color:#f92672">=</span>$DISPLAY
+</span></span></code></pre></div><p>完整指令如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run --name mydocker --gpus all --shm-size<span style="color:#f92672">=</span>1g --ulimit memlock<span style="color:#f92672">=</span>-1 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY<span style="color:#f92672">=</span>$DISPLAY snn-server:basic
+</span></span></code></pre></div><p>注意，这里是启动了GPU docker，&ndash;gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为&ndash;gpus 0。</p>
+<h2 id="在docker中访问usb相机">在Docker中访问usb相机</h2>
+<p>如果需要在docker中访问usb相机，需要在启动docker的时候，追加以下参数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-v /dev/video0:/dev/video0 --device<span style="color:#f92672">=</span>/dev/video0
+</span></span></code></pre></div><p>这样就把宿主机的/dev/video0映射到docker中的/dev/video0，然后在docker中就可以访问到相机了。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run --name mydocker --gpus all --shm-size<span style="color:#f92672">=</span>1g --ulimit memlock<span style="color:#f92672">=</span>-1 -v /dev/video0:/dev/video0 --device<span style="color:#f92672">=</span>/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY<span style="color:#f92672">=</span>$DISPLAY myimage:latest
+</span></span></code></pre></div><h2 id="在docker镜像中开放端口">在Docker镜像中开放端口</h2>
+<p>如果需要从docker中对外提供服务，需要在docker中向宿主机进行端口映射，才可以从宿主机访问到docker中的服务。</p>
+<p>Docker中的端口映射，需要在启动docker的时候，加入参数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-p 8080:8080  
+</span></span></code></pre></div><p>这样，宿主机的8080端口就映射到docker中的8080端口了。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run --name mydocker -p 8080:8080  --gpus all --shm-size<span style="color:#f92672">=</span>1g --ulimit memlock<span style="color:#f92672">=</span>-1 -v /dev/video0:/dev/video0 --device<span style="color:#f92672">=</span>/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY<span style="color:#f92672">=</span>$DISPLAY myimage:latest
+</span></span></code></pre></div><h2 id="开启更多的gpu功能支持">开启更多的GPU功能支持</h2>
+<p>我的程序后面用到了GPU的一些高级功能，比如GPU的nvcuvid解码，这需要做更多的设置，否则在程序启动对应解码库的时候，报错如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>[h264_cuvid @ 0x7f2d48048580] Cannot load libnvcuvid.so.1
+</span></span></code></pre></div><p>这是因为docker中的GPU环境，没有开启nvcuvid的支持，需要在启动docker的时候，加入参数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>--runtime<span style="color:#f92672">=</span>nvidia -e NVIDIA_VISIBLE_DEVICES<span style="color:#f92672">=</span>all -e NVIDIA_DRIVER_CAPABILITIES<span style="color:#f92672">=</span>compute,utility,video 
+</span></span></code></pre></div><p>当然，这需要可能需要您的宿主机本身可以支持这方面的功能</p>
+<h2 id="创建本地镜像中心">创建本地镜像中心</h2>
+<p>开发中和开发好的镜像都可以选择在dockerhub上暂存，不同阶段或者用途的docker则以不同的tag或仓库名称来区分管理。免费的dockerhub账号有一个私有仓库和无限的公共仓库可供使用。不管是用来开发的镜像，还是准备分发的镜像，体积都比较大，一般要以GB为单位，因特网直接上传下载可能需要等待较长时间；因此，也可以在局域网中配置一台硬盘空间较大的主机，做为内网的镜像中心。</p>
+<p>选好机器后，在机器上做好docker的基本配置，然后在联网状态下，执行以下命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run -d -p 5000:5000 --restart<span style="color:#f92672">=</span>always --name xy-registry -v /home/centos/registry:/registry  registry:latest
+</span></span></code></pre></div><p>可以看到，内网镜像中心，其实也是一个docker镜像的形式，把registry镜像拉下来，自动启动服务运行在机器上。需要配置的仅是完成端口映射和目录绑定。</p>
+<h3 id="一些可选参数">一些可选参数</h3>
+<ul>
+<li>-d，后台运行容器</li>
+<li>-p 5000:5000 ，映射容器5000端口至宿主机5000端口。</li>
+<li>&ndash;restart always，设置重新启动策略，在docker重新启动时自动重新启动容器my-registry。</li>
+<li>&ndash;name 给容器命名。my-registry，</li>
+<li>-v /registry:/registry，把docker容器中/registry目录的数据加载到宿主机的/registry目录，宿主机的/registry目录如果不存在会自动创建。目的是为了防止docker私有仓库这个容器被删除时，仓库里的镜像也会被删除。宿主机查看到的私有仓库镜像就在这个目录中。</li>
+<li>-e REGISTRY_STORAGE_DELETE_ENABLED，设置是否允许删除仓库存储的镜像。</li>
+<li>-e REGISTRY_HTTP_ADDR=0.0.0.0:5000，设置镜像仓库地址。</li>
+</ul>
+<h3 id="上传镜像">上传镜像</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker commit container_id ip:port/image_name:tag
+</span></span><span style="display:flex;"><span>docker push ip:port/image_name:tag
+</span></span></code></pre></div><h2 id="回收空间">回收空间</h2>
+<p>首先查看docker的磁盘空间占用情况</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker system df
+</span></span></code></pre></div><p>您可以看到，docker的磁盘空间占用情况，包括镜像、容器、卷和网络的占用情况。
+清理的方式有两种，一种是清理所有的无用镜像，一种是清理指定的镜像。</p>
+<h3 id="清理所有的无用镜像">清理所有的无用镜像</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker image prune
+</span></span></code></pre></div><h3 id="清理指定的镜像">清理指定的镜像</h3>
+<p>首先列出所有的镜像</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker images
+</span></span></code></pre></div><p>删除指定的镜像</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker rmi image_id
+</span></span></code></pre></div><h2 id="gpu-docker-with-anaconda">GPU Docker with Anaconda</h2>
+<p>再进一步，如果想要一个GPU docker，又想要在docker中安装anaconda，那么就需要在docker中安装cuda和anaconda了。
+cuda的docker可以直接从docker hub拉取，anaconda的docker需要自己构建。
+也是可以考虑两种方式，一种是构建DockerFile，一种是直接手动构建镜像。</p>
+<h3 id="第一种方式构建dockerfile">第一种方式:构建DockerFile</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-DockerFile" data-lang="DockerFile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> nvidia/cuda:11.3.0-devel-ubuntu20.04</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Add some dependencies</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> apt-get clean <span style="color:#f92672">&amp;&amp;</span> apt-get update -y -qq<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> apt-get install -y curl git build-essential<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ENV</span> PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/root/anaconda2/bin:</span><span style="color:#e6db74">${</span>PATH<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> curl --silent -O https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-x86_64.sh <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    <span style="color:#f92672">&amp;&amp;</span> bash Anaconda3-2023.03-Linux-x86_64.sh -b -p /root/anaconda3<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> pip install keras <span style="color:#f92672">&amp;&amp;</span> conda install pygpu<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> /bin/bash<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><h3 id="第二种方式直接手动构建镜像">第二种方式:直接手动构建镜像</h3>
+<p>首先选择一个GPU docker拉取，这里我们选择的是配备有cuda11.3的ubuntu 20.04版本的镜像。当前时间是2023年，cuda已经更新到了12，ubuntu也已经发行到了版本号22，可以看出所选的版本是比较次新的版本，算是对兼容性的一个折衷。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker pull nvidia/cuda:11.3.0-devel-ubuntu20.04
+</span></span></code></pre></div><p>然后参照上一节的DockerFile安装anaconda。</p>
+<h2 id="reference">Reference</h2>
+<p><a href="https://blog.csdn.net/renfeigui0/article/details/103755823" target="_blank" rel="noopener">https://blog.csdn.net/renfeigui0/article/details/103755823</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1581147" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1581147</a></p>
+<p><a href="https://medium.com/better-programming/docker-tips-clean-up-your-local-machine-35f370a01a78" target="_blank" rel="noopener">https://medium.com/better-programming/docker-tips-clean-up-your-local-machine-35f370a01a78</a></p>
+<p><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker" target="_blank" rel="noopener">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker</a></p>
+<p><a href="https://docs.docker.com/engine/install/ubuntu" target="_blank" rel="noopener">https://docs.docker.com/engine/install/ubuntu</a></p>
+<p><a href="https://github.com/NVIDIA/nvidia-docker/issues/766" target="_blank" rel="noopener">https://github.com/NVIDIA/nvidia-docker/issues/766</a></p>
+
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#引言">引言</a></li>
+    <li><a href="#安装和配置">安装和配置</a>
+      <ul>
+        <li><a href="#安装docker">安装docker</a></li>
+        <li><a href="#安装nvidia-docker">安装nvidia-docker</a></li>
+      </ul>
+    </li>
+    <li><a href="#在docker中显示gui">在docker中显示GUI</a></li>
+    <li><a href="#在docker中访问usb相机">在Docker中访问usb相机</a></li>
+    <li><a href="#在docker镜像中开放端口">在Docker镜像中开放端口</a></li>
+    <li><a href="#开启更多的gpu功能支持">开启更多的GPU功能支持</a></li>
+    <li><a href="#创建本地镜像中心">创建本地镜像中心</a>
+      <ul>
+        <li><a href="#一些可选参数">一些可选参数</a></li>
+        <li><a href="#上传镜像">上传镜像</a></li>
+      </ul>
+    </li>
+    <li><a href="#回收空间">回收空间</a>
+      <ul>
+        <li><a href="#清理所有的无用镜像">清理所有的无用镜像</a></li>
+        <li><a href="#清理指定的镜像">清理指定的镜像</a></li>
+      </ul>
+    </li>
+    <li><a href="#gpu-docker-with-anaconda">GPU Docker with Anaconda</a>
+      <ul>
+        <li><a href="#第一种方式构建dockerfile">第一种方式:构建DockerFile</a></li>
+        <li><a href="#第二种方式直接手动构建镜像">第二种方式:直接手动构建镜像</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.a341acbc0f62a8685e8f7efb2bd46fffb5f3e61917ea04a490962ea59a29b4e9.js" integrity="sha256-o0GsvA9iqGhej377K9Rv/7Xz5hkX6gSkkJYupZoptOk=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

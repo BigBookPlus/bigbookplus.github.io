@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>OpenCV 4.X 使用CvxText在图片显示汉字</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/2022-06-15-cvxtext-opencv45/">
+  <meta property="og:title" content="OpenCV 4.X 使用CvxText在图片显示汉字">
+  <meta property="og:description" content="最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype&#43;cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。
+准备 需要的依赖有：
+C/C&#43;&#43; 编译环境（似乎是废话） OpenCV (仍然废话) freetype的lib： 提前编译好，官网是 https://freetype.org/，我使用的版本是2.9.1 字体文件，一般用simhei.ttf。在操作系统的字体里面哦。 修改 CvxText 代码 我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。
+OpenCV头文件包含方式 首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：
+#include &#34;opencv2/core/core.hpp&#34; #include &#34;opencv2/core/core_c.h&#34; #include &#34;opencv2/highgui/highgui.hpp&#34; #include &#34;opencv2/imgproc/imgproc.hpp&#34; 这里特别说明，引入core_c.h这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，core_c.h 提供了对C类型的兼容。
+CvScalar类型问题 下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C&#43;&#43;类型的cv::Scalar。下面的puttext函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。
+int CvxText::putText(cv::Mat &amp;frame, const char *text, CvPoint pos) { //return putText(frame, text, pos, CV_RGB(255, 255, 255)); CvScalar s = {255, 255, 255}; return putText(frame, text, pos, s); } int CvxText::putText(cv::Mat &amp;frame, const wchar_t *text, CvPoint pos) { //return putText(frame, text, pos, CV_RGB(255, 255, 255)); CvScalar s = {255, 255, 255}; return putText(frame, text, pos, s); } cv::Mat转为IplImage 另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="OpenCV 4.X 使用CvxText在图片显示汉字">
+  <meta name="twitter:description" content="最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype&#43;cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。
+准备 需要的依赖有：
+C/C&#43;&#43; 编译环境（似乎是废话） OpenCV (仍然废话) freetype的lib： 提前编译好，官网是 https://freetype.org/，我使用的版本是2.9.1 字体文件，一般用simhei.ttf。在操作系统的字体里面哦。 修改 CvxText 代码 我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。
+OpenCV头文件包含方式 首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：
+#include &#34;opencv2/core/core.hpp&#34; #include &#34;opencv2/core/core_c.h&#34; #include &#34;opencv2/highgui/highgui.hpp&#34; #include &#34;opencv2/imgproc/imgproc.hpp&#34; 这里特别说明，引入core_c.h这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，core_c.h 提供了对C类型的兼容。
+CvScalar类型问题 下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C&#43;&#43;类型的cv::Scalar。下面的puttext函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。
+int CvxText::putText(cv::Mat &amp;frame, const char *text, CvPoint pos) { //return putText(frame, text, pos, CV_RGB(255, 255, 255)); CvScalar s = {255, 255, 255}; return putText(frame, text, pos, s); } int CvxText::putText(cv::Mat &amp;frame, const wchar_t *text, CvPoint pos) { //return putText(frame, text, pos, CV_RGB(255, 255, 255)); CvScalar s = {255, 255, 255}; return putText(frame, text, pos, s); } cv::Mat转为IplImage 另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：">
+
+    
+    
+<meta name="description" content="OpenCV 4.X 使用CvxText在图片显示汉字" />
+
+
+
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+  
+    
+    <li><a class=" list-link" href="/posts/blogs/2021-08-16-opencv-cmake-vs2019/" title="blogs">blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>OpenCV 4.X 使用CvxText在图片显示汉字</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <p>最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype+cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。</p>
+<h2 id="准备">准备</h2>
+<p>需要的依赖有：</p>
+<ul>
+<li>C/C++ 编译环境（似乎是废话）</li>
+<li>OpenCV (仍然废话)</li>
+<li>freetype的lib： 提前编译好，官网是 <a href="https://freetype.org/" target="_blank" rel="noopener">https://freetype.org/</a>，我使用的版本是2.9.1</li>
+<li>字体文件，一般用<code>simhei.ttf</code>。在操作系统的字体里面哦。</li>
+</ul>
+<h2 id="修改-cvxtext-代码">修改 CvxText 代码</h2>
+<p>我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。</p>
+<h3 id="opencv头文件包含方式">OpenCV头文件包含方式</h3>
+<p>首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core/core.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core/core_c.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/highgui/highgui.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/imgproc/imgproc.hpp&#34;</span><span style="color:#75715e">
+</span></span></span></code></pre></div><p>这里特别说明，引入<code>core_c.h</code>这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，<code>core_c.h</code> 提供了对C类型的兼容。</p>
+<h3 id="cvscalar类型问题">CvScalar类型问题</h3>
+<p>下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C++类型的cv::Scalar。下面的<code>puttext</code>函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> CvxText<span style="color:#f92672">::</span>putText(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span>    <span style="color:#f92672">*</span>text, CvPoint pos)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	CvScalar s <span style="color:#f92672">=</span> {<span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>};
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">putText</span>(frame, text, pos, s);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> CvxText<span style="color:#f92672">::</span>putText(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">wchar_t</span> <span style="color:#f92672">*</span>text, CvPoint pos)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	CvScalar s <span style="color:#f92672">=</span> {<span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>};
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">putText</span>(frame, text, pos, s);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="cvmat转为iplimage">cv::Mat转为IplImage</h3>
+<p>另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> CvxText<span style="color:#f92672">::</span>putWChar(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">wchar_t</span> wc, CvPoint <span style="color:#f92672">&amp;</span>pos, CvScalar color)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	IplImage<span style="color:#f92672">*</span> img <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	img <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>(IplImage)frame;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>很不幸，现在这样做在似乎不work了。好在cv::Mat转IplImage仍然有提供接口可用。打开core_c.h文件，可以看到一个很显眼的函数声明，</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>CV_EXPORTS _IplImage <span style="color:#a6e22e">cvIplImage</span>(<span style="color:#66d9ef">const</span> cv<span style="color:#f92672">::</span>Mat<span style="color:#f92672">&amp;</span> m);
+</span></span></code></pre></div><p>所以调用该接口，传入cv::Mat对象会返回转换好的IplImage类型的对象。直接修改代码如下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>	IplImage<span style="color:#f92672">*</span> img <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	img <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>(cvIplImage(frame));
+</span></span></code></pre></div><p>至此，代码就可以正常工作了。</p>
+<h2 id="调用方法">调用方法</h2>
+<p>初始化</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>    CvxText text;
+</span></span></code></pre></div><p>调用接口</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">putText</span>(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span>    <span style="color:#f92672">*</span>text, CvPoint pos);
+</span></span></code></pre></div><h2 id="cvxtext代码">CvxText代码</h2>
+<p>把我改后的代码分享一下。在OpenCV 4.5下亲测可用。理论上4.X的OpenCV应该都可使用。</p>
+<h3 id="头文件-cvxtexth">头文件 CvxText.h</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#ifndef CVX_TEXT_H
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define CVX_TEXT_H
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;ft2build.h&gt;</span><span style="color:#75715e">  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include FT_FREETYPE_H  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core/core.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core/core_c.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/highgui/highgui.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/imgproc/imgproc.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CvxText</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ��ֹcopy  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	CvxText<span style="color:#f92672">&amp;</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">=</span>(<span style="color:#66d9ef">const</span> CvxText<span style="color:#f92672">&amp;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>	CvxText(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>freeType);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">virtual</span> <span style="color:#f92672">~</span>CvxText();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* ��ȡ���塣Ŀǰ��Щ�����в�֧�֡�
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param font        ��������, Ŀǰ��֧��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param size        �����С/�հױ���/�������/��ת�Ƕ�
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param underline   �»���
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param diaphaneity ͸����
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \sa setFont, restoreFont
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">getFont</span>(<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>type,
+</span></span><span style="display:flex;"><span>		CvScalar <span style="color:#f92672">*</span>size <span style="color:#f92672">=</span> NULL, <span style="color:#66d9ef">bool</span> <span style="color:#f92672">*</span>underline <span style="color:#f92672">=</span> NULL, <span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>diaphaneity <span style="color:#f92672">=</span> NULL);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* �������塣Ŀǰ��Щ�����в�֧�֡�
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param font        ��������, Ŀǰ��֧��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param size        �����С/�հױ���/�������/��ת�Ƕ�
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param underline   �»���
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param diaphaneity ͸����
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \sa getFont, restoreFont
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setFont</span>(<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>type,
+</span></span><span style="display:flex;"><span>		CvScalar <span style="color:#f92672">*</span>size <span style="color:#f92672">=</span> NULL, <span style="color:#66d9ef">bool</span> <span style="color:#f92672">*</span>underline <span style="color:#f92672">=</span> NULL, <span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>diaphaneity <span style="color:#f92672">=</span> NULL);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* �ָ�ԭʼ���������á�
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \sa getFont, setFont
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">restoreFont</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* �������(��ɫĬ��Ϊ��ɫ)����������������ַ���ֹͣ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param img  �����Ӱ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param text �ı�����
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param pos  �ı�λ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">putText</span>(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span>    <span style="color:#f92672">*</span>text, CvPoint pos);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* �������(��ɫĬ��Ϊ��ɫ)����������������ַ���ֹͣ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param img  �����Ӱ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param text �ı�����
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param pos  �ı�λ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">putText</span>(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">wchar_t</span> <span style="color:#f92672">*</span>text, CvPoint pos);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* ������֡���������������ַ���ֹͣ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param img   �����Ӱ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param text  �ı�����
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param pos   �ı�λ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param color �ı���ɫ
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">putText</span>(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span>    <span style="color:#f92672">*</span>text, CvPoint pos, CvScalar color);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* ������֡���������������ַ���ֹͣ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param img   �����Ӱ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param text  �ı�����
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param pos   �ı�λ��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \param color �ı���ɫ
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	* \return ���سɹ�������ַ����ȣ�ʧ�ܷ���-1��
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">putText</span>(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">wchar_t</span> <span style="color:#f92672">*</span>text, CvPoint pos, CvScalar color);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// �����ǰ�ַ�, ����m_posλ��  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> putWChar(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">wchar_t</span> wc, CvPoint <span style="color:#f92672">&amp;</span>pos, CvScalar color);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	FT_Library   m_library;   <span style="color:#75715e">// �ֿ�  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	FT_Face      m_face;      <span style="color:#75715e">// ����  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">//================================================================  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Ĭ�ϵ������������  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>         m_fontType;
+</span></span><span style="display:flex;"><span>	CvScalar   m_fontSize;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">bool</span>      m_fontUnderline;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">float</span>      m_fontDiaphaneity;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><h3 id="实现文件-cvxtextcpp">实现文件 CvxText.cpp</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;CvxText.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;wchar.h&gt;</span><span style="color:#75715e">  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;assert.h&gt;</span><span style="color:#75715e">  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;locale.h&gt;</span><span style="color:#75715e">  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;ctype.h&gt;</span><span style="color:#75715e"> 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/core/core.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/highgui/highgui.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;opencv2/imgproc/imgproc.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> cv;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ���ֿ�  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>CvxText<span style="color:#f92672">::</span>CvxText(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>freeType)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	assert(freeType <span style="color:#f92672">!=</span> NULL);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ���ֿ��ļ�, ����һ������  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (FT_Init_FreeType(<span style="color:#f92672">&amp;</span>m_library)) <span style="color:#66d9ef">throw</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> result <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//result = FT_New_Face(m_library, freeType, 0, &amp;m_face);
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> (result <span style="color:#f92672">=</span> FT_New_Face(m_library, freeType, <span style="color:#ae81ff">0</span>, <span style="color:#f92672">&amp;</span>m_face)) <span style="color:#66d9ef">throw</span>;
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ���������������  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	restoreFont();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ����C���Ե��ַ�������  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	setlocale(LC_ALL, <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// �ͷ�FreeType��Դ  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>CvxText<span style="color:#f92672">::~</span>CvxText()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	FT_Done_Face(m_face);
+</span></span><span style="display:flex;"><span>	FT_Done_FreeType(m_library);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// �����������:  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// font         - ��������, Ŀǰ��֧��  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// size         - �����С/�հױ���/�������/��ת�Ƕ�  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// underline   - �»���  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// diaphaneity   - ͸����  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> CvxText<span style="color:#f92672">::</span>getFont(<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>type, CvScalar <span style="color:#f92672">*</span>size, <span style="color:#66d9ef">bool</span> <span style="color:#f92672">*</span>underline, <span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>diaphaneity)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (type) <span style="color:#f92672">*</span>type <span style="color:#f92672">=</span> m_fontType;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (size) <span style="color:#f92672">*</span>size <span style="color:#f92672">=</span> m_fontSize;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (underline) <span style="color:#f92672">*</span>underline <span style="color:#f92672">=</span> m_fontUnderline;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (diaphaneity) <span style="color:#f92672">*</span>diaphaneity <span style="color:#f92672">=</span> m_fontDiaphaneity;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> CvxText<span style="color:#f92672">::</span>setFont(<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>type, CvScalar <span style="color:#f92672">*</span>size, <span style="color:#66d9ef">bool</span> <span style="color:#f92672">*</span>underline, <span style="color:#66d9ef">float</span> <span style="color:#f92672">*</span>diaphaneity)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// �����Ϸ��Լ��  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (type)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (type <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span>) m_fontType <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>type;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (size)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		m_fontSize.val[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> fabs(size<span style="color:#f92672">-&gt;</span>val[<span style="color:#ae81ff">0</span>]);
+</span></span><span style="display:flex;"><span>		m_fontSize.val[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> fabs(size<span style="color:#f92672">-&gt;</span>val[<span style="color:#ae81ff">1</span>]);
+</span></span><span style="display:flex;"><span>		m_fontSize.val[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> fabs(size<span style="color:#f92672">-&gt;</span>val[<span style="color:#ae81ff">2</span>]);
+</span></span><span style="display:flex;"><span>		m_fontSize.val[<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> fabs(size<span style="color:#f92672">-&gt;</span>val[<span style="color:#ae81ff">3</span>]);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (underline)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		m_fontUnderline <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>underline;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (diaphaneity)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		m_fontDiaphaneity <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>diaphaneity;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// �ָ�ԭʼ����������  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> CvxText<span style="color:#f92672">::</span>restoreFont()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	m_fontType <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;            <span style="color:#75715e">// ��������(��֧��)  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	m_fontSize.val[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">40</span>;      <span style="color:#75715e">// �����С  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	m_fontSize.val[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>;   <span style="color:#75715e">// �հ��ַ���С����  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	m_fontSize.val[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.1</span>;   <span style="color:#75715e">// �����С����  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	m_fontSize.val[<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;      <span style="color:#75715e">// ��ת�Ƕ�(��֧��)  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	m_fontUnderline <span style="color:#f92672">=</span> false;   <span style="color:#75715e">// �»���(��֧��)  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	m_fontDiaphaneity <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.0</span>;   <span style="color:#75715e">// ɫ�ʱ���(�ɲ���͸��Ч��)  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// �����ַ���С  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	FT_Set_Pixel_Sizes(m_face, (<span style="color:#66d9ef">int</span>)m_fontSize.val[<span style="color:#ae81ff">0</span>], <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// �������(��ɫĬ��Ϊ��ɫ)  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> CvxText<span style="color:#f92672">::</span>putText(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span>    <span style="color:#f92672">*</span>text, CvPoint pos)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	CvScalar s <span style="color:#f92672">=</span> {<span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>};
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">putText</span>(frame, text, pos, s);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> CvxText<span style="color:#f92672">::</span>putText(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">wchar_t</span> <span style="color:#f92672">*</span>text, CvPoint pos)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	CvScalar s <span style="color:#f92672">=</span> {<span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>, <span style="color:#ae81ff">255</span>};
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">putText</span>(frame, text, pos, s);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> CvxText<span style="color:#f92672">::</span>putText(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span>    <span style="color:#f92672">*</span>text, CvPoint pos, CvScalar color)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (frame.empty()) <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (text <span style="color:#f92672">==</span> NULL) <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> i;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> (i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; text[i] <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;\0&#39;</span>; <span style="color:#f92672">++</span>i)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">wchar_t</span> wc <span style="color:#f92672">=</span> text[i];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// ����˫�ֽڷ���  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>isascii(wc)) mbtowc(<span style="color:#f92672">&amp;</span>wc, <span style="color:#f92672">&amp;</span>text[i<span style="color:#f92672">++</span>], <span style="color:#ae81ff">2</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// �����ǰ���ַ�  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>		putWChar(frame, wc, pos, color);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> i;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> CvxText<span style="color:#f92672">::</span>putText(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">wchar_t</span> <span style="color:#f92672">*</span>text, CvPoint pos, CvScalar color)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (frame.empty()) <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (text <span style="color:#f92672">==</span> NULL) <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> i;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> (i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; text[i] <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;\0&#39;</span>; <span style="color:#f92672">++</span>i)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// �����ǰ���ַ�  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>		putWChar(frame, text[i], pos, color);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> i;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// �����ǰ�ַ�, ����m_posλ��  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> CvxText<span style="color:#f92672">::</span>putWChar(cv<span style="color:#f92672">::</span>Mat <span style="color:#f92672">&amp;</span>frame, <span style="color:#66d9ef">wchar_t</span> wc, CvPoint <span style="color:#f92672">&amp;</span>pos, CvScalar color)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	IplImage<span style="color:#f92672">*</span> img <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	img <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>(cvIplImage(frame));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ����unicode��������Ķ�ֵλͼ  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	FT_UInt glyph_index <span style="color:#f92672">=</span> FT_Get_Char_Index(m_face, wc);
+</span></span><span style="display:flex;"><span>	FT_Load_Glyph(m_face, glyph_index, FT_LOAD_DEFAULT);
+</span></span><span style="display:flex;"><span>	FT_Render_Glyph(m_face<span style="color:#f92672">-&gt;</span>glyph, FT_RENDER_MODE_MONO);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	FT_GlyphSlot slot <span style="color:#f92672">=</span> m_face<span style="color:#f92672">-&gt;</span>glyph;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ������  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> rows <span style="color:#f92672">=</span> slot<span style="color:#f92672">-&gt;</span>bitmap.rows;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> cols <span style="color:#f92672">=</span> slot<span style="color:#f92672">-&gt;</span>bitmap.width;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> rows; <span style="color:#f92672">++</span>i)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; j <span style="color:#f92672">&lt;</span> cols; <span style="color:#f92672">++</span>j)
+</span></span><span style="display:flex;"><span>		{
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">int</span> off <span style="color:#f92672">=</span> ((img<span style="color:#f92672">-&gt;</span>origin <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">?</span> i : (rows <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> i))
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">*</span> slot<span style="color:#f92672">-&gt;</span>bitmap.pitch <span style="color:#f92672">+</span> j <span style="color:#f92672">/</span> <span style="color:#ae81ff">8</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> (slot<span style="color:#f92672">-&gt;</span>bitmap.buffer[off] <span style="color:#f92672">&amp;</span> (<span style="color:#ae81ff">0xC0</span> <span style="color:#f92672">&gt;&gt;</span> (j <span style="color:#f92672">%</span> <span style="color:#ae81ff">8</span>)))
+</span></span><span style="display:flex;"><span>			{
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">int</span> r <span style="color:#f92672">=</span> (img<span style="color:#f92672">-&gt;</span>origin <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">?</span> pos.y <span style="color:#f92672">-</span> (rows <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> i) <span style="color:#f92672">:</span> pos.y <span style="color:#f92672">+</span> i;;
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">int</span> c <span style="color:#f92672">=</span> pos.x <span style="color:#f92672">+</span> j;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (r <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> img<span style="color:#f92672">-&gt;</span>height
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;</span> img<span style="color:#f92672">-&gt;</span>width)
+</span></span><span style="display:flex;"><span>				{
+</span></span><span style="display:flex;"><span>					CvScalar scalar <span style="color:#f92672">=</span> cvGet2D(img, r, c);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>					<span style="color:#75715e">// ����ɫ���ں�  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">float</span> p <span style="color:#f92672">=</span> m_fontDiaphaneity;
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> k <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; k <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">4</span>; <span style="color:#f92672">++</span>k)
+</span></span><span style="display:flex;"><span>					{
+</span></span><span style="display:flex;"><span>						scalar.val[k] <span style="color:#f92672">=</span> scalar.val[k] <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> p) <span style="color:#f92672">+</span> color.val[k] <span style="color:#f92672">*</span> p;
+</span></span><span style="display:flex;"><span>					}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>					cvSet2D(img, r, c, scalar);
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>		} <span style="color:#75715e">// end for  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	} <span style="color:#75715e">// end for  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// �޸���һ���ֵ����λ��  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">double</span> space <span style="color:#f92672">=</span> m_fontSize.val[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> m_fontSize.val[<span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">double</span> sep <span style="color:#f92672">=</span> m_fontSize.val[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> m_fontSize.val[<span style="color:#ae81ff">2</span>];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	pos.x <span style="color:#f92672">+=</span> (<span style="color:#66d9ef">int</span>)((cols <span style="color:#f92672">?</span> cols : space) <span style="color:#f92672">+</span> sep);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#准备">准备</a></li>
+    <li><a href="#修改-cvxtext-代码">修改 CvxText 代码</a>
+      <ul>
+        <li><a href="#opencv头文件包含方式">OpenCV头文件包含方式</a></li>
+        <li><a href="#cvscalar类型问题">CvScalar类型问题</a></li>
+        <li><a href="#cvmat转为iplimage">cv::Mat转为IplImage</a></li>
+      </ul>
+    </li>
+    <li><a href="#调用方法">调用方法</a></li>
+    <li><a href="#cvxtext代码">CvxText代码</a>
+      <ul>
+        <li><a href="#头文件-cvxtexth">头文件 CvxText.h</a></li>
+        <li><a href="#实现文件-cvxtextcpp">实现文件 CvxText.cpp</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.a341acbc0f62a8685e8f7efb2bd46fffb5f3e61917ea04a490962ea59a29b4e9.js" integrity="sha256-o0GsvA9iqGhej377K9Rv/7Xz5hkX6gSkkJYupZoptOk=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

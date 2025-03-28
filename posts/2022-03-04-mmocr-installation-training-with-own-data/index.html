@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>Using MMOCR: Installation and Training with my own Data</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/2022-03-04-mmocr-installation-training-with-own-data/">
+  <meta property="og:title" content="Using MMOCR: Installation and Training with my own Data">
+  <meta property="og:description" content="What is OCR? According to the wikipedia, OCR, which refers to Optical character recognition or optical character reader, is the electronic or mechanical conversion of images of typed, handwritten or printed text into machine-encoded text.
+Why MMOCR? Pytorch Maintained by Openmmlab Easy to train your own data Can be deployed into C&#43;&#43; code Pytorch is sweet, it seems to have absorbed most of the advantages of current deep learning frameworks. It is maintained by the OpenMMLab, belongs to SenseTime, which means that this repo can live long and keep updating. MMOCR has a clear structure just like MMDetection. It has the experimental deployment code too.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Using MMOCR: Installation and Training with my own Data">
+  <meta name="twitter:description" content="What is OCR? According to the wikipedia, OCR, which refers to Optical character recognition or optical character reader, is the electronic or mechanical conversion of images of typed, handwritten or printed text into machine-encoded text.
+Why MMOCR? Pytorch Maintained by Openmmlab Easy to train your own data Can be deployed into C&#43;&#43; code Pytorch is sweet, it seems to have absorbed most of the advantages of current deep learning frameworks. It is maintained by the OpenMMLab, belongs to SenseTime, which means that this repo can live long and keep updating. MMOCR has a clear structure just like MMDetection. It has the experimental deployment code too.">
+
+    
+    
+<meta name="description" content="Using MMOCR: Installation and Training with my own Data" />
+
+
+
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+  
+    
+    <li><a class=" list-link" href="/posts/blogs/2021-08-16-opencv-cmake-vs2019/" title="blogs">blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>Using MMOCR: Installation and Training with my own Data</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <h2 id="what-is-ocr">What is OCR?</h2>
+<p>According to the wikipedia, OCR, which refers to <strong>Optical character recognition</strong> or <strong>optical character reader,</strong> is the electronic  or mechanical  conversion of images  of typed, handwritten or printed text into machine-encoded text.</p>
+<h2 id="why-mmocr">Why MMOCR?</h2>
+<ul>
+<li>Pytorch</li>
+<li>Maintained by Openmmlab</li>
+<li>Easy to train your own data</li>
+<li>Can be deployed into C++ code</li>
+</ul>
+<p>Pytorch is sweet, it seems to have absorbed most of the advantages of current deep learning frameworks. It is maintained by the OpenMMLab, belongs to SenseTime, which means that this repo can live long and keep updating. MMOCR has a clear structure just like MMDetection. It has the experimental deployment code too.</p>
+<h2 id="installation">Installation</h2>
+<p>The installation guide in  <a href="[https://mmocr.readthedocs.io/en/latest/install.html]%28https://mmocr.readthedocs.io/en/latest/install.html%29">mmocr doc</a> is quite in great detail. I will show the setup process on my machine.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>conda create -n open-mmlab python<span style="color:#f92672">=</span>3.8
+</span></span><span style="display:flex;"><span>conda activate open-mmlab
+</span></span></code></pre></div><p>Now we have an isolated virtual environment. Then I install PyTorch 1.10 with CUDA 10.2.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>conda install pytorch<span style="color:#f92672">=</span>1.10.0 torchvision cudatoolkit<span style="color:#f92672">=</span>10.2 -c pytorch
+</span></span></code></pre></div><p>Then install mmcv, mmdet.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu102/torch1.10.0/index.html
+</span></span><span style="display:flex;"><span>pip install mmdet
+</span></span></code></pre></div><p>Clone MMOCR repo</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone https://github.com/open-mmlab/mmocr.git
+</span></span><span style="display:flex;"><span>cd mmocr
+</span></span></code></pre></div><p>Final step, build and install.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install -r requirements.txt
+</span></span><span style="display:flex;"><span>pip install -v -e . <span style="color:#75715e"># or &#34;python setup.py develop&#34;</span>
+</span></span></code></pre></div><p>There is an extra step in the mmocr doc website, which export the repo path into system env var  PYTHONPATH. In my case, I always works inside the repo path, so I didn’t go with this step. If you need to import mmocr from other projects, you may need to do it.</p>
+<h2 id="simple-test">Simple test</h2>
+<p>We can run a simple command to test our repo, this command will automatically downloads the weights file and do detection &amp; recognition end-to-end.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python mmocr/utils/ocr.py demo/demo_text_ocr.jpg --print-result --imshow
+</span></span></code></pre></div><p>Also, we can run text detection only. By specifying ‘det’ option, we test with the TextSnake algorithm.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python mmocr/utils/ocr.py demo/demo_text_det.jpg --output demo/det_out.jpg --det TextSnake --recog None --export demo/
+</span></span></code></pre></div><h2 id="training-with-my-own-data">Training with my own data</h2>
+<p>I’m trying to train our own text detection model.  Download the prepared data file and train following the doc page is obviously not enough for me. My training data is labeled in PASCAL_VOC format, which means we need more work to do. Create a folder in repo named data, then put dataset folder in it or create a link by command ln -s into it.</p>
+<p>We first create a python scripts named gen_ids.py to generate the training and testing file ids.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> argparse
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">parse_args</span>():
+</span></span><span style="display:flex;"><span>    parser <span style="color:#f92672">=</span> argparse<span style="color:#f92672">.</span>ArgumentParser(description<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;generate id list file.&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--path&#39;</span>, type<span style="color:#f92672">=</span>str, default<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>, help<span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;path to annotation files dir.&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#parser.add_argument(&#39;--output&#39;, type=str, default=&#39;./ids.txt&#39;, help= &#39;path to output.&#39;)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> parser<span style="color:#f92672">.</span>parse_args()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate_ids</span>(anno_path ):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;./train_ids.txt&#34;</span>, <span style="color:#e6db74">&#39;w&#39;</span>) <span style="color:#66d9ef">as</span> ftrain, open(<span style="color:#e6db74">&#34;./test_ids.txt&#34;</span>, <span style="color:#e6db74">&#39;w&#39;</span>) <span style="color:#66d9ef">as</span> ftest:
+</span></span><span style="display:flex;"><span>        cntr<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> path, folders, files <span style="color:#f92672">in</span> os<span style="color:#f92672">.</span>walk(anno_path):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> file_name <span style="color:#f92672">in</span> files:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> cntr <span style="color:#f92672">%</span><span style="color:#ae81ff">10</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>                    ftest<span style="color:#f92672">.</span>write(file_name<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;.&#39;</span>)[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">+</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                    ftrain<span style="color:#f92672">.</span>write(file_name<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;.&#39;</span>)[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">+</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>                cntr<span style="color:#f92672">+=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    args <span style="color:#f92672">=</span> parse_args()
+</span></span><span style="display:flex;"><span>    generate_ids(args<span style="color:#f92672">.</span>path)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><p>Suppose we are working in dataset path, say, data/dataset/, Pascal_voc format puts its annotations in the Annotation folder. We run this script.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python gen_ids.py --path ./Annotations/
+</span></span></code></pre></div><p>Thus I have the train_ids.txt and test_ids.txt in my dataset folder.</p>
+<p>We adopt from ICDAR format to train. ICDAR Dataset follows coco format, so we need to convert our pascal_voc format to coco format. We need to create another python script named voc2coco.py to do it. (Which is modified from others)</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> argparse
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> json
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> xml.etree.ElementTree <span style="color:#66d9ef">as</span> ET
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Dict, List
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> tqdm <span style="color:#f92672">import</span> tqdm
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_label2id</span>(labels_path: str) <span style="color:#f92672">-&gt;</span> Dict[str, int]:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;id is 1 start&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(labels_path, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        labels_str <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>read()<span style="color:#f92672">.</span>split()
+</span></span><span style="display:flex;"><span>    labels_ids <span style="color:#f92672">=</span> list(range(<span style="color:#ae81ff">1</span>, len(labels_str)<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> dict(zip(labels_str, labels_ids))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_annpaths</span>(ann_dir_path: str <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>                 ann_ids_path: str <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>                 ext: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>,
+</span></span><span style="display:flex;"><span>                 annpaths_list_path: str <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>) <span style="color:#f92672">-&gt;</span> List[str]:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># If use annotation paths list</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> annpaths_list_path <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">with</span> open(annpaths_list_path, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>            ann_paths <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>read()<span style="color:#f92672">.</span>split()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ann_paths
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># If use annotaion ids list</span>
+</span></span><span style="display:flex;"><span>    ext_with_dot <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;.&#39;</span> <span style="color:#f92672">+</span> ext <span style="color:#66d9ef">if</span> ext <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;&#39;</span> <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(ann_ids_path, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        ann_ids <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>read()<span style="color:#f92672">.</span>split()
+</span></span><span style="display:flex;"><span>    ann_paths <span style="color:#f92672">=</span> [os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(ann_dir_path, aid<span style="color:#f92672">+</span>ext_with_dot) <span style="color:#66d9ef">for</span> aid <span style="color:#f92672">in</span> ann_ids]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> ann_paths
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_image_info</span>(annotation_root, extract_num_from_imgid<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>):
+</span></span><span style="display:flex;"><span>    path <span style="color:#f92672">=</span> annotation_root<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;path&#39;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> path <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        filename <span style="color:#f92672">=</span> annotation_root<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;filename&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        path <span style="color:#f92672">=</span> path<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">&#39;</span>)[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>        filename <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>basename(path)
+</span></span><span style="display:flex;"><span>    img_name <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>basename(filename)
+</span></span><span style="display:flex;"><span>    img_id <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>splitext(img_name)[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> extract_num_from_imgid <span style="color:#f92672">and</span> isinstance(img_id, str):
+</span></span><span style="display:flex;"><span>        img_id <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>findall(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\d+&#39;</span>, img_id)[<span style="color:#ae81ff">0</span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    size <span style="color:#f92672">=</span> annotation_root<span style="color:#f92672">.</span>find(<span style="color:#e6db74">&#39;size&#39;</span>)
+</span></span><span style="display:flex;"><span>    width <span style="color:#f92672">=</span> int(size<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;width&#39;</span>))
+</span></span><span style="display:flex;"><span>    height <span style="color:#f92672">=</span> int(size<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;height&#39;</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    image_info <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;file_name&#39;</span>: filename,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;height&#39;</span>: height,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;width&#39;</span>: width,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;id&#39;</span>: img_id
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> image_info
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_coco_annotation_from_obj</span>(obj, label2id):
+</span></span><span style="display:flex;"><span>    label <span style="color:#f92672">=</span> obj<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;name&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> label <span style="color:#f92672">in</span> label2id, <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Error: </span><span style="color:#e6db74">{</span>label<span style="color:#e6db74">}</span><span style="color:#e6db74"> is not in label2id !&#34;</span>
+</span></span><span style="display:flex;"><span>    category_id <span style="color:#f92672">=</span> label2id[label]
+</span></span><span style="display:flex;"><span>    bndbox <span style="color:#f92672">=</span> obj<span style="color:#f92672">.</span>find(<span style="color:#e6db74">&#39;bndbox&#39;</span>)
+</span></span><span style="display:flex;"><span>    xmin <span style="color:#f92672">=</span> int(float(bndbox<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;xmin&#39;</span>))) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    ymin <span style="color:#f92672">=</span> int(float(bndbox<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;ymin&#39;</span>))) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    xmax <span style="color:#f92672">=</span> int(float(bndbox<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;xmax&#39;</span>)))
+</span></span><span style="display:flex;"><span>    ymax <span style="color:#f92672">=</span> int(float(bndbox<span style="color:#f92672">.</span>findtext(<span style="color:#e6db74">&#39;ymax&#39;</span>)))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> xmax <span style="color:#f92672">&gt;</span> xmin <span style="color:#f92672">and</span> ymax <span style="color:#f92672">&gt;</span> ymin, <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Box size error !: (xmin, ymin, xmax, ymax): </span><span style="color:#e6db74">{</span>xmin, ymin, xmax, ymax<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    o_width <span style="color:#f92672">=</span> xmax <span style="color:#f92672">-</span> xmin
+</span></span><span style="display:flex;"><span>    o_height <span style="color:#f92672">=</span> ymax <span style="color:#f92672">-</span> ymin
+</span></span><span style="display:flex;"><span>    ann <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;area&#39;</span>: o_width <span style="color:#f92672">*</span> o_height,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;iscrowd&#39;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;bbox&#39;</span>: [xmin, ymin, o_width, o_height],
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;category_id&#39;</span>: category_id,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;ignore&#39;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;segmentation&#39;</span>: [ [xmin, ymin, xmax, ymin, xmax, ymax, xmin, ymax] ]  <span style="color:#75715e"># This script is not for segmentation</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> ann
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">convert_xmls_to_cocojson</span>(annotation_paths: List[str],
+</span></span><span style="display:flex;"><span>                             label2id: Dict[str, int],
+</span></span><span style="display:flex;"><span>                             output_jsonpath: str,
+</span></span><span style="display:flex;"><span>                             extract_num_from_imgid: bool <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>):
+</span></span><span style="display:flex;"><span>    output_json_dict <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;images&#34;</span>: [],
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;instances&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;annotations&#34;</span>: [],
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;categories&#34;</span>: []
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    bnd_id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>  <span style="color:#75715e"># START_BOUNDING_BOX_ID, TODO input as args ?</span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;Start converting !&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> a_path <span style="color:#f92672">in</span> tqdm(annotation_paths):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Read annotation xml</span>
+</span></span><span style="display:flex;"><span>        ann_tree <span style="color:#f92672">=</span> ET<span style="color:#f92672">.</span>parse(a_path)
+</span></span><span style="display:flex;"><span>        ann_root <span style="color:#f92672">=</span> ann_tree<span style="color:#f92672">.</span>getroot()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        img_info <span style="color:#f92672">=</span> get_image_info(annotation_root<span style="color:#f92672">=</span>ann_root,
+</span></span><span style="display:flex;"><span>                                  extract_num_from_imgid<span style="color:#f92672">=</span>extract_num_from_imgid)
+</span></span><span style="display:flex;"><span>        img_id <span style="color:#f92672">=</span> img_info[<span style="color:#e6db74">&#39;id&#39;</span>]
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#print(img_id+&#39; &#39;)</span>
+</span></span><span style="display:flex;"><span>        output_json_dict[<span style="color:#e6db74">&#39;images&#39;</span>]<span style="color:#f92672">.</span>append(img_info)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> obj <span style="color:#f92672">in</span> ann_root<span style="color:#f92672">.</span>findall(<span style="color:#e6db74">&#39;object&#39;</span>):
+</span></span><span style="display:flex;"><span>            ann <span style="color:#f92672">=</span> get_coco_annotation_from_obj(obj<span style="color:#f92672">=</span>obj, label2id<span style="color:#f92672">=</span>label2id)
+</span></span><span style="display:flex;"><span>            ann<span style="color:#f92672">.</span>update({<span style="color:#e6db74">&#39;image_id&#39;</span>: img_id, <span style="color:#e6db74">&#39;id&#39;</span>: bnd_id})
+</span></span><span style="display:flex;"><span>            output_json_dict[<span style="color:#e6db74">&#39;annotations&#39;</span>]<span style="color:#f92672">.</span>append(ann)
+</span></span><span style="display:flex;"><span>            bnd_id <span style="color:#f92672">=</span> bnd_id <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> label, label_id <span style="color:#f92672">in</span> label2id<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>        category_info <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#39;supercategory&#39;</span>: <span style="color:#e6db74">&#39;none&#39;</span>, <span style="color:#e6db74">&#39;id&#39;</span>: label_id, <span style="color:#e6db74">&#39;name&#39;</span>: label}
+</span></span><span style="display:flex;"><span>        output_json_dict[<span style="color:#e6db74">&#39;categories&#39;</span>]<span style="color:#f92672">.</span>append(category_info)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(output_jsonpath, <span style="color:#e6db74">&#39;w&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        output_json <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>dumps(output_json_dict)
+</span></span><span style="display:flex;"><span>        f<span style="color:#f92672">.</span>write(output_json)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    parser <span style="color:#f92672">=</span> argparse<span style="color:#f92672">.</span>ArgumentParser(
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;This script support converting voc format xmls to coco format json&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--ann_dir&#39;</span>, type<span style="color:#f92672">=</span>str, default<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>                        help<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;path to annotation files directory. It is not need when use --ann_paths_list&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--ann_ids&#39;</span>, type<span style="color:#f92672">=</span>str, default<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>                        help<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;path to annotation files ids list. It is not need when use --ann_paths_list&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--ann_paths_list&#39;</span>, type<span style="color:#f92672">=</span>str, default<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>                        help<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;path of annotation paths list. It is not need when use --ann_dir and --ann_ids&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--labels&#39;</span>, type<span style="color:#f92672">=</span>str, default<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>                        help<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;path to label list.&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--output&#39;</span>, type<span style="color:#f92672">=</span>str, default<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;output.json&#39;</span>, help<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;path to output json file&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--ext&#39;</span>, type<span style="color:#f92672">=</span>str, default<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;&#39;</span>, help<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;additional extension of annotation file&#39;</span>)
+</span></span><span style="display:flex;"><span>    parser<span style="color:#f92672">.</span>add_argument(<span style="color:#e6db74">&#39;--extract_num_from_imgid&#39;</span>, action<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;store_true&#34;</span>,
+</span></span><span style="display:flex;"><span>                        help<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;Extract image number from the image filename&#39;</span>)
+</span></span><span style="display:flex;"><span>    args <span style="color:#f92672">=</span> parser<span style="color:#f92672">.</span>parse_args()
+</span></span><span style="display:flex;"><span>    label2id <span style="color:#f92672">=</span> get_label2id(labels_path<span style="color:#f92672">=</span>args<span style="color:#f92672">.</span>labels)
+</span></span><span style="display:flex;"><span>    ann_paths <span style="color:#f92672">=</span> get_annpaths(
+</span></span><span style="display:flex;"><span>        ann_dir_path<span style="color:#f92672">=</span>args<span style="color:#f92672">.</span>ann_dir,
+</span></span><span style="display:flex;"><span>        ann_ids_path<span style="color:#f92672">=</span>args<span style="color:#f92672">.</span>ann_ids,
+</span></span><span style="display:flex;"><span>        ext<span style="color:#f92672">=</span>args<span style="color:#f92672">.</span>ext,
+</span></span><span style="display:flex;"><span>        annpaths_list_path<span style="color:#f92672">=</span>args<span style="color:#f92672">.</span>ann_paths_list
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    convert_xmls_to_cocojson(
+</span></span><span style="display:flex;"><span>        annotation_paths<span style="color:#f92672">=</span>ann_paths,
+</span></span><span style="display:flex;"><span>        label2id<span style="color:#f92672">=</span>label2id,
+</span></span><span style="display:flex;"><span>        output_jsonpath<span style="color:#f92672">=</span>args<span style="color:#f92672">.</span>output,
+</span></span><span style="display:flex;"><span>        extract_num_from_imgid<span style="color:#f92672">=</span>args<span style="color:#f92672">.</span>extract_num_from_imgid
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><p>We need to create a file named coco.names txt file, which contains only one line in my case.</p>
+<pre tabindex="0"><code>text
+</code></pre><p>Then we can start converting.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>python voc2coco<span style="color:#f92672">.</span>py  <span style="color:#f92672">--</span>ann_dir <span style="color:#f92672">./</span>Annotations<span style="color:#f92672">/</span> <span style="color:#f92672">--</span>ann_ids <span style="color:#f92672">./</span>train_ids<span style="color:#f92672">.</span>txt <span style="color:#f92672">--</span>labels <span style="color:#f92672">./</span>coco<span style="color:#f92672">.</span>names  <span style="color:#f92672">--</span>output <span style="color:#f92672">./</span>annotations<span style="color:#f92672">/</span>instances_training<span style="color:#f92672">.</span>json <span style="color:#f92672">--</span>ext xml
+</span></span><span style="display:flex;"><span>python voc2coco<span style="color:#f92672">.</span>py  <span style="color:#f92672">--</span>ann_dir <span style="color:#f92672">./</span>Annotations<span style="color:#f92672">/</span> <span style="color:#f92672">--</span>ann_ids <span style="color:#f92672">./</span>test_ids<span style="color:#f92672">.</span>txt <span style="color:#f92672">--</span>labels <span style="color:#f92672">./</span>coco<span style="color:#f92672">.</span>names  <span style="color:#f92672">--</span>output <span style="color:#f92672">./</span>annotations<span style="color:#f92672">/</span>instances_test<span style="color:#f92672">.</span>json <span style="color:#f92672">--</span>ext xml
+</span></span></code></pre></div><p>Now we have the coco format annotation file in dataset folder. We are ready to train.</p>
+<p>Create a new script in configs/<em>base</em>/det_datasets/new_dataset.py which can be adopted from configs/<em>base</em>/det_datasets/icdar2015.py and change several path variables. Then create another script from configs/textdet/dbnet/dbnet_r50dcnv2_fpnc_1200e_icdar2015.py, named configs/textdet/dbnet/dbnet_r50dcnv2_fpnc_1200e_new_dataset.py, just change the line for dataset configuration.</p>
+<pre tabindex="0"><code>_base_ = [
+		...
+    &#39;../../_base_/det_datasets/new_dataset.py&#39;, #&#39;../../_base_/det_datasets/icdar2015.py&#39;,
+		...
+]
+</code></pre><p>Then we are ready to start training with multiple gpus. MMOCR provided a handy shell script to train with multiple gpus, tools/dist_train.sh.</p>
+<pre tabindex="0"><code>./tools/dist_train.sh configs/textdet/dbnet/dbnet_r50dcnv2_fpnc_1200e_new_dataset.py work_dirs/dbnet_r50dcnv2_fpnc_1200e_new_dataset 8
+</code></pre><p>Done. I use 8 gpus to train my model.</p>
+<h2 id="ps">P.S.</h2>
+<p>I feel MMOCR is easy to configure and very stable. It record training logs automatically. The deployment code is ok to use, though is experimental. I have successfully transformed model to onnx and run with c++ code.</p>
+
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#what-is-ocr">What is OCR?</a></li>
+    <li><a href="#why-mmocr">Why MMOCR?</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#simple-test">Simple test</a></li>
+    <li><a href="#training-with-my-own-data">Training with my own data</a></li>
+    <li><a href="#ps">P.S.</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.a341acbc0f62a8685e8f7efb2bd46fffb5f3e61917ea04a490962ea59a29b4e9.js" integrity="sha256-o0GsvA9iqGhej377K9Rv/7Xz5hkX6gSkkJYupZoptOk=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

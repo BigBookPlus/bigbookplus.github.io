@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title></title>
+    <link>//localhost:1313/</link>
+    <description>Recent content on </description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 27 Mar 2025 00:00:00 +0000</lastBuildDate><atom:link href="//localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+      <title>从源码编译OpenCV 4.5.x：深度学习与CUDA加速实战指南</title>
+      <link>//localhost:1313/posts/blogs/cmake_opencv/</link>
+      <pubDate>Thu, 27 Mar 2025 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/cmake_opencv/</guid>
+      <description>&lt;h1 id=&#34;从源码编译opencv-45x深度学习与cuda加速实战指南&#34;&gt;从源码编译OpenCV 4.5.x：深度学习与CUDA加速实战指南&lt;/h1&gt;
+&lt;p&gt;在这篇图文并茂的指南中，我们着重讲解如何在Windows 10环境下通过CMake构建OpenCV 4.5.x的定制版本，特别关注深度学习模块（DNN）与CUDA加速的配置方法。我们将通过结构化流程图和关键配置点标注，帮助开发者快速完成编译环境搭建，确保DNN推理模块能够充分利用NVIDIA GPU资源。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-环境准备&#34;&gt;🔧 环境准备&lt;/h2&gt;
+&lt;h4 id=&#34;硬件要求&#34;&gt;硬件要求&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; NVIDIA GPU（CUDA兼容设备）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;gt;= 8GB显存（建议16GB以上）
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;软件依赖&#34;&gt;软件依赖&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;1.&lt;/span&gt; Visual Studio 2019（需安装C++桌面开发套件）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;2.&lt;/span&gt; CUDA Toolkit 11.3+ (**需与cuDNN版本对应**)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;3.&lt;/span&gt; cuDNN 8.2+（下载路径示例：https://developer.nvidia.com/cudnn）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;4.&lt;/span&gt; Git命令行工具
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;-源码下载与工程初始化&#34;&gt;📦 源码下载与工程初始化&lt;/h2&gt;
+&lt;h3 id=&#34;源码获取git操作&#34;&gt;源码获取（Git操作）&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cmd&#34; data-lang=&#34;cmd&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;:&lt;span style=&#34;color:#75715e&#34;&gt;: 进入工作目录&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;cd&lt;/span&gt; /d D:/WORK/opencv-github
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;:&lt;span style=&#34;color:#75715e&#34;&gt;: 克隆核心库&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://github.com/opencv/opencv.git -b 4.5.2  # 注意添加tag或branch指定版本
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;:&lt;span style=&#34;color:#75715e&#34;&gt;: 克隆扩展模块库&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://github.com/opencv/opencv_contrib.git -b 4.5.2
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;TIP&lt;/strong&gt;&lt;br&gt;
+直接在GitHub页面切换对应版本更稳妥（commit版本记录见下图）
+&lt;img src=&#34;https://via.placeholder.com/600x300?text=FIG1:+GitHub+Branch+Selection&#34; alt=&#34;GitHub分支选择示意图&#34;&gt;&lt;/p&gt;&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-cmake配置流程详解&#34;&gt;🔧 CMake配置流程详解&lt;/h2&gt;
+&lt;h3 id=&#34;配置界面流程图&#34;&gt;配置界面流程图&lt;/h3&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-mermaid&#34; data-lang=&#34;mermaid&#34;&gt;graph TD
+    A[启动CMake-GUI] --&amp;gt; B[设置源目录]
+    B --&amp;gt; C[设置构建目录]
+    C --&amp;gt; D[首次Configure选择VS2019x64]
+    D --&amp;gt; E[等待IPPICV自动下载]
+    E --&amp;gt; F[再次Configure应用结果]
+    F --&amp;gt; G[设置OPENCV_EXTRA_MODULES_PATH]
+    G --&amp;gt; H[启用CUDA相关选项]
+    H --&amp;gt; I[勾选必要编译选项]
+    I --&amp;gt; J[Generate生成VS工程]
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;关键配置项解析&#34;&gt;关键配置项解析&lt;/h3&gt;
+&lt;h4 id=&#34;1-模块路径设置&#34;&gt;1. 模块路径设置&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-plaintext&#34; data-lang=&#34;plaintext&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Name: OPENCV_EXTRA_MODULES_PATH 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Path: D:/WORK/opencv-github/opencv_contrib/modules
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;2-cuda加速相关配置&#34;&gt;2. CUDA加速相关配置&lt;/h4&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-marked&#34; data-lang=&#34;marked&#34;&gt;FolderPath[CUDA选项区]:
+- WITH_CUDA → ON
+- OPENCV_DNN_CUDA → ON
+- WITH_CUDNN → ON
+- CUDA_FAST_MATH → ON
+
+注意点：
+- 禁用 BUILD_CUDA_STUBS（防止生成无效模拟代码）
+- CUDA gfx平台无需启用（Windows默认支持x64）
+&lt;/code&gt;&lt;/pre&gt;&lt;h4 id=&#34;3-高级优化选项&#34;&gt;3. 高级优化选项&lt;/h4&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-marked&#34; data-lang=&#34;marked&#34;&gt;优化选项配置组:
+- BUILD_opencv_world → ON（唯一动态库模式）
+- BUILD_DOCS → OFF（禁用文档生成）
+- ENABLE_NONFREE → ON（启用专利算法模块）
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;https://via.placeholder.com/600x250?text=FIG2:+Critical+Options+Highlight&#34; alt=&#34;CMake配置界面关键区域截图&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Build OpenCV 4.5.2 with CUDA support | CMake&#43;VS2019&#43;Win10&#43;CUDA</title>
+      <link>//localhost:1313/posts/blogs/2021-08-16-opencv-cmake-vs2019/</link>
+      <pubDate>Fri, 06 Aug 2021 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-16-opencv-cmake-vs2019/</guid>
+      <description>&lt;p&gt;使用C++进行计算机图像处理方向的开发，OpenCV是最常使用的Lib之一。个人对OpenCV的使用，大概从2.4版本开始，一直到现在的Release版4.5.2[现在是2021.06.08]。&lt;/p&gt;
+&lt;p&gt;OpenCV功能比较丰富，包含了传统图像处理的绝大部分经典算法，其基本矩阵类型Mat简单强大，现在还加入了DNN模块支持深度学习模型推理，这两部分都可以单独深入讨论。最近决定使用DNN模块进行算法部署，需要用到GPU加速,而官方提供的标准编译安装包不满足需求了，遂决定自己动手编译，定制符合自己需求的OpenCV Lib。这对自己日常的开发工作来说，其实是一本万利的。&lt;/p&gt;
+&lt;p&gt;由于业务需求，本文实践在Windows 10操作系统下进行。在Linux下进行此类编译更为便捷，问题也更少，步骤基本类似。好在Windows平台下的Visual Stuido对CMake的支持也越做越好了。&lt;/p&gt;
+&lt;p&gt;按照自己的习惯，我在自己的work目录下建立了一个名为opencv-github的文件夹，随后从git上把最新的opencv和opencv-contrib牵下来。opencv-contrib一般包含非release组件以及nonfree组件。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://github.com/opencv/opencv.git
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/0.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://github.com/opencv/opencv_contrib.git
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/1.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;如果安装了visual stuido 2019，cmake-gui大概率可以从cmd控制台直接呼出来。打开cmake-gui后，配置一下源码路径和编译路径。我的配置如下:&lt;/p&gt;
+&lt;p&gt;源码路径 D:/WORK/opencv-github/opencv&lt;/p&gt;
+&lt;p&gt;编译路径 D:/WORK/opencv-github/opencv/build&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/2.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;点击Configure，选择vs2019 x64编译&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/3.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/4.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;第一次Configure，ippicv依赖包下载失败，重新configure了一次，这次成功了。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/5.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;搜索OPENCV_EXTRA_MODULES_PATH选型，填入OpenCV Contrib的路径&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;D:/WORK/opencv-github/opencv_contrib/modules
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/6.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;搜索cuda，勾选OPENCV DNN CUDA和WITH CUDA。不要勾选 BUILD CUDA STUBS。&lt;/p&gt;
+&lt;p&gt;cuda是要提前安装的，cudnn最好也安装上，注意cuda和cudnn版本的对应。&lt;/p&gt;
+&lt;p&gt;再次点击configure。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/7.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;选中BUILD opencv world选项。这里主要是为了使用便捷，一个胜过你所有，不必单独一个个去链接。当然，单独选择链接组件的方式更有利于控制release程序的体积，有利有弊吧。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/8.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;选中 enable nonfree选项，打开这个选项会把一些不能免费商用的算法编译进去，做些研究和实验还是可以的。之前的nonfree算法中最著名的当属sift，不过现在sift已经免费啦。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/9.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;现在点击generate&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/10.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Generate结束。可以点击Open Project了。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/11.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;这样就呼出了宇宙第一IDE 2019。然后就可以开始编译啦~&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/12.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;展开CMakeTargets，选择ALL BUILD&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;//localhost:1313/images/in-post/opencv_cmake_vs2019/13.png&#34; alt=&#34;image&#34;&gt;&lt;/p&gt;
+&lt;p&gt;右键菜单选择build或者直接f7键，即可开始编译。ALL BUILD编译结束后，再选中INSTALL执行编译，这样编译出来的头文件、lib文件、dll文件和cmake文件就在开头提到的build目录下的install目录下面了。其实这里的ALL BUILD和INSTALL，相当于linux下面常见的make和make install。&lt;/p&gt;
+&lt;p&gt;现在已经有了头文件、lib文件、dll文件和cmake文件，就可以开始愉快的开发了哦。&lt;/p&gt;</description>
+    </item>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <item>
+      <title>Build FFMpeg with CUDA on CentOS 8</title>
+      <link>//localhost:1313/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/</guid>
+      <description>&lt;h2 id=&#34;prepareing&#34;&gt;Prepareing&lt;/h2&gt;
+&lt;p&gt;CUDA toolkits need to be installed.
+Then the following listed packages should be installed too.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;dnf -y install   automake autoconf libtool make gcc gcc-c++
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;dnf --enablerepo&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;powertools -y install giflib-devel
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;dnf --enablerepo&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;powertools -y install libexif-devel
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel  cairo-devel fribidi-devel
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;dnf -y install openssl openssl-devel
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Note that, &lt;code&gt;powertools&lt;/code&gt; might be &lt;code&gt;PowerTools&lt;/code&gt; according to different configurations, just replace the name.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>C&#43;&#43;中正则表达式的用法</title>
+      <link>//localhost:1313/posts/blogs/2022-06-15-cpp-regex/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-06-15-cpp-regex/</guid>
+      <description>&lt;p&gt;C++11引入了 &lt;code&gt;&amp;lt;regex&amp;gt;&lt;/code&gt; 标准库，为开发人员提供了强大的正则表达式支持。正则表达式（RegEx）可用于字符串匹配、搜索、替换等操作，是处理文本数据的利器。本文将从基础语法到高级用法，逐步介绍C++正则表达式如何高效使用。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;一基础准备&#34;&gt;一、基础准备&lt;/h2&gt;
+&lt;h3 id=&#34;1-引入库和命名空间&#34;&gt;1. 引入库和命名空间&lt;/h3&gt;
+&lt;p&gt;在使用正则表达式之前，需包含头文件并使用相关命名空间：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;regex&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; std;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;2-构建正则表达式&#34;&gt;2. 构建正则表达式&lt;/h3&gt;
+&lt;p&gt;使用 &lt;code&gt;std::regex&lt;/code&gt; 对象存储正则表达式：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;regex &lt;span style=&#34;color:#a6e22e&#34;&gt;re&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\\&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;d+&amp;#34;&lt;/span&gt;);  &lt;span style=&#34;color:#75715e&#34;&gt;// 匹配数字，注意转义字符
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;二正则表达式语法基础&#34;&gt;二、正则表达式语法基础&lt;/h2&gt;
+&lt;h3 id=&#34;1-常见元字符&#34;&gt;1. 常见元字符&lt;/h3&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;元字符&lt;/th&gt;
+          &lt;th&gt;含义&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;.&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配任意单个字符（除换行符）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;*&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配前一个字符 0 次或多次&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;+&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配前一个字符 1 次或多次&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;?&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配前一个字符 0 次或 1 次&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;^&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配字符串开头&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;$&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配字符串结尾&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;[]&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配括号内的任意一个字符（如 [abc]）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;\d&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配数字 [0-9]&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;\D&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配非数字 [^0-9]&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;\w&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;匹配字母、数字、下划线 [A-Za-z0-9_]&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;2-分组和捕获groups&#34;&gt;2. 分组和捕获（Groups）&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;regex &lt;span style=&#34;color:#a6e22e&#34;&gt;re&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;(&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\\&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;d{4})&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;(&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;\\&lt;/span&gt;d{&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;})&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;(&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;\\&lt;/span&gt;d{&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;})&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;); // 解析日期格式 YYYY-MM-DD&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;smatch result;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(regex_search(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2023-04-01&amp;#34;&lt;/span&gt;, result, re)) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;年份: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; result[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; endl; &lt;span style=&#34;color:#75715e&#34;&gt;// 输出 &amp;#34;2023&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;月份: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; result[&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; endl; &lt;span style=&#34;color:#75715e&#34;&gt;// 输出 &amp;#34;04&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;三核心函数与用法&#34;&gt;三、核心函数与用法&lt;/h2&gt;
+&lt;h3 id=&#34;1-检查匹配regex_match&#34;&gt;1. 检查匹配（&lt;code&gt;regex_match&lt;/code&gt;）&lt;/h3&gt;
+&lt;p&gt;检查&lt;strong&gt;整个字符串&lt;/strong&gt;是否匹配：&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>CMake管理C/C&#43;&#43;工程的一点心得</title>
+      <link>//localhost:1313/posts/blogs/2021-08-20-cmake-manage-project/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-20-cmake-manage-project/</guid>
+      <description>&lt;p&gt;现在我自己的几乎所有C/C++项目均使用CMake管理。CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代表性的Lib库：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;OpenCV&lt;/p&gt;
+&lt;p&gt;OpenCV是Intel维护的开源库，图像处理必备&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Boost&lt;/p&gt;
+&lt;p&gt;Boost是对C++语言最重要的扩展库，提供了对标注库的扩展、标准编译器尚未支持的新特性和一些语法糖&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Qt&lt;/p&gt;
+&lt;p&gt;强大的UI库&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;CUDA&lt;/p&gt;
+&lt;p&gt;NVIDIA显卡并行加速支持&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;下面从一个最简单的&lt;code&gt;Hello CMake&lt;/code&gt;程序开始，介绍CMake在实际使用中的一些方式。&lt;/p&gt;
+&lt;h3 id=&#34;nearly-empty-cc-project&#34;&gt;Nearly Empty C/C++ Project&lt;/h3&gt;
+&lt;p&gt;最简单的CMakeLists文件，可以参考&lt;a href=&#34;https://github.com/ttroy50/cmake-examples/tree/master/01-basic/A-hello-cmake&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;hello-cmake&lt;/a&gt;，非常的简洁，这里我略加修改引用一下。假设我们的项目里面只有这么一个代码文件，它的内容是这样的：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;argv[])
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello CMake!&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;没有外部依赖，甚至也没有多余的逻辑，这基本就是C++的HelloWorld代码，只不过打印输出变成了&lt;code&gt;Hello CMake&lt;/code&gt;。在项目路径下，添加CMakeLists.txt文件，写入如下内容：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cmake&#34; data-lang=&#34;cmake&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cmake_minimum_required(&lt;span style=&#34;color:#e6db74&#34;&gt;VERSION&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;3.5&lt;/span&gt;)&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Set the project name
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;project (&lt;span style=&#34;color:#e6db74&#34;&gt;hello_cmake&lt;/span&gt;)&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Add an executable
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;add_executable(&lt;span style=&#34;color:#e6db74&#34;&gt;hello_cmake&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;main.cpp&lt;/span&gt;)&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在项目路径下执行如下命令，即可完成编译：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;mkdir build &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; cd build
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cmake ..
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;执行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;./hello_cmake
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;输出&lt;code&gt;Hello CMake&lt;/code&gt;，编译成功。&lt;/p&gt;
+&lt;h3 id=&#34;cmake-with-opencv&#34;&gt;CMake with OpenCV&lt;/h3&gt;
+&lt;p&gt;那么如果想在项目中调用OpenCV，该怎么做呢？&lt;/p&gt;
+&lt;p&gt;写一个简单的程序&lt;code&gt;cv-test.cpp&lt;/code&gt;，调用OpenCV进行读图像和显示：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;opencv2/opencv.hpp&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;opencv2/highgui.hpp&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt; argv )
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; ( argc &lt;span style=&#34;color:#f92672&#34;&gt;!=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; )
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;usage: DisplayImage.out &amp;lt;Image_Path&amp;gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Mat image;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    image &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;imread( argv[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;] );
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; ( image.empty() )
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;No image data&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;imshow(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Display Image&amp;#34;&lt;/span&gt;, image);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;waitKey(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;对应的&lt;code&gt;CMakeLists.txt&lt;/code&gt;文件：&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Curved Text Detection by PaddleOCR</title>
+      <link>//localhost:1313/posts/blogs/2022-04-14-curved-text-detection-by-paddleocr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-04-14-curved-text-detection-by-paddleocr/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/assets/image/in-post/curved_text_paddleocr/det_res_img623.jpg&#34; alt=&#34;Detection Result&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Text Detection Task is an old topic of Detction tasks. Curved text is much more free form. in this Post, we show you how to run the curved text detection by PaddleOCR.&lt;/p&gt;
+&lt;h2 id=&#34;setup-environment&#34;&gt;Setup Environment&lt;/h2&gt;
+&lt;p&gt;Create a virtual environment named paddle_env.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conda create --name paddle_env python&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;3.8
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then activate it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;conda activate paddle_env 
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Install paddlepaddle and paddle ocr packages through pip.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python -m pip install paddlepaddle
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;paddleocr&amp;gt;=2.0.1&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;# Recommend to use version 2.0.1+&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;test-environment&#34;&gt;Test Environment&lt;/h2&gt;
+&lt;p&gt;Test the installations.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>How to Implement FTP Upload by C&#43;&#43; and POCO</title>
+      <link>//localhost:1313/posts/blogs/2022-06-15-poco-ftp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-06-15-poco-ftp/</guid>
+      <description>&lt;h2 id=&#34;poco&#34;&gt;POCO&lt;/h2&gt;
+&lt;p&gt;POCO is a lightweight and flexible network library for C++ users.
+You can refer to the POCO library at its homepage: &lt;a href=&#34;https://pocoproject.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://pocoproject.org/&lt;/a&gt; or its github project page: &lt;a href=&#34;https://github.com/pocoproject/poco&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/pocoproject/poco&lt;/a&gt; .
+You can simply git clone from the POCO repository, and build it follows its official mannual.
+For me, I built it simply with the CMake-GUI tool on Windows, with all default settings.&lt;/p&gt;
+&lt;h2 id=&#34;how-to-upload&#34;&gt;How to Upload&lt;/h2&gt;
+&lt;h3 id=&#34;includes-stuffs&#34;&gt;Includes Stuffs&lt;/h3&gt;
+&lt;p&gt;Most of the FTP related APIs are in the &lt;code&gt;Poco/Net/FTPClientSession.h&lt;/code&gt; header file. The Exception Processing tools are used all the time, so that we include it too. When you need to do the uploading to FTP server, &lt;code&gt;Poco/StreamCopier.h&lt;/code&gt; is must be included.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Installation of GNUPlot 5.4.3 on Linux with png/jpg export support</title>
+      <link>//localhost:1313/posts/blogs/2022-08-11-gnuplot-installation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-08-11-gnuplot-installation/</guid>
+      <description>&lt;p&gt;We need to install libpng and libgd before the compilation of gnuplot-5.4.3&lt;/p&gt;
+&lt;p&gt;We can install libpng using yum install&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;yum install libpng-devel
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The libgd-devel package provided by yum is not compatable with gnuplot-5.4.3 on the aws-linux-2,
+we download and compile the officially new version.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;wget https://github.com/libgd/libgd/releases/download/gd-2.3.3/libgd-2.3.3.tar.gz 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;tar zxvf ./libgd-2.3.3.tar.gz
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd libgd-2.3.3
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;./configure
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo make install
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then compile gnuplot.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd libs
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;wget https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.3/gnuplot-5.4.3.tar.gz
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;tar zxvf ./gnuplot-5.4.3.tar.gz
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd gnuplot-5.4.3
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;./configure
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo make install
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
+    <item>
+      <title>OpenCV 4.X 使用CvxText在图片显示汉字</title>
+      <link>//localhost:1313/posts/blogs/2022-06-15-cvxtext-opencv45/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-06-15-cvxtext-opencv45/</guid>
+      <description>&lt;p&gt;最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype+cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。&lt;/p&gt;
+&lt;h2 id=&#34;准备&#34;&gt;准备&lt;/h2&gt;
+&lt;p&gt;需要的依赖有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C/C++ 编译环境（似乎是废话）&lt;/li&gt;
+&lt;li&gt;OpenCV (仍然废话)&lt;/li&gt;
+&lt;li&gt;freetype的lib： 提前编译好，官网是 &lt;a href=&#34;https://freetype.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://freetype.org/&lt;/a&gt;，我使用的版本是2.9.1&lt;/li&gt;
+&lt;li&gt;字体文件，一般用&lt;code&gt;simhei.ttf&lt;/code&gt;。在操作系统的字体里面哦。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;修改-cvxtext-代码&#34;&gt;修改 CvxText 代码&lt;/h2&gt;
+&lt;p&gt;我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。&lt;/p&gt;
+&lt;h3 id=&#34;opencv头文件包含方式&#34;&gt;OpenCV头文件包含方式&lt;/h3&gt;
+&lt;p&gt;首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;opencv2/core/core.hpp&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;opencv2/core/core_c.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;opencv2/highgui/highgui.hpp&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;opencv2/imgproc/imgproc.hpp&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里特别说明，引入&lt;code&gt;core_c.h&lt;/code&gt;这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，&lt;code&gt;core_c.h&lt;/code&gt; 提供了对C类型的兼容。&lt;/p&gt;
+&lt;h3 id=&#34;cvscalar类型问题&#34;&gt;CvScalar类型问题&lt;/h3&gt;
+&lt;p&gt;下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C++类型的cv::Scalar。下面的&lt;code&gt;puttext&lt;/code&gt;函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; CvxText&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;putText(cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Mat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;frame, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;text, CvPoint pos)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	CvScalar s &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;putText&lt;/span&gt;(frame, text, pos, s);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; CvxText&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;putText(cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Mat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;frame, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;wchar_t&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;text, CvPoint pos)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#75715e&#34;&gt;//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	CvScalar s &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;putText&lt;/span&gt;(frame, text, pos, s);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;cvmat转为iplimage&#34;&gt;cv::Mat转为IplImage&lt;/h3&gt;
+&lt;p&gt;另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>OpenCV DNN Batch Inference in C&#43;&#43;</title>
+      <link>//localhost:1313/posts/blogs/2021-08-23-opencv-dnn-batch-inference/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-23-opencv-dnn-batch-inference/</guid>
+      <description>&lt;p&gt;OpenCV has a DNN module, which is powerful, efficient, and easy to use. To implement a DNN inference application, we need only to call a couple of APIs which are offered by OpenCV DNN module. The basic routine of implementation a DNN inference code by OpenCV is as below.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;Initialization. Creating the cv::dnn::Net object by reading in the network weight. (caffe/onnx&amp;hellip;)&lt;/li&gt;
+&lt;li&gt;Preprocessing. Determine shape of input data of the network. Reshape the raw input image(s) to match the input data shape. This step always combined some other operatations such as normalization.&lt;/li&gt;
+&lt;li&gt;Inference. Call inference method by the created cv::dnn::Net object.&lt;/li&gt;
+&lt;li&gt;Postprocessing. Decoding the output data and do further wrangling.&lt;/li&gt;
+&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;p&gt;In my opinion, as the network weights are already determined, the most important parts of the deployment are pre&amp;amp;postprocessing. You need to figure out exactly what shape of input data is, and what the normalization method is (mean/std value). In post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks  will be much harder to implement, such as object detection/segmentation tasks. You need to do a lot of work to crack the data wrangling problems, and sometimes may need to rewrite some operatations yourself from scratch, just because there is no corresponding method  with the original python implementation in C++.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>PyTorch中的lr_scheduler的用法</title>
+      <link>//localhost:1313/posts/blogs/2021-08-24-pytorch-lr_scheduler/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-24-pytorch-lr_scheduler/</guid>
+      <description>&lt;p&gt;几种常见的LR_Scheduler:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html#torch.optim.lr_scheduler.StepLR&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;StepLR&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.MultiStepLR.html#torch.optim.lr_scheduler.MultiStepLR&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;MultiStepLR&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ExponentialLR.html#torch.optim.lr_scheduler.ExponentialLR&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;ExponentialLR&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;对于一个基本的训练流程，LR_Scheduler可能不是必须的。但是对于一个完整的训练流程，LR_Scheduler就是必须存在的。LR_Scheduler跟在Optimizer之后，利用对Optim变量的跟踪，在Optim执行Update后，检查lr是否满足预设条件并对学习率learning_rate进行更新。&lt;/p&gt;
+&lt;p&gt;以StepLR为例，StepLR每隔N个epoch改变&lt;code&gt;lr&lt;/code&gt;学习率为&lt;code&gt;lr=lr*gamma&lt;/code&gt;。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-Python&#34; data-lang=&#34;Python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; torch.optim.lr_scheduler &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; lr_scheduler
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;optimizer &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; SGD(model, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.1&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;scheduler &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; lr_scheduler&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;StepLR(optimizer, step_size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;, gamma&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0.1&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; epoch &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(&lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; input, target &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; dataset:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        optimizer&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;zero_grad()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        output &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; model(input)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        loss &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; loss_fn(output, target)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        loss&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;backward()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        optimizer&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    scheduler&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;step()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
+    <item>
+      <title>QtHttpServer Demo and a POST Client</title>
+      <link>//localhost:1313/posts/blogs/2021-08-21-qthttpserver-sample/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-21-qthttpserver-sample/</guid>
+      <description>&lt;h2 id=&#34;client-http-post&#34;&gt;Client HTTP POST&lt;/h2&gt;
+&lt;p&gt;假设&lt;a href=&#34;http://127.0.0.1:8888/post/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;http://127.0.0.1:8888/post/&lt;/a&gt;是一个能够接受POST请求的路径，我们想要向它提交一段json数据，用Qt可以这样实现：&lt;/p&gt;
+&lt;p&gt;Suppose we want to make an HTTP POST with json body to &lt;a href=&#34;http://127.0.0.1:8888/post/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;http://127.0.0.1:8888/post/&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QCoreApplication &lt;span style=&#34;color:#a6e22e&#34;&gt;app&lt;/span&gt;(argc, argv);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QNetworkAccessManager &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;mgr &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; QNetworkAccessManager;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; QUrl &lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;(QStringLiteral(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http://127.0.0.1:8888/post/&amp;#34;&lt;/span&gt;));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QNetworkRequest &lt;span style=&#34;color:#a6e22e&#34;&gt;request&lt;/span&gt;(url);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;request.setHeader(QNetworkRequest&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ContentTypeHeader, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;application/json; charset=utf-8&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QJsonObject obj;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;obj[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;key1&amp;#34;&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;value1&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;obj[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;key2&amp;#34;&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;value2&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QJsonDocument &lt;span style=&#34;color:#a6e22e&#34;&gt;doc&lt;/span&gt;(obj);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QByteArray data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; doc.toJson();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QNetworkReply &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;reply &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mgr&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;post(request, data);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;QObject&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;connect(reply, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;QNetworkReply&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;finished, [&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;](){
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(reply&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;error() &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; QNetworkReply&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;NoError){
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        QString contents &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QString&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;fromUtf8(reply&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;readAll());
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        qDebug() &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; contents;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        QString err &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; reply&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;errorString();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        qDebug() &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; err;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    reply&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;deleteLater();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    mgr&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;deleteLater();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;});
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;http-server&#34;&gt;Http Server&lt;/h2&gt;
+&lt;p&gt;而这个本地的Server，亦可使用QtHttpServer方便实现：&lt;/p&gt;
+&lt;p&gt;Server can be implemented by QtHttpServer easily, too.&lt;/p&gt;</description>
+    </item>
+    
+    
+    <item>
+      <title>Setup GitLab Sevice on Ubuntu 16.04 in Local LAN</title>
+      <link>//localhost:1313/posts/blogs/2022-02-08-install-configure-gitlab-ce/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-02-08-install-configure-gitlab-ce/</guid>
+      <description>&lt;h1 id=&#34;setup-gitlab-sevice-on-ubuntu-1604-in-local-lan&#34;&gt;Setup GitLab Sevice on Ubuntu 16.04 in Local LAN&lt;/h1&gt;
+&lt;p&gt;GitLab is as powerful as GitHub. We decide to change the version control system from SVN to Git. We run the GitLab server in our local LAN. I found the blogs for GitLab installation are all too long to read and too complicated for using GitLab in local LAN with no domain name, so I wrote this one.&lt;/p&gt;
+&lt;p&gt;Before installing GitLab, please update the Ubuntu repository.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Simplest Demo for Displaying Image Processing Results using PySide6</title>
+      <link>//localhost:1313/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/</guid>
+      <description>&lt;p&gt;The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV &lt;code&gt;imshow&lt;/code&gt; stuff is simple but not enough, failed on expansibility and maintainability. The &lt;code&gt;Qt&lt;/code&gt; library, on the other side, is a well-developed UI framework that is evolved from C/C++ and is available in python now. The &lt;code&gt;PyQt4/PyQt5&lt;/code&gt; packages are from the community, and &lt;code&gt;PySide2/PySide6&lt;/code&gt; packages are from &lt;code&gt;Qt&lt;/code&gt; officially.  We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, &lt;code&gt;Qt&lt;/code&gt;, takes over the results display work.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Tips of Migrating Numpy to C&#43;&#43; by OpenCV</title>
+      <link>//localhost:1313/posts/blogs/2022-03-26-numpy-to-opencv-mat-tips/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-03-26-numpy-to-opencv-mat-tips/</guid>
+      <description>&lt;h2 id=&#34;sigmoid&#34;&gt;Sigmoid&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;A sigmoid function is a mathematical function having a characteristic &amp;#34;S&amp;#34;-shaped curve or sigmoid curve.
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;From wikipedia: &lt;a href=&#34;https://en.wikipedia.org/wiki/Sigmoid_function&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Sigmoid_function&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s formula: $S(t)=\frac {1}{1+e^{-t}}$&lt;/p&gt;
+&lt;p&gt;We can implement sigmoid function with python and numpy like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; numpy &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; np
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;z &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;exp(&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;x))
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now let&amp;rsquo;s implement it in OpenCV with cpp. Suppose we&amp;rsquo;ve got a output from a neural network as a [1, h, w] cv::Mat named &lt;code&gt;pred&lt;/code&gt;. We then do something like &lt;code&gt;pred = sigmoid(pred)&lt;/code&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Using MMOCR: Installation and Training with my own Data</title>
+      <link>//localhost:1313/posts/blogs/2022-03-04-mmocr-installation-training-with-own-data/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-03-04-mmocr-installation-training-with-own-data/</guid>
+      <description>&lt;h2 id=&#34;what-is-ocr&#34;&gt;What is OCR?&lt;/h2&gt;
+&lt;p&gt;According to the wikipedia, OCR, which refers to &lt;strong&gt;Optical character recognition&lt;/strong&gt; or &lt;strong&gt;optical character reader,&lt;/strong&gt; is the electronic  or mechanical  conversion of images  of typed, handwritten or printed text into machine-encoded text.&lt;/p&gt;
+&lt;h2 id=&#34;why-mmocr&#34;&gt;Why MMOCR?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Pytorch&lt;/li&gt;
+&lt;li&gt;Maintained by Openmmlab&lt;/li&gt;
+&lt;li&gt;Easy to train your own data&lt;/li&gt;
+&lt;li&gt;Can be deployed into C++ code&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Pytorch is sweet, it seems to have absorbed most of the advantages of current deep learning frameworks. It is maintained by the OpenMMLab, belongs to SenseTime, which means that this repo can live long and keep updating. MMOCR has a clear structure just like MMDetection. It has the experimental deployment code too.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Using MNIST-ROT Dataset in PyTorch</title>
+      <link>//localhost:1313/posts/blogs/2021-08-24-minst-rot-how-to/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-24-minst-rot-how-to/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://sites.google.com/a/lisa.iro.umontreal.ca/public_static_twiki/_/rsrc/1392048843662/variations-on-the-mnist-digits/rotation_examples.png&#34; alt=&#34;mnist-rot example images&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Dataset Download Link: &lt;a href=&#34;http://www.iro.umontreal.ca/~lisa/icml2007data/mnist_rotation_new.zip&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;MNIST-ROT&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;As was depicted in paper &lt;a href=&#34;https://arxiv.org/pdf/2007.10408.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PDO-eConvs&lt;/a&gt;, MNIST-rot-12k is the most commonly used dataset for validating rotation equivariant algorithms. So if you are interested in the rotation equivariant algorithms research, this Dataset maybe helpful.&lt;/p&gt;
+&lt;h2 id=&#34;turn-to-dataloader-code&#34;&gt;Turn to DataLoader Code.&lt;/h2&gt;</description>
+    </item>
+    
+    <item>
+      <title>使用&amp;运算符在OpenCV图像裁剪时进行边界检查</title>
+      <link>//localhost:1313/posts/blogs/2021-08-26-operator-and-in-opencv/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-26-operator-and-in-opencv/</guid>
+      <description>&lt;h3 id=&#34;给定roi的图像裁剪&#34;&gt;给定ROI的图像裁剪&lt;/h3&gt;
+&lt;p&gt;假设需要按照既定的ROI对图像进行取窗裁剪，用&lt;code&gt;cv::Rect&lt;/code&gt;给定ROI区域，裁剪可以按照如下方式：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Mat image &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;imread(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/path/to/image.jpg&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Rect roi &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Rect(x, y, width, height);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Mat crop &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; image(roi);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;限制边界&#34;&gt;限制边界&lt;/h3&gt;
+&lt;p&gt;如果roi的坐标超出了图像的合法区域，会引发运行时错误，导致程序崩溃。此时一般要提前进行边界检查和规范，比如这样：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(roi.x&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) roi.x&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(roi.y&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) roi.y&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(roi.x&lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;roi.width &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;=&lt;/span&gt; image.cols) roi.width &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; image.cols&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;roi.x;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(roi.y&lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;roi.height &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;=&lt;/span&gt; image.rows) roi.heigth &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; image.rows&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;roi.y;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这样写代码，看上去不太直观，而且有些冗长，更谈不上优雅或者可读性。&lt;/p&gt;
+&lt;p&gt;或者这样：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; w &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; image.cols;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; h &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; image.rows;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; x0 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;max&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, roi.tl().x);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y0 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;max&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, roi.tl().y);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; x1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;min&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(w, roi.br().x);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;min&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(h, roi.br().y);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;roi &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Rect(cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Point(x0, y0), cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Point(x1, y1));
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;稍微增加了些可读性，特别是如果习惯于使用stl的max/min函数进行边界检查。但是仍然冗长，不够优雅。冗长有什么坏处？一般来讲，冗长的代码不易于维护，可读性不会太强。另外以上面这段实现为例，由于反复使用同一变量，仅仅为了对其不同的成员做类似的操作，非常容易导致低级错误。&lt;/p&gt;
+&lt;h3 id=&#34;operator---get-intersection-of-cvrect&#34;&gt;Operator &amp;amp; : Get Intersection of cv::Rect&lt;/h3&gt;
+&lt;p&gt;这个运算符&lt;code&gt;&amp;amp;&lt;/code&gt;比较直观。在C/C++语法中，&lt;code&gt;&amp;amp;&lt;/code&gt;属于位运算，是按位与的功能。cv::Rect类型重载了它，可以想象它的功能就是取矩形的相交区域。所以要对图像ROI的cv::Rect进行边界限制，那么将ROI和表示图像区域的Bounding Box求相交区域即可。代码实现如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Rect bbox(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, mat.cols, mat.rows);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cv&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Rect roi &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; roi &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; bbox; &lt;span style=&#34;color:#75715e&#34;&gt;// that&amp;#39;s all
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这样基本上就一句话完成了边界限制。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络</title>
+      <link>//localhost:1313/posts/blogs/2022-11-03-use-docker-for-gpu-and-web-camera-applications/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2022-11-03-use-docker-for-gpu-and-web-camera-applications/</guid>
+      <description>&lt;h2 id=&#34;引言&#34;&gt;引言&lt;/h2&gt;
+&lt;p&gt;在操作系统中发行应用程序，尤其是python应用程序，其环境配置常常是分发过程中的重要一环。如果像开发的时候那样手动构建，一方面工作量难以承受，另一方面经常会出现各种各样的问题。在不同的目标主机上手动构建环境，会受到目标操作系统的版本、文件系统、所安装软件包的情况影响。而且开发时所使用的一些默认安装包，到了发布的时候可能已经都被更新过，所以手动构建要求使用的包版本号也精确记录。&lt;/p&gt;
+&lt;h2 id=&#34;安装和配置&#34;&gt;安装和配置&lt;/h2&gt;
+&lt;p&gt;安装GPU docker，首先需要安装docker，然后在docker的基础上安装nvidia-docker。&lt;/p&gt;
+&lt;h3 id=&#34;安装docker&#34;&gt;安装docker&lt;/h3&gt;
+&lt;p&gt;参考链接 &lt;a href=&#34;https://docs.docker.com/engine/install/ubuntu&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://docs.docker.com/engine/install/ubuntu&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;安装nvidia-docker&#34;&gt;安装nvidia-docker&lt;/h3&gt;
+&lt;p&gt;参考链接 &lt;a href=&#34;https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;在docker中显示gui&#34;&gt;在docker中显示GUI&lt;/h2&gt;
+&lt;p&gt;如果在Docker中开发的是带有GUI的应用程序，也就是在docker中显示GUI，需要启动支持GUI的docker镜像。&lt;/p&gt;
+&lt;p&gt;首先配置一下xhost&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;xhost +local:docker
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;或者&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;xhost +
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;启动docker，由于需要docker中显示GUI，所以加入参数&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$DISPLAY
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;完整指令如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run --name mydocker --gpus all --shm-size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;1g --ulimit memlock&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;-1 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$DISPLAY snn-server:basic
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;注意，这里是启动了GPU docker，&amp;ndash;gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为&amp;ndash;gpus 0。&lt;/p&gt;
+&lt;h2 id=&#34;在docker中访问usb相机&#34;&gt;在Docker中访问usb相机&lt;/h2&gt;
+&lt;p&gt;如果需要在docker中访问usb相机，需要在启动docker的时候，追加以下参数&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;-v /dev/video0:/dev/video0 --device&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/dev/video0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这样就把宿主机的/dev/video0映射到docker中的/dev/video0，然后在docker中就可以访问到相机了。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run --name mydocker --gpus all --shm-size&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;1g --ulimit memlock&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;-1 -v /dev/video0:/dev/video0 --device&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$DISPLAY myimage:latest
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;在docker镜像中开放端口&#34;&gt;在Docker镜像中开放端口&lt;/h2&gt;
+&lt;p&gt;如果需要从docker中对外提供服务，需要在docker中向宿主机进行端口映射，才可以从宿主机访问到docker中的服务。&lt;/p&gt;
+&lt;p&gt;Docker中的端口映射，需要在启动docker的时候，加入参数&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;-p 8080:8080  
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这样，宿主机的8080端口就映射到docker中的8080端口了。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>在Docker中安装和配置OpenVino 2022.3</title>
+      <link>//localhost:1313/posts/blogs/2023-04-11-openvino-installation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2023-04-11-openvino-installation/</guid>
+      <description>&lt;h2 id=&#34;从代码安装&#34;&gt;从代码安装&lt;/h2&gt;
+&lt;p&gt;官方推荐从代码安装&lt;/p&gt;
+&lt;h3 id=&#34;开局不利&#34;&gt;开局不利&lt;/h3&gt;
+&lt;p&gt;选择通过gitee clone安装，但是反复clone失败。报错如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;# git clone -b 2022.3.0 https://gitee.com/openvinotoolkit-prc/openvino.git
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Cloning into &amp;#39;openvino&amp;#39;...
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;remote: Enumerating objects: 345561, done.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;remote: Counting objects: 100% (59023/59023), done.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;remote: Compressing objects: 100% (33490/33490), done.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;error: RPC failed; curl 56 GnuTLS recv error (-9): Error decoding the received TLS packet.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fatal: the remote end hung up unexpectedly
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fatal: early EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;fatal: index-pack failed
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;解决方法&#34;&gt;解决方法&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git config --global http.postBuffer 500M
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git config --global http.maxRequestBuffer 100M
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git config --global core.compression 0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
+    <item>
+      <title>在kaggle的notebook 执行 import tensorflow-io 报错 undefined symbol</title>
+      <link>//localhost:1313/posts/blogs/tensorflow-io-fault/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/tensorflow-io-fault/</guid>
+      <description>&lt;p&gt;最近尝试在kaggle的ipython notebook搞事情，在尝试一个新方案的时候，被动执行了import tensorflow-io，代码如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; tensorflow&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;io 
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这时提示一个错误，核心内容主要是这段：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;libtensorflow_io.so undefined symbol:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;_ZN10tensorflow0pKernel11TraceStringEPNS_150pKernelContextEb&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;对tensorflow-io不是很熟，直接google,一个简单的error,搜出来一堆看上去不那么靠谱的答案，&lt;/p&gt;
+&lt;p&gt;例如这个问题下面：&lt;a href=&#34;https://stackoverflow.com/questions/65623468/unable-to-open-file-libtensorflow-io-so-caused-by-undefined-symbol&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;unable-to-open-file-libtensorflow-io-so-caused-by-undefined-symbol&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;好几个答案让卸掉tensorflow和tensorflow-io，重新安装tensorflow-gpu和tensorflow-io。&lt;/p&gt;
+&lt;p&gt;But WHY??&lt;/p&gt;
+&lt;p&gt;真正的错误原因很简单，就是tensorflow-io和tensorflow版本要适配，或者说兼容。tensorflow-io官方的git repo提供了版本号对应关系的表格。我按照表格检查了一下，kaggle笔记本环境提供的默认tensorflow版本是2.12，但是安装的tensorflow-io是0.31.0。根据表格信息，我应该安装tensorflow-io 0.32.0版本。笔记本中执行安装命令&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;!pip install tensorflow-io==0.32.0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;错误消失。&lt;/p&gt;
+&lt;p&gt;看来官方的笔记本也不是那么靠谱的喔。&lt;/p&gt;
+&lt;p&gt;表格链接&lt;a href=&#34;https://github.com/tensorflow/io#tensorflow-version-compatibility&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;tensorflow-version-compatibility&lt;/a&gt;&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;TensorFlow I/O Version&lt;/th&gt;
+          &lt;th&gt;TensorFlow Compatibility&lt;/th&gt;
+          &lt;th&gt;Release Date&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.32.0&lt;/td&gt;
+          &lt;td&gt;2.12.x&lt;/td&gt;
+          &lt;td&gt;Mar 28, 2023&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.31.0&lt;/td&gt;
+          &lt;td&gt;2.11.x&lt;/td&gt;
+          &lt;td&gt;Feb 25, 2023&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.30.0&lt;/td&gt;
+          &lt;td&gt;2.11.x&lt;/td&gt;
+          &lt;td&gt;Jan 20, 2023&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.29.0&lt;/td&gt;
+          &lt;td&gt;2.11.x&lt;/td&gt;
+          &lt;td&gt;Dec 18, 2022&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.28.0&lt;/td&gt;
+          &lt;td&gt;2.11.x&lt;/td&gt;
+          &lt;td&gt;Nov 21, 2022&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.27.0&lt;/td&gt;
+          &lt;td&gt;2.10.x&lt;/td&gt;
+          &lt;td&gt;Sep 08, 2022&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.26.0&lt;/td&gt;
+          &lt;td&gt;2.9.x&lt;/td&gt;
+          &lt;td&gt;May 17, 2022&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.25.0&lt;/td&gt;
+          &lt;td&gt;2.8.x&lt;/td&gt;
+          &lt;td&gt;Apr 19, 2022&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.24.0&lt;/td&gt;
+          &lt;td&gt;2.8.x&lt;/td&gt;
+          &lt;td&gt;Feb 04, 2022&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.23.1&lt;/td&gt;
+          &lt;td&gt;2.7.x&lt;/td&gt;
+          &lt;td&gt;Dec 15, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.23.0&lt;/td&gt;
+          &lt;td&gt;2.7.x&lt;/td&gt;
+          &lt;td&gt;Dec 14, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.22.0&lt;/td&gt;
+          &lt;td&gt;2.7.x&lt;/td&gt;
+          &lt;td&gt;Nov 10, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.21.0&lt;/td&gt;
+          &lt;td&gt;2.6.x&lt;/td&gt;
+          &lt;td&gt;Sep 12, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.20.0&lt;/td&gt;
+          &lt;td&gt;2.6.x&lt;/td&gt;
+          &lt;td&gt;Aug 11, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.19.1&lt;/td&gt;
+          &lt;td&gt;2.5.x&lt;/td&gt;
+          &lt;td&gt;Jul 25, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.19.0&lt;/td&gt;
+          &lt;td&gt;2.5.x&lt;/td&gt;
+          &lt;td&gt;Jun 25, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.18.0&lt;/td&gt;
+          &lt;td&gt;2.5.x&lt;/td&gt;
+          &lt;td&gt;May 13, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.17.1&lt;/td&gt;
+          &lt;td&gt;2.4.x&lt;/td&gt;
+          &lt;td&gt;Apr 16, 2021&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.17.0&lt;/td&gt;
+          &lt;td&gt;2.4.x&lt;/td&gt;
+          &lt;td&gt;Dec 14, 2020&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.16.0&lt;/td&gt;
+          &lt;td&gt;2.3.x&lt;/td&gt;
+          &lt;td&gt;Oct 23, 2020&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.15.0&lt;/td&gt;
+          &lt;td&gt;2.3.x&lt;/td&gt;
+          &lt;td&gt;Aug 03, 2020&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.14.0&lt;/td&gt;
+          &lt;td&gt;2.2.x&lt;/td&gt;
+          &lt;td&gt;Jul 08, 2020&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.13.0&lt;/td&gt;
+          &lt;td&gt;2.2.x&lt;/td&gt;
+          &lt;td&gt;May 10, 2020&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.12.0&lt;/td&gt;
+          &lt;td&gt;2.1.x&lt;/td&gt;
+          &lt;td&gt;Feb 28, 2020&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.11.0&lt;/td&gt;
+          &lt;td&gt;2.1.x&lt;/td&gt;
+          &lt;td&gt;Jan 10, 2020&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.10.0&lt;/td&gt;
+          &lt;td&gt;2.0.x&lt;/td&gt;
+          &lt;td&gt;Dec 05, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.9.1&lt;/td&gt;
+          &lt;td&gt;2.0.x&lt;/td&gt;
+          &lt;td&gt;Nov 15, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.9.0&lt;/td&gt;
+          &lt;td&gt;2.0.x&lt;/td&gt;
+          &lt;td&gt;Oct 18, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.8.1&lt;/td&gt;
+          &lt;td&gt;1.15.x&lt;/td&gt;
+          &lt;td&gt;Nov 15, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.8.0&lt;/td&gt;
+          &lt;td&gt;1.15.x&lt;/td&gt;
+          &lt;td&gt;Oct 17, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.7.2&lt;/td&gt;
+          &lt;td&gt;1.14.x&lt;/td&gt;
+          &lt;td&gt;Nov 15, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.7.1&lt;/td&gt;
+          &lt;td&gt;1.14.x&lt;/td&gt;
+          &lt;td&gt;Oct 18, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.7.0&lt;/td&gt;
+          &lt;td&gt;1.14.x&lt;/td&gt;
+          &lt;td&gt;Jul 14, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.6.0&lt;/td&gt;
+          &lt;td&gt;1.13.x&lt;/td&gt;
+          &lt;td&gt;May 29, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.5.0&lt;/td&gt;
+          &lt;td&gt;1.13.x&lt;/td&gt;
+          &lt;td&gt;Apr 12, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.4.0&lt;/td&gt;
+          &lt;td&gt;1.13.x&lt;/td&gt;
+          &lt;td&gt;Mar 01, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.3.0&lt;/td&gt;
+          &lt;td&gt;1.12.0&lt;/td&gt;
+          &lt;td&gt;Feb 15, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.2.0&lt;/td&gt;
+          &lt;td&gt;1.12.0&lt;/td&gt;
+          &lt;td&gt;Jan 29, 2019&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;0.1.0&lt;/td&gt;
+          &lt;td&gt;1.12.0&lt;/td&gt;
+          &lt;td&gt;Dec 16, 2018&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</description>
+    </item>
+    
+    <item>
+      <title>在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API</title>
+      <link>//localhost:1313/posts/blogs/2021-08-18-qthttpserver-qapplication/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2021-08-18-qthttpserver-qapplication/</guid>
+      <description>&lt;h3 id=&#34;编译-qthttpserver-模块&#34;&gt;编译 QtHttpServer 模块&lt;/h3&gt;
+&lt;p&gt;首先拉取代码&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://github.com/qt-labs/qthttpserver.git
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd qthttpserver
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git checkout 5.15
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git submodule update --init --recursive
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后用qtcreator打开工程，编译&lt;/p&gt;
+&lt;h3 id=&#34;最简单的qt代码&#34;&gt;最简单的Qt代码&lt;/h3&gt;
+&lt;p&gt;如果想构建一个最简单的Qt程序，那么大概就是一个没有UI、控制台下运行的HelloWorld程序，它的代码大概是这个样子：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;QtCore&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;argv) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    QCoreApplication app(argc, argv);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// qDebug()&amp;lt;&amp;lt;&amp;#34;Hello World&amp;#34;;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; app.exec();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;使用qthttpserver&#34;&gt;使用QtHttpServer&lt;/h3&gt;
+&lt;p&gt;QtHttpServer目前不在Qt的主lib中，据说Qt6会正式加入。所以需要自行下载编译。&lt;a href=&#34;https://github.com/qt-labs/qthttpserver&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&#34;编译qthttpserver&#34;&gt;编译QtHttpServer&lt;/h4&gt;
+&lt;p&gt;我使用的是Qt5，牵出5.15分支，并自己使用QtCreator编译：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://github.com/qt-labs/qthttpserver.git
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git checkout 5.15
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;编译成功后，将头文件和动态库拷贝到所使用的Qt安装路径下的对应目录内即可。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd build-qthttpserver-Desktop_Qt_5_12_6_GCC_64bit-Release/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd cmake/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/cmake/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd ..
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd pkgconfig/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/pkgconfig/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd ..
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd ..
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd include/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/include/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd ..
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd mkspecs
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cd modules
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/mkspecs/modules/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;启动qthttpserver&#34;&gt;启动QtHttpServer&lt;/h4&gt;
+&lt;p&gt;在Qt官方blog &lt;a href=&#34;https://www.qt.io/blog/2019/01/25/introducing-qt-http-server&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;introducing-qt-http-server&lt;/a&gt;，介绍了一个最基本的QHttpServer用法：&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>开启face_recognition的CUDA支持以及人脸识别package的一点讨论</title>
+      <link>//localhost:1313/posts/blogs/2023-03-31-enable-face-recognition-cuda/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2023-03-31-enable-face-recognition-cuda/</guid>
+      <description>&lt;h2 id=&#34;开启face_recognition的cuda支持的方法&#34;&gt;开启face_recognition的CUDA支持的方法&lt;/h2&gt;
+&lt;p&gt;face_recognition是一个python包，用于人脸识别。属于基础的人脸识别包，支持人脸检测、人脸编码、人脸比对等功能。
+face_recognition包支持使用GPU进行加速，但是默认情况下是不开启的。
+也就是说，直接用Pip或这conda方式进行安装，装上的包基本上是不支持GPU计算的。
+face_recognition的核心计算部分依赖dlib，所以需要安装dlib的GPU版本。如需要使用GPU进行加速的时候，需要安装CUDA和cuDNN。安装dlib的GPU版本，需要下载代码，开启cuda和cudnn支持，然后编译安装。
+下面介绍一下安装过程。&lt;/p&gt;
+&lt;h3 id=&#34;核心编译安装dlib-with-cuda&#34;&gt;核心：编译安装dlib with CUDA&lt;/h3&gt;
+&lt;p&gt;官方文档介绍开启cuda支持的dlib的安装过程如下：&lt;/p&gt;
+&lt;h2 id=&#34;installing-dlib-using-conda-with-cuda-enabled&#34;&gt;Installing dlib using &lt;code&gt;conda&lt;/code&gt; with CUDA enabled&lt;/h2&gt;
+&lt;p&gt;Prerequisite: &lt;code&gt;conda&lt;/code&gt; and/or &lt;code&gt;miniconda&lt;/code&gt; are already installed&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Create a conda environment.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ conda create -n dlib python&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;3.8 cmake ipython
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;Activate the environment.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ conda activate dlib
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;Install CUDA and cuDNN with &lt;code&gt;conda&lt;/code&gt; using nvidia channel&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ conda install cuda cudnn -c nvidia
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then find the path to the &lt;code&gt;nvcc&lt;/code&gt; of this environment. We will use this path for the build step below&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>执行git pull并忽略本地文件修改</title>
+      <link>//localhost:1313/posts/blogs/git-pull-ignore-local-changes/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/git-pull-ignore-local-changes/</guid>
+      <description>&lt;h2 id=&#34;问题&#34;&gt;问题&lt;/h2&gt;
+&lt;p&gt;在一个很久没有同步过的测试机上面试图将代码仓库更新到最新版本，提示报错：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-log&#34; data-lang=&#34;log&#34;&gt;error: Your local changes to the following files would be overwritten by merge:
+        app/client.py
+        ...
+        configs/file.yml
+Please commit your changes or stash them before you merge.
+Aborting
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这台机器的仓库是很久之前的版本；但是因为调试的缘故，直接在该机器上改过几行代码，导致存在本地修改，这就是不能直接git pull的原因。&lt;/p&gt;
+&lt;p&gt;似乎可以直接通过意念，无视本地修改，强行更新到仓库的最新版本。直觉上来讲，这个功能一定也是存在的，只是在git上体现的更加理性一些。&lt;/p&gt;
+&lt;h2 id=&#34;解决方案&#34;&gt;解决方案&lt;/h2&gt;
+&lt;p&gt;想要达成此种效果，执行以下命令即可&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git fetch
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git branch backup-master
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git reset --hard origin/master
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;第一行是更新所有远程修改到本地，第二行是把当前修改作为分支备份，第三行就开始了强行git pull。&lt;/p&gt;
+&lt;p&gt;一般来讲，这样就可以达到强行更新到最新的版本的目的。如果还不放心，或者确实不够新，可以再补充执行以下两条命令&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git reset --hard HEAD
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git pull
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
+&lt;p&gt;测试机上的更新一般就是改些常量，比如服务器地址或者线程数之类。如果影响到了新版版本的测试，直接无视覆盖就好，所以这里备份也比较潦草。&lt;/p&gt;
+&lt;p&gt;如果非常重视本地改动，说明本地修改比较重要，可以在切换到origin/master之前，执行一步merge,&lt;/p&gt;
+&lt;p&gt;例如&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git fetch
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git stash
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git merge &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@{u}&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git stash pop
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;更多内容可参考&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://stackoverflow.com/questions/1125968/how-do-i-force-git-pull-to-overwrite-local-files&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;how-do-i-force-git-pull-to-overwrite-local-files&lt;/a&gt;
+&lt;a href=&#34;https://www.freecodecamp.org/news/git-pull-force-how-to-overwrite-local-changes-with-git/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;git-pull-force-how-to-overwrite-local-changes-with-git&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>无需sudo运行docker命令</title>
+      <link>//localhost:1313/posts/blogs/2023-04-08-run-docker-without-sudo/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>//localhost:1313/posts/blogs/2023-04-08-run-docker-without-sudo/</guid>
+      <description>&lt;h2 id=&#34;run-docker-commands-without-sudo&#34;&gt;Run Docker commands without sudo&lt;/h2&gt;
+&lt;p&gt;新安装的Docker，有可能需要使用sudo才能运行docker命令。&lt;/p&gt;
+&lt;p&gt;比如，运行一个GPU docker镜像，需要使用sudo，否则会报错：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ docker run --rm --runtime&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;nvidia --gpus all nvidia/cuda:11.6.2-base-ubuntu20.04 nvidia-smi
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&lt;/span&gt;docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post &amp;#34;http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create&amp;#34;: dial unix /var/run/docker.sock: connect: permission denied.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;See &amp;#39;docker run --help&amp;#39;.
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;报错信息就是说，没有权限访问docker daemon。这是因为docker默认情况下是不允许普通用户使用的，需要使用sudo才能运行docker命令。&lt;/p&gt;
+&lt;p&gt;这样很不方便，下面介绍一下如何让docker不需要sudo就能运行。&lt;/p&gt;
+&lt;h3 id=&#34;1-add-the-docker-group-if-it-doesnt-already-exist&#34;&gt;1. Add the &lt;code&gt;docker&lt;/code&gt; group if it doesn&amp;rsquo;t already exist&lt;/h3&gt;
+&lt;p&gt;首先创建一个Docker 用户组，如果用户组已经存在，可以跳过这一步。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-console&#34; data-lang=&#34;console&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo groupadd docker
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;2-add-the-connected-user-user-to-the-docker-group&#34;&gt;2. Add the connected user &lt;code&gt;$USER&lt;/code&gt; to the docker group&lt;/h3&gt;
+&lt;p&gt;然后把当前用户加入到docker用户组中。&lt;/p&gt;</description>
+    </item>
+    
+    
+  </channel>
+</rss>

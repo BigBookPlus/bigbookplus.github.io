@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>从源码编译OpenCV 4.5.x：深度学习与CUDA加速实战指南</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/blogs/cmake_opencv/">
+  <meta property="og:title" content="从源码编译OpenCV 4.5.x：深度学习与CUDA加速实战指南">
+  <meta property="og:description" content="Build Your Own OpenCV Library">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-03-27T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-03-27T00:00:00+00:00">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="从源码编译OpenCV 4.5.x：深度学习与CUDA加速实战指南">
+  <meta name="twitter:description" content="Build Your Own OpenCV Library">
+
+    
+    
+<meta name="description" content="Build Your Own OpenCV Library" />
+
+
+
+    
+
+    
+        
+            
+            
+                
+            
+
+            
+            
+
+            
+            
+
+            
+            
+
+            
+
+            
+
+            
+        
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+    
+    
+  
+  
+    
+    <li><a class="active list-link" href="/posts/blogs/" title="Blogs">Blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Thursday, March 27, 2025</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>从源码编译OpenCV 4.5.x：深度学习与CUDA加速实战指南</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <h1 id="从源码编译opencv-45x深度学习与cuda加速实战指南">从源码编译OpenCV 4.5.x：深度学习与CUDA加速实战指南</h1>
+<p>在这篇图文并茂的指南中，我们着重讲解如何在Windows 10环境下通过CMake构建OpenCV 4.5.x的定制版本，特别关注深度学习模块（DNN）与CUDA加速的配置方法。我们将通过结构化流程图和关键配置点标注，帮助开发者快速完成编译环境搭建，确保DNN推理模块能够充分利用NVIDIA GPU资源。</p>
+<hr>
+<h2 id="-环境准备">🔧 环境准备</h2>
+<h4 id="硬件要求">硬件要求</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span><span style="color:#66d9ef">-</span> NVIDIA GPU（CUDA兼容设备）
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">-</span> &gt;= 8GB显存（建议16GB以上）
+</span></span></code></pre></div><h4 id="软件依赖">软件依赖</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span><span style="color:#66d9ef">1.</span> Visual Studio 2019（需安装C++桌面开发套件）
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">2.</span> CUDA Toolkit 11.3+ (**需与cuDNN版本对应**)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">3.</span> cuDNN 8.2+（下载路径示例：https://developer.nvidia.com/cudnn）
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">4.</span> Git命令行工具
+</span></span></code></pre></div><hr>
+<h2 id="-源码下载与工程初始化">📦 源码下载与工程初始化</h2>
+<h3 id="源码获取git操作">源码获取（Git操作）</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cmd" data-lang="cmd"><span style="display:flex;"><span>:<span style="color:#75715e">: 进入工作目录</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">cd</span> /d D:/WORK/opencv-github
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>:<span style="color:#75715e">: 克隆核心库</span>
+</span></span><span style="display:flex;"><span>git clone https://github.com/opencv/opencv.git -b 4.5.2  # 注意添加tag或branch指定版本
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>:<span style="color:#75715e">: 克隆扩展模块库</span>
+</span></span><span style="display:flex;"><span>git clone https://github.com/opencv/opencv_contrib.git -b 4.5.2
+</span></span></code></pre></div><blockquote>
+<p><strong>TIP</strong><br>
+直接在GitHub页面切换对应版本更稳妥（commit版本记录见下图）
+<img src="https://via.placeholder.com/600x300?text=FIG1:+GitHub+Branch+Selection" alt="GitHub分支选择示意图"></p></blockquote>
+<hr>
+<h2 id="-cmake配置流程详解">🔧 CMake配置流程详解</h2>
+<h3 id="配置界面流程图">配置界面流程图</h3>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TD
+    A[启动CMake-GUI] --&gt; B[设置源目录]
+    B --&gt; C[设置构建目录]
+    C --&gt; D[首次Configure选择VS2019x64]
+    D --&gt; E[等待IPPICV自动下载]
+    E --&gt; F[再次Configure应用结果]
+    F --&gt; G[设置OPENCV_EXTRA_MODULES_PATH]
+    G --&gt; H[启用CUDA相关选项]
+    H --&gt; I[勾选必要编译选项]
+    I --&gt; J[Generate生成VS工程]
+</code></pre><h3 id="关键配置项解析">关键配置项解析</h3>
+<h4 id="1-模块路径设置">1. 模块路径设置</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-plaintext" data-lang="plaintext"><span style="display:flex;"><span>Name: OPENCV_EXTRA_MODULES_PATH 
+</span></span><span style="display:flex;"><span>Path: D:/WORK/opencv-github/opencv_contrib/modules
+</span></span></code></pre></div><h4 id="2-cuda加速相关配置">2. CUDA加速相关配置</h4>
+<pre tabindex="0"><code class="language-marked" data-lang="marked">FolderPath[CUDA选项区]:
+- WITH_CUDA → ON
+- OPENCV_DNN_CUDA → ON
+- WITH_CUDNN → ON
+- CUDA_FAST_MATH → ON
+
+注意点：
+- 禁用 BUILD_CUDA_STUBS（防止生成无效模拟代码）
+- CUDA gfx平台无需启用（Windows默认支持x64）
+</code></pre><h4 id="3-高级优化选项">3. 高级优化选项</h4>
+<pre tabindex="0"><code class="language-marked" data-lang="marked">优化选项配置组:
+- BUILD_opencv_world → ON（唯一动态库模式）
+- BUILD_DOCS → OFF（禁用文档生成）
+- ENABLE_NONFREE → ON（启用专利算法模块）
+</code></pre><p><img src="https://via.placeholder.com/600x250?text=FIG2:+Critical+Options+Highlight" alt="CMake配置界面关键区域截图"></p>
+<hr>
+<h2 id="-构建与安装">🚀 构建与安装</h2>
+<h3 id="visual-studio构建步骤">Visual Studio构建步骤</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span><span style="color:#66d9ef">1.</span> 双击打开 <span style="color:#e6db74">`ALL_BUILD.vcxproj`</span> (或使用快捷键F7)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">2.</span> 编译期间可能出现的**典型问题**
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">-</span> CUDA路径未配置：在VS项目属性→CUDA→General中手动添加路径
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">-</span> 多线程冲突：尝试将并行构建数设置为逻辑CPU数的50%
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">3.</span> 成功完成ALL_BUILD后：
+</span></span><span style="display:flex;"><span>   右键→编译INSTALL项目
+</span></span><span style="display:flex;"><span>   输出路径：<span style="color:#e6db74">`D:/WORK/opencv-github/opencv/build/install`</span>
+</span></span></code></pre></div><h3 id="安装目录结构说明">安装目录结构说明</h3>
+<pre tabindex="0"><code class="language-tree" data-lang="tree">├─ include/opencv4                    # 头文件集合
+├─ x64/vc16/lib/                      # 链接库文件夹
+│   └─ opencv_world452.dll            # 核心动态库
+└─ cmake                             # CMakeFind packages目录
+</code></pre><hr>
+<h2 id="-验证与测试">📊 验证与测试</h2>
+<h4 id="gpu支持验证代码">GPU支持验证代码</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;opencv2/dnn.hpp&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">auto</span> backendList <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>getAvailableBackends();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> backend : backendList) {
+</span></span><span style="display:flex;"><span>        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Backend: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>backendName(backend) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">auto</span> targetList <span style="color:#f92672">=</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>getAvailableTargets(backend);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> target : targetList)
+</span></span><span style="display:flex;"><span>            std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;  Target: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> cv<span style="color:#f92672">::</span>dnn<span style="color:#f92672">::</span>targetName(target) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>期望输出应包含：</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Backend: DNN_BACKEND_CUDA
+</span></span><span style="display:flex;"><span>  Target: DNN_TARGET_CUDA
+</span></span><span style="display:flex;"><span>  Target: DNN_TARGET_CUDA_FP16
+</span></span></code></pre></div><hr>
+<h2 id="-常见问题排查">🛠️ 常见问题排查</h2>
+<table>
+  <thead>
+      <tr>
+          <th>现象描述</th>
+          <th>可能原因与对策</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>IPPICV下载失败</td>
+          <td>更换网络环境/手动下载IPPICV目录到对应路径</td>
+      </tr>
+      <tr>
+          <td>CUDA模块未启用</td>
+          <td>检查CMake output中是否出现<code>WITH_CUDA=ON</code>状态信息</td>
+      </tr>
+      <tr>
+          <td>链接时找不到.cuda.obj</td>
+          <td>需要以管理员身份运行VS，确保VS安装包含&quot;使用C++的桌面开发&quot;工作负载组件</td>
+      </tr>
+      <tr>
+          <td>运行时出现<code>NOCUDA</code>错误</td>
+          <td>确保测试程序链接的是opencv_world452**d.dll（Debug配置时的动态库文件）</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-总结与进阶">🌟 总结与进阶</h2>
+<p>通过本次编译，我们成功构建了具备以下特性的OpenCV版本：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-markdown" data-lang="markdown"><span style="display:flex;"><span>✓ 支持CUDA 11+的DNN推理加速（&gt;5倍加速比）
+</span></span><span style="display:flex;"><span>✓ 启用专利算法（SIFT/SURF等）
+</span></span><span style="display:flex;"><span>✓ 单一动态库简化集成流程
+</span></span></code></pre></div><p><strong>进阶提示：</strong></p>
+<ol>
+<li>使用<code>-D OPENCV_ENABLE_NONFREE=ON</code>启用更多专利算法</li>
+<li>对性能敏感的项目建议编译Release版并关闭debug符号</li>
+<li>使用NSIS模块创建安装包发布</li>
+</ol>
+<p>通过掌握核心配置参数与构建流程，开发者可进一步定制OpenCV以适应特定硬件环境，充分释放GPU计算潜力。对于需要部署深度学习模型的场景（如YOLO/FaceNet），这种自定义编译方式能显著提升推理效率并减少部署成本。</p>
+
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#-环境准备">🔧 环境准备</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#硬件要求">硬件要求</a></li>
+            <li><a href="#软件依赖">软件依赖</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#-源码下载与工程初始化">📦 源码下载与工程初始化</a>
+      <ul>
+        <li><a href="#源码获取git操作">源码获取（Git操作）</a></li>
+      </ul>
+    </li>
+    <li><a href="#-cmake配置流程详解">🔧 CMake配置流程详解</a>
+      <ul>
+        <li><a href="#配置界面流程图">配置界面流程图</a></li>
+        <li><a href="#关键配置项解析">关键配置项解析</a>
+          <ul>
+            <li><a href="#1-模块路径设置">1. 模块路径设置</a></li>
+            <li><a href="#2-cuda加速相关配置">2. CUDA加速相关配置</a></li>
+            <li><a href="#3-高级优化选项">3. 高级优化选项</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#-构建与安装">🚀 构建与安装</a>
+      <ul>
+        <li><a href="#visual-studio构建步骤">Visual Studio构建步骤</a></li>
+        <li><a href="#安装目录结构说明">安装目录结构说明</a></li>
+      </ul>
+    </li>
+    <li><a href="#-验证与测试">📊 验证与测试</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#gpu支持验证代码">GPU支持验证代码</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#-常见问题排查">🛠️ 常见问题排查</a></li>
+    <li><a href="#-总结与进阶">🌟 总结与进阶</a></li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.2a80058f1561f5213cf5925f05222466be52a7bddb403e735f8abc61d89a849d.js" integrity="sha256-KoAFjxVh9SE89ZJfBSIkZr5Sp73bQD5zX4q8YdiahJ0=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>

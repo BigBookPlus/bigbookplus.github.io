@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <title>在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API</title>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<link rel="stylesheet" href="/application.e121e32e445ff3e12fce4a219336ae4846e7669fb0c03e653b12affdf361c480.css" integrity="sha256-4SHjLkRf8&#43;EvzkohkzauSEbnZp&#43;wwD5lOxKv/fNhxIA=" />
+
+
+
+
+
+  
+
+  
+  
+  
+    
+  
+  
+
+  <link rel="icon" type="image/png" href="/images/favicon_hu_a23dc4244bee30eb.png" />
+
+
+
+<meta property="og:url" content="//localhost:1313/posts/2021-08-18-qthttpserver-qapplication/">
+  <meta property="og:title" content="在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API">
+  <meta property="og:description" content="Using Non-GUI Qt Modules Inside the Dynamic Linking Library and Encapsulating C APIs">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API">
+  <meta name="twitter:description" content="Using Non-GUI Qt Modules Inside the Dynamic Linking Library and Encapsulating C APIs">
+
+    
+    
+<meta name="description" content="Using Non-GUI Qt Modules Inside the Dynamic Linking Library and Encapsulating C APIs" />
+
+
+
+    
+
+
+
+
+
+    <script integrity="sha256-DO4ugzEwhTW1Id1UIWn0gUJWaebCYOypeTit6LW4QB4=">
+     let theme = localStorage.getItem('theme-scheme') || localStorage.getItem('darkmode:color-scheme') || 'light'
+if (theme === 'system') {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme = 'dark'
+  } else {
+    theme = 'light'
+  }
+}
+document.documentElement.setAttribute('data-theme', theme)
+
+    </script>
+    
+  </head>
+
+  <body class="type-posts kind-page" data-bs-spy="scroll" data-bs-target="#TableOfContents" data-bs-offset="80">
+    <div class="container-fluid bg-secondary wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  
+    
+  
+  
+
+
+
+  
+  
+    
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+<nav class="navbar navbar-expand-xl top-navbar shadow " id="top-navbar">
+  <div class="container">
+    
+    <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button">
+      <i data-feather="sidebar"></i>
+    </button>
+    
+    <a class="navbar-brand" href="//localhost:1313/">
+      
+        <img src="/images/main-logo_hu_715d6024c143d0ec.png" id="logo" alt="Logo">
+      </a>
+    <button
+      class="navbar-toggler navbar-light"
+      id="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#top-nav-items"
+      aria-label="menu"
+    >
+      <i data-feather="menu"></i>
+    </button>
+
+    <div class="collapse navbar-collapse dynamic-navbar" id="top-nav-items">
+      <ul class="nav navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="//localhost:1313/#home">Home</a>
+        </li>
+        
+          
+          
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#about">About</a>
+                </li>
+              
+            
+            
+              
+              
+                <li class="nav-item">
+                  <a class="nav-link" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+          
+        
+        
+          <div id="top-navbar-divider"></div>
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" id="blog-link" href="/localhost:1313/posts">Posts</a>
+          </li>
+        
+        
+        
+        
+        
+      </ul>
+    </div>
+  </div>
+  
+  
+    <img src="/images/main-logo_hu_715d6024c143d0ec.png" class="d-none" id="main-logo" alt="Logo">
+  
+  
+    <img src="/images/inverted-logo_hu_a23dc4244bee30eb.png" class="d-none" id="inverted-logo" alt="Inverted Logo">
+  
+  
+</nav>
+
+
+
+      
+      
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <form class="mx-auto" method="get" action="/search">
+          <input type="text" name="keyword" value="" placeholder="Search" data-search="" id="search-box" />
+        </form>
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts/" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+    
+    
+  
+  
+    
+    <li><a class="active list-link" href="/posts/2021-08-16-opencv-cmake-vs2019/" title="blogs">blogs</a></li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content">
+    <div class="container p-0 read-area">
+      
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(/images/default-hero.jpg);'>
+      </div>
+
+      
+      <div class="page-content">
+        
+        <div class="author-profile ms-auto align-self-lg-center">
+          <img class="rounded-circle" src='/images/avatar1_hu_14556e3998f22ee9.jpg' alt="Author Image">
+          <h5 class="author-name">Xuling Chang</h5>
+          <p class="text-muted">Monday, January 1, 1</p>
+        </div>
+        
+
+        <div class="title">
+          <h1>在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API</h1>
+        </div>
+
+        
+
+        
+        <div class="post-content" id="post-content">
+          <h3 id="编译-qthttpserver-模块">编译 QtHttpServer 模块</h3>
+<p>首先拉取代码</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone https://github.com/qt-labs/qthttpserver.git
+</span></span><span style="display:flex;"><span>cd qthttpserver
+</span></span><span style="display:flex;"><span>git checkout 5.15
+</span></span><span style="display:flex;"><span>git submodule update --init --recursive
+</span></span></code></pre></div><p>然后用qtcreator打开工程，编译</p>
+<h3 id="最简单的qt代码">最简单的Qt代码</h3>
+<p>如果想构建一个最简单的Qt程序，那么大概就是一个没有UI、控制台下运行的HelloWorld程序，它的代码大概是这个样子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;QtCore&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv) {
+</span></span><span style="display:flex;"><span>    QCoreApplication app(argc, argv);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// qDebug()&lt;&lt;&#34;Hello World&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> app.exec();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="使用qthttpserver">使用QtHttpServer</h3>
+<p>QtHttpServer目前不在Qt的主lib中，据说Qt6会正式加入。所以需要自行下载编译。<a href="https://github.com/qt-labs/qthttpserver" target="_blank" rel="noopener"></a></p>
+<h4 id="编译qthttpserver">编译QtHttpServer</h4>
+<p>我使用的是Qt5，牵出5.15分支，并自己使用QtCreator编译：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>git clone https://github.com/qt-labs/qthttpserver.git
+</span></span><span style="display:flex;"><span>git checkout 5.15
+</span></span></code></pre></div><p>编译成功后，将头文件和动态库拷贝到所使用的Qt安装路径下的对应目录内即可。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cd build-qthttpserver-Desktop_Qt_5_12_6_GCC_64bit-Release/
+</span></span><span style="display:flex;"><span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cd cmake/
+</span></span><span style="display:flex;"><span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/cmake/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>cd pkgconfig/
+</span></span><span style="display:flex;"><span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/pkgconfig/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>cd include/
+</span></span><span style="display:flex;"><span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/include/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>cd mkspecs
+</span></span><span style="display:flex;"><span>cd modules
+</span></span><span style="display:flex;"><span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/mkspecs/modules/
+</span></span></code></pre></div><h4 id="启动qthttpserver">启动QtHttpServer</h4>
+<p>在Qt官方blog <a href="https://www.qt.io/blog/2019/01/25/introducing-qt-http-server" target="_blank" rel="noopener">introducing-qt-http-server</a>，介绍了一个最基本的QHttpServer用法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;QtCore&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;QtHttpServer&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv) {
+</span></span><span style="display:flex;"><span>  QCoreApplication app(argc, argv);
+</span></span><span style="display:flex;"><span>  QHttpServer httpServer;
+</span></span><span style="display:flex;"><span>  httpServer.route(<span style="color:#e6db74">&#34;/&#34;</span>, []() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Hello world&#34;</span>;
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>  httpServer.listen(QHostAddress<span style="color:#f92672">::</span>Any, <span style="color:#ae81ff">9527</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> app.exec();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>程序启动后，浏览器打开 <a href="http://127.0.0.1:9527" target="_blank" rel="noopener"></a> 就可以看到HelloWorld了，所以这里Server提供了Get方法。那么如果想提供POST方法并接受一段数据呢？</p>
+<p>加入如下代码即可:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  httpserver.route(<span style="color:#e6db74">&#34;/post-body&#34;</span>, <span style="color:#e6db74">&#34;POST&#34;</span>, [] (<span style="color:#66d9ef">const</span> QHttpServerRequest <span style="color:#f92672">&amp;</span>request) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> request.body();
+</span></span><span style="display:flex;"><span>    });
+</span></span></code></pre></div><p>body中可以传入json等并进行解析。其他用法，推荐一篇详细介绍QtHttpServer接口routing方法的blog <a href="https://www.qt.io/blog/2019/02/01/qhttpserver-routing-api" target="_blank" rel="noopener">qhttpserver-routing-api</a>。</p>
+<h3 id="封装主服务类">封装主服务类</h3>
+<p>在MainSVC中，对HttpServer进行管理。实际使用时MainSVC还可以封装了其他功能，作为整体服务的入口。</p>
+<h4 id="mainsvc头文件">MainSVC头文件</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// FileName: mainsvc.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Author: BigBookPlus
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Reference: http://bigbookplus.github.io
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MainSVC</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">public</span> QObject
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	Q_OBJECT
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>	MainSVC(QObject <span style="color:#f92672">*</span>parent<span style="color:#f92672">=</span><span style="color:#66d9ef">nullptr</span>);
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">~</span>MainSVC();
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h4 id="实现文件加入qthttpserver功能">实现文件，加入QtHttpServer功能</h4>
+<p>MainSVC类的实现文件。这里要保证QtHttpServer是全局变量，否则Server无法正常运行。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// FileName: mainsvc.cpp
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Author: BigBookPlus
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Reference: http://bigbookplus.github.io
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;QHttpServer&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mainsvc.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> 
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> QtHttpServer http_server;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>MainSVC<span style="color:#f92672">::</span>MainSVC()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  http_server.route(<span style="color:#e6db74">&#34;/&#34;</span>, []() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;BigBookPlus Server Test.&#34;</span>;
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>MainSVC<span style="color:#f92672">::~</span>MainSVC()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> MainSVC<span style="color:#f92672">::</span>start()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">int</span> port <span style="color:#f92672">=</span> <span style="color:#ae81ff">9527</span>;
+</span></span><span style="display:flex;"><span>	http_server.listen(QHostAddress<span style="color:#f92672">::</span>Any, port);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><h3 id="在动态链接库中使用qt组件并提供c语言形式api">在动态链接库中使用Qt组件并提供C语言形式API</h3>
+<h4 id="关于qapplicationqcoreapplication">关于QApplication/QCoreApplication</h4>
+<p>如果在动态库中直接调用了qt的组件实现功能，而调用它的C++工程不是Qt工程，大概率会出现一条和QApplication/QCoreApplication有关的报错信息，大概意思就是某些模块必须要QApplication/QCoreApplication才能运行。</p>
+<p>具体来说，Non-GUI的QCore组件只需要依赖QCoreApplication对象；而涉及到GUI的例如QWidget组件则依赖QApplication对象。QApplication类其实继承自QCoreApplication。Qt主程序执行了它们的exec()方法，该Qt程序的EventLoop和EventDispatcher等功能才能正确运行，这样进而保证了信号和槽等机制的正常运转。实际使用时，应当令QApplication/QCoreApplication的对象变量位于主线程空间，而事件循环可以在其他线程执行，即exec()方法可以在子线程运行。因为exec()是个阻塞的方法，所以放在其他线程执行不会影响主线程，方便很多。</p>
+<p>显而易见，不是所有的组件都需要必须有个QApplication/QCoreApplication，进一步说，即使需要QApplication/QCoreApplication对象，其实也可以只定义一个全局变量，而不需要真的执行它的exec方法。</p>
+<p>在我的业务场景中，要给UI端以动态链接库的形式提供功能，除了一些一般的实时处理功能，还要在动态库的生命周期开启一个HttpServer，而不巧的是，QtHttpServer需要QCoreApplication对象。谨慎起见，同时我也决定在子线程中执行exec运行事件循环。最后，用户需要提供的是C接口，所以我将主服务接口以MainSVC对象进行封装完毕后，又定义了一套C形式的API。</p>
+<h4 id="qcoreapplication全局对象">QCoreApplication全局对象</h4>
+<p>首先在动态链接库的入口实现文件里，定义QCoreApplication全局对象，为了让对象正确初始化，我在这里定义了假的argc/argv参数变量：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> argc <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> param[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;test&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>argv[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> { param };
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> QCoreApplication <span style="color:#a6e22e">a</span>(argc, argv);
+</span></span></code></pre></div><h4 id="服务初始化">服务初始化</h4>
+<p>然后定义一个init函数，函数内new了一个我封装的主服务类的对象，并开启了事件循环。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">init</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  main_svc <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MainSVC(Q_NULLPTR);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> a.exec();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这个函数将在动态链接库的导出的初始化函数svc_init中，开启一个子线程来执行。使用时，用户调用svc_init，即可完成服务的初始化。下面是svc_init的定义：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">svc_init</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  QFuture<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">void</span><span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> QtConcurrent<span style="color:#f92672">::</span>run(init);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="实现文件">实现文件</h4>
+<p>但是有个新问题，用户直接调用svc_init进行测试，由于后面没有其他操作很快就退出了，因为初始化都是在线程中异步执行的。不能让用户在主线程中等待，简单的方法是在全局变量中增加一个QMutex对象进行控制，再再init和svc_init中访问此变量，即可简单达到同步的功能。初始化该动态库，会提供一个HttpServer供所有人调用。该动态库提供的服务在初始化阶段保证初始化完成后退出，提供给用户调用svc_start方法，启动服务，用户如需要服务一直运行，则后续自行控制主线程生命周期即可。完整实现如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// FileName: svc_c_api.cpp
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Author: BigBookPlus
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Reference: http://bigbookplus.github.io
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;QtCore&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;QtCore/QVariant&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;QtConcurrent&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;svc_c_api.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mainsvc.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> argc <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> param[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;test&#34;</span>;    <span style="color:#75715e">// magic string. nonsense.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>argv[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> { param };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> QCoreApplication <span style="color:#a6e22e">a</span>(argc, argv);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> QMutex init_lock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>MainSVC<span style="color:#f92672">*</span> main_svc <span style="color:#f92672">=</span> <span style="color:#66d9ef">nullptr</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">init</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  init_lock.lock();
+</span></span><span style="display:flex;"><span>	main_svc <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MainSVC(Q_NULLPTR);
+</span></span><span style="display:flex;"><span>  init_lock.unlock();
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> a.exec();
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">svc_init</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	QFuture<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">void</span><span style="color:#f92672">&gt;</span> future <span style="color:#f92672">=</span> QtConcurrent<span style="color:#f92672">::</span>run(init);
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  QThread<span style="color:#f92672">::</span>msleep(<span style="color:#ae81ff">100</span>); <span style="color:#75715e">// ensure init_lock mutex has been locked.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  init_lock.lock();     <span style="color:#75715e">// ensure main_svc initilizition finished.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  init_lock.unlock();   <span style="color:#75715e">// unlock
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">svc_start</span>()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (main_svc <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nullptr</span>)
+</span></span><span style="display:flex;"><span>	{
+</span></span><span style="display:flex;"><span>		main_svc<span style="color:#f92672">-&gt;</span>start();
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> true;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> false;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="接口文件">接口文件</h4>
+<p>C语言形式的API的头文件实现如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// FileName: svc_c_api.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Author: BigBookPlus
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Reference: http://bigbookplus.github.io
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifndef SVC_C_API_H_
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define SVC_C_API_H_
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#if defined(_MSC_VER)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># if defined(SVC_LIB)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#  define SVC_QTLIB_EXPORT __declspec(dllexport)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># else
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#  define SVC_QTLIB_EXPORT __declspec(dllimport)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#else
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># define SVC_QTLIB_EXPORT
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdbool.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef __cplusplus
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">extern</span> <span style="color:#e6db74">&#34;C&#34;</span> {
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  SVC_QTLIB_EXPORT <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">svc_init</span>(); <span style="color:#75715e">//before init
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	SVC_QTLIB_EXPORT <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">svc_start</span>();
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef __cplusplus
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><h3 id="后记怎样构建编译">后记：怎样构建（编译）</h3>
+<p>构建Qt项目的方法有很多，可以是Visual Studio + Qt插件，也可以用QtCreator。不过我更喜欢CMake的方式进行构建。基本的方法可以参考Qt官方关于CMake的指南<a href="https://doc.qt.io/qt-5/cmake-get-started.html" target="_blank" rel="noopener">cmake-get-started</a>。Qt项目编译中的关键步骤:MOC、UIC、RCC都可以通过添加一行指令，让CMake自动完成。用CMake管理Qt项目，基本和普通的C++项目感觉不到太大区别。</p>
+<p>这里提供一个我写的示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>cmake_minimum_required(VERSION <span style="color:#ae81ff">3.8.0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>project(test<span style="color:#f92672">-</span>svc VERSION <span style="color:#ae81ff">0.1.0</span> LANGUAGES CXX)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>set(Qt5_DIR D:<span style="color:#f92672">/</span>Qt<span style="color:#f92672">/</span>Qt5<span style="color:#ae81ff">.12.6</span><span style="color:#f92672">/</span><span style="color:#ae81ff">5.12.6</span><span style="color:#f92672">/</span>msvc2017_64<span style="color:#f92672">/</span>lib<span style="color:#f92672">/</span>cmake<span style="color:#f92672">/</span>Qt5) <span style="color:#960050;background-color:#1e0010">#</span> replace with path to your own version of Qt.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>set(CMAKE_CXX_STANDARD <span style="color:#ae81ff">11</span>)
+</span></span><span style="display:flex;"><span>set(CMAKE_CXX_STANDARD_REQUIRED ON)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>set(CMAKE_AUTOMOC ON)
+</span></span><span style="display:flex;"><span>set(CMAKE_AUTORCC ON)
+</span></span><span style="display:flex;"><span>set(CMAKE_AUTOUIC ON)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>add_definitions(<span style="color:#f92672">-</span>D SVC_LIB)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>find_package(Qt5 COMPONENTS Core Network Concurrent HttpServer REQUIRED)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>set(USED_QT_LIBRARYS Qt5<span style="color:#f92672">::</span>Core Qt5<span style="color:#f92672">::</span>Network  Qt5<span style="color:#f92672">::</span>Concurrent  Qt5<span style="color:#f92672">::</span>HttpServer)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>aux_source_directory(src SVC_SRCS)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>add_library(snn<span style="color:#f92672">-</span>svc SHARED <span style="color:#960050;background-color:#1e0010">$</span>{SVC_SRCS} )
+</span></span><span style="display:flex;"><span>target_link_libraries(snn<span style="color:#f92672">-</span>svc  <span style="color:#960050;background-color:#1e0010">$</span>{USED_QT_LIBRARYS})
+</span></span></code></pre></div><h3 id="end">END</h3>
+<p>欢迎留言探讨。</p>
+
+        </div>
+
+        
+        <div class="row ps-3 pe-3">
+        
+          <div class="col-md-6 share-buttons">
+          
+          </div>
+
+        
+        
+        </div>
+
+
+
+      
+      <hr />
+        
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+  
+
+
+<div class="row next-prev-navigator">
+  
+  
+</div>
+
+      <hr />
+
+      
+      
+
+      
+      
+
+      </div>
+    </div>
+  </div>
+  
+  <a id="scroll-to-top" class="btn" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="Scroll to top">
+    <i class="fas fa-chevron-circle-up"></i>
+  </a>
+</section>
+
+
+      
+      
+  <section class="toc-section" id="toc-section">
+    
+    <div class="toc-holder">
+      <h5 class="text-center ps-3">Table of Contents</h5>
+      <hr>
+      <div class="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#编译-qthttpserver-模块">编译 QtHttpServer 模块</a></li>
+        <li><a href="#最简单的qt代码">最简单的Qt代码</a></li>
+        <li><a href="#使用qthttpserver">使用QtHttpServer</a>
+          <ul>
+            <li><a href="#编译qthttpserver">编译QtHttpServer</a></li>
+            <li><a href="#启动qthttpserver">启动QtHttpServer</a></li>
+          </ul>
+        </li>
+        <li><a href="#封装主服务类">封装主服务类</a>
+          <ul>
+            <li><a href="#mainsvc头文件">MainSVC头文件</a></li>
+            <li><a href="#实现文件加入qthttpserver功能">实现文件，加入QtHttpServer功能</a></li>
+          </ul>
+        </li>
+        <li><a href="#在动态链接库中使用qt组件并提供c语言形式api">在动态链接库中使用Qt组件并提供C语言形式API</a>
+          <ul>
+            <li><a href="#关于qapplicationqcoreapplication">关于QApplication/QCoreApplication</a></li>
+            <li><a href="#qcoreapplication全局对象">QCoreApplication全局对象</a></li>
+            <li><a href="#服务初始化">服务初始化</a></li>
+            <li><a href="#实现文件">实现文件</a></li>
+            <li><a href="#接口文件">接口文件</a></li>
+          </ul>
+        </li>
+        <li><a href="#后记怎样构建编译">后记：怎样构建（编译）</a></li>
+        <li><a href="#end">END</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    </div>
+    
+  </section>
+
+    </div>
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  
+  
+    
+  
+
+  
+  
+
+  
+  
+
+
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  
+    
+  
+  
+
+  
+  
+  
+
+  <footer id="footer" class="container-fluid text-center align-content-center footer pb-2">
+    <div class="container pt-5">
+      <div class="row text-start">
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Navigation</h5>
+          
+          <ul>
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#about">About</a>
+                </li>
+              
+              
+                
+                
+                  
+                
+                <li class="nav-item">
+                  <a class="smooth-scroll" href="//localhost:1313/#skills">Skills</a>
+                </li>
+              
+            
+              
+            
+          </ul>
+          
+        </div>
+        
+        
+        <div class="col-md-4 col-sm-12">
+          <h5>Contact me:</h5>
+          <ul>
+            
+              
+                <li><a href=mailto:xuling.chang@live.com target="_blank" rel="noopener">
+                  <span><i class="fas fa-envelope"></i></span> <span>xuling.chang@live.com</span>
+                </a></li>
+              
+            
+          </ul>
+        </div>
+        
+        
+        
+          
+          <div class="col-md-4 col-sm-12">
+            <p>Stay up to date with email notification</p>
+            
+              <form method='post' action='https://blogtrottr.com'>
+              <div class="form-group">
+              <input type='email' class="form-control" name='btr_email' placeholder="Enter email"/><br />
+              <input type='hidden' name='btr_url' value='//localhost:1313//index.xml' />
+              <input type='hidden' name='schedule_type' value='1' />
+              <small id="emailHelp" class="form-text text-muted">By entering your email address, you agree to receive the newsletter of this website.</small>
+              <button type="submit" class="btn btn-info"> Submit </button>
+              </div>
+              </form>
+            
+          </div>
+        
+      </div>
+    </div>
+    
+    
+    <hr />
+    <div class="container">
+      <div class="row text-start">
+        <div class="col-md-4">
+          <a id="theme" href="https://github.com/hugo-toha/toha" target="_blank" rel="noopener">
+            <img src="/images/theme-logo_hu_b3360284c55cf72d.png" alt="Toha Theme Logo">
+            Toha
+          </a>
+        </div>
+        <div class="col-md-4 text-center">© 2025 Copyright.</div>
+        <div class="col-md-4 text-end">
+          <a id="hugo" href="https://gohugo.io/" target="_blank" rel="noopener">Powered by
+          <img
+            src="/images/hugo-logo.svg"
+            alt="Hugo Logo"
+            height="18"
+          />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+  </footer>
+
+
+    <script src="/application.a341acbc0f62a8685e8f7efb2bd46fffb5f3e61917ea04a490962ea59a29b4e9.js" integrity="sha256-o0GsvA9iqGhej377K9Rv/7Xz5hkX6gSkkJYupZoptOk=" defer></script>
+
+
+    
+     
+
+    
+</body>
+</html>
