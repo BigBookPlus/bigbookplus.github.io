@@ -28,17 +28,19 @@
 &lt;hr>
 &lt;h2 id="-cmake配置流程详解">🔧 CMake配置流程详解&lt;/h2>
 &lt;h3 id="配置界面流程图">配置界面流程图&lt;/h3>
-&lt;pre tabindex="0">&lt;code class="language-mermaid" data-lang="mermaid">graph TD
-A[启动CMake-GUI] --&amp;gt; B[设置源目录]
-B --&amp;gt; C[设置构建目录]
-C --&amp;gt; D[首次Configure选择VS2019x64]
-D --&amp;gt; E[等待IPPICV自动下载]
-E --&amp;gt; F[再次Configure应用结果]
-F --&amp;gt; G[设置OPENCV_EXTRA_MODULES_PATH]
-G --&amp;gt; H[启用CUDA相关选项]
-H --&amp;gt; I[勾选必要编译选项]
-I --&amp;gt; J[Generate生成VS工程]
-&lt;/code>&lt;/pre>&lt;h3 id="关键配置项解析">关键配置项解析&lt;/h3>
+&lt;div class="mermaid" align="center" style="background-color: none; border-radius: 5px;">
+graph TD
+A[启动CMake-GUI] --> B[设置源目录]
+B --> C[设置构建目录]
+C --> D[首次Configure选择VS2019x64]
+D --> E[等待IPPICV自动下载]
+E --> F[再次Configure应用结果]
+F --> G[设置OPENCV_EXTRA_MODULES_PATH]
+G --> H[启用CUDA相关选项]
+H --> I[勾选必要编译选项]
+I --> J[Generate生成VS工程]
+&lt;/div>
+&lt;h3 id="关键配置项解析">关键配置项解析&lt;/h3>
 &lt;h4 id="1-模块路径设置">1. 模块路径设置&lt;/h4>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-plaintext" data-lang="plaintext">&lt;span style="display:flex;">&lt;span>Name: OPENCV_EXTRA_MODULES_PATH
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Path: D:/WORK/opencv-github/opencv_contrib/modules
@@ -56,44 +58,87 @@ I --&amp;gt; J[Generate生成VS工程]
 - BUILD_opencv_world → ON（唯一动态库模式）
 - BUILD_DOCS → OFF（禁用文档生成）
 - ENABLE_NONFREE → ON（启用专利算法模块）
-&lt;/code>&lt;/pre>&lt;p>&lt;img src="https://via.placeholder.com/600x250?text=FIG2:+Critical+Options+Highlight" alt="CMake配置界面关键区域截图">&lt;/p></description></item><item><title>Build OpenCV 4.5.2 with CUDA support | CMake+VS2019+Win10+CUDA</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-16-opencv-cmake-vs2019/</link><pubDate>Fri, 06 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-16-opencv-cmake-vs2019/</guid><description>&lt;p>使用C++进行计算机图像处理方向的开发，OpenCV是最常使用的Lib之一。个人对OpenCV的使用，大概从2.4版本开始，一直到现在的Release版4.5.2[现在是2021.06.08]。&lt;/p>
-&lt;p>OpenCV功能比较丰富，包含了传统图像处理的绝大部分经典算法，其基本矩阵类型Mat简单强大，现在还加入了DNN模块支持深度学习模型推理，这两部分都可以单独深入讨论。最近决定使用DNN模块进行算法部署，需要用到GPU加速,而官方提供的标准编译安装包不满足需求了，遂决定自己动手编译，定制符合自己需求的OpenCV Lib。这对自己日常的开发工作来说，其实是一本万利的。&lt;/p>
-&lt;p>由于业务需求，本文实践在Windows 10操作系统下进行。在Linux下进行此类编译更为便捷，问题也更少，步骤基本类似。好在Windows平台下的Visual Stuido对CMake的支持也越做越好了。&lt;/p>
-&lt;p>按照自己的习惯，我在自己的work目录下建立了一个名为opencv-github的文件夹，随后从git上把最新的opencv和opencv-contrib牵下来。opencv-contrib一般包含非release组件以及nonfree组件。&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git clone https://github.com/opencv/opencv.git
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/0.png" alt="image">&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git clone https://github.com/opencv/opencv_contrib.git
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/1.png" alt="image">&lt;/p>
-&lt;p>如果安装了visual stuido 2019，cmake-gui大概率可以从cmd控制台直接呼出来。打开cmake-gui后，配置一下源码路径和编译路径。我的配置如下:&lt;/p>
-&lt;p>源码路径 D:/WORK/opencv-github/opencv&lt;/p>
-&lt;p>编译路径 D:/WORK/opencv-github/opencv/build&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/2.png" alt="image">&lt;/p>
-&lt;p>点击Configure，选择vs2019 x64编译&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/3.png" alt="image">&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/4.png" alt="image">&lt;/p>
-&lt;p>第一次Configure，ippicv依赖包下载失败，重新configure了一次，这次成功了。&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/5.png" alt="image">&lt;/p>
-&lt;p>搜索OPENCV_EXTRA_MODULES_PATH选型，填入OpenCV Contrib的路径&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>D:/WORK/opencv-github/opencv_contrib/modules
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/6.png" alt="image">&lt;/p>
-&lt;p>搜索cuda，勾选OPENCV DNN CUDA和WITH CUDA。不要勾选 BUILD CUDA STUBS。&lt;/p>
-&lt;p>cuda是要提前安装的，cudnn最好也安装上，注意cuda和cudnn版本的对应。&lt;/p>
-&lt;p>再次点击configure。&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/7.png" alt="image">&lt;/p>
-&lt;p>选中BUILD opencv world选项。这里主要是为了使用便捷，一个胜过你所有，不必单独一个个去链接。当然，单独选择链接组件的方式更有利于控制release程序的体积，有利有弊吧。&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/8.png" alt="image">&lt;/p>
-&lt;p>选中 enable nonfree选项，打开这个选项会把一些不能免费商用的算法编译进去，做些研究和实验还是可以的。之前的nonfree算法中最著名的当属sift，不过现在sift已经免费啦。&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/9.png" alt="image">&lt;/p>
-&lt;p>现在点击generate&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/10.png" alt="image">&lt;/p>
-&lt;p>Generate结束。可以点击Open Project了。&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/11.png" alt="image">&lt;/p>
-&lt;p>这样就呼出了宇宙第一IDE 2019。然后就可以开始编译啦~&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/12.png" alt="image">&lt;/p>
-&lt;p>展开CMakeTargets，选择ALL BUILD&lt;/p>
-&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/13.png" alt="image">&lt;/p>
-&lt;p>右键菜单选择build或者直接f7键，即可开始编译。ALL BUILD编译结束后，再选中INSTALL执行编译，这样编译出来的头文件、lib文件、dll文件和cmake文件就在开头提到的build目录下的install目录下面了。其实这里的ALL BUILD和INSTALL，相当于linux下面常见的make和make install。&lt;/p>
-&lt;p>现在已经有了头文件、lib文件、dll文件和cmake文件，就可以开始愉快的开发了哦。&lt;/p></description></item><item><title>Build FFMpeg with CUDA on CentOS 8</title><link>https://bigbookplus.github.io/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/</guid><description>&lt;h2 id="prepareing">Prepareing&lt;/h2>
+&lt;/code>&lt;/pre>&lt;p>&lt;img src="https://via.placeholder.com/600x250?text=FIG2:+Critical+Options+Highlight" alt="CMake配置界面关键区域截图">&lt;/p></description></item><item><title>在Docker中安装和配置OpenVino 2022.3</title><link>https://bigbookplus.github.io/posts/blogs/2023-04-11-openvino-installation/</link><pubDate>Tue, 11 Apr 2023 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2023-04-11-openvino-installation/</guid><description>&lt;h2 id="从代码安装">从代码安装&lt;/h2>
+&lt;p>官方推荐从代码安装&lt;/p>
+&lt;h3 id="开局不利">开局不利&lt;/h3>
+&lt;p>选择通过gitee clone安装，但是反复clone失败。报错如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span># git clone -b 2022.3.0 https://gitee.com/openvinotoolkit-prc/openvino.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Cloning into &amp;#39;openvino&amp;#39;...
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>remote: Enumerating objects: 345561, done.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>remote: Counting objects: 100% (59023/59023), done.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>remote: Compressing objects: 100% (33490/33490), done.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>error: RPC failed; curl 56 GnuTLS recv error (-9): Error decoding the received TLS packet.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fatal: the remote end hung up unexpectedly
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fatal: early EOF
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fatal: index-pack failed
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="解决方法">解决方法&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git config --global http.postBuffer 500M
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git config --global http.maxRequestBuffer 100M
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git config --global core.compression 0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>无需sudo运行docker命令</title><link>https://bigbookplus.github.io/posts/blogs/2023-04-08-run-docker-without-sudo/</link><pubDate>Sat, 08 Apr 2023 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2023-04-08-run-docker-without-sudo/</guid><description>&lt;h2 id="run-docker-commands-without-sudo">Run Docker commands without sudo&lt;/h2>
+&lt;p>新安装的Docker，有可能需要使用sudo才能运行docker命令。&lt;/p>
+&lt;p>比如，运行一个GPU docker镜像，需要使用sudo，否则会报错：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ docker run --rm --runtime&lt;span style="color:#f92672">=&lt;/span>nvidia --gpus all nvidia/cuda:11.6.2-base-ubuntu20.04 nvidia-smi
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#960050;background-color:#1e0010">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#960050;background-color:#1e0010">&lt;/span>docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post &amp;#34;http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create&amp;#34;: dial unix /var/run/docker.sock: connect: permission denied.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>See &amp;#39;docker run --help&amp;#39;.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>报错信息就是说，没有权限访问docker daemon。这是因为docker默认情况下是不允许普通用户使用的，需要使用sudo才能运行docker命令。&lt;/p>
+&lt;p>这样很不方便，下面介绍一下如何让docker不需要sudo就能运行。&lt;/p>
+&lt;h3 id="1-add-the-docker-group-if-it-doesnt-already-exist">1. Add the &lt;code>docker&lt;/code> group if it doesn&amp;rsquo;t already exist&lt;/h3>
+&lt;p>首先创建一个Docker 用户组，如果用户组已经存在，可以跳过这一步。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ sudo groupadd docker
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-add-the-connected-user-user-to-the-docker-group">2. Add the connected user &lt;code>$USER&lt;/code> to the docker group&lt;/h3>
+&lt;p>然后把当前用户加入到docker用户组中。&lt;/p></description></item><item><title>开启face_recognition的CUDA支持以及人脸识别package的一点讨论</title><link>https://bigbookplus.github.io/posts/blogs/2023-03-31-enable-face-recognition-cuda/</link><pubDate>Fri, 31 Mar 2023 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2023-03-31-enable-face-recognition-cuda/</guid><description>&lt;h2 id="开启face_recognition的cuda支持的方法">开启face_recognition的CUDA支持的方法&lt;/h2>
+&lt;p>face_recognition是一个python包，用于人脸识别。属于基础的人脸识别包，支持人脸检测、人脸编码、人脸比对等功能。
+face_recognition包支持使用GPU进行加速，但是默认情况下是不开启的。
+也就是说，直接用Pip或这conda方式进行安装，装上的包基本上是不支持GPU计算的。
+face_recognition的核心计算部分依赖dlib，所以需要安装dlib的GPU版本。如需要使用GPU进行加速的时候，需要安装CUDA和cuDNN。安装dlib的GPU版本，需要下载代码，开启cuda和cudnn支持，然后编译安装。
+下面介绍一下安装过程。&lt;/p>
+&lt;h3 id="核心编译安装dlib-with-cuda">核心：编译安装dlib with CUDA&lt;/h3>
+&lt;p>官方文档介绍开启cuda支持的dlib的安装过程如下：&lt;/p>
+&lt;h2 id="installing-dlib-using-conda-with-cuda-enabled">Installing dlib using &lt;code>conda&lt;/code> with CUDA enabled&lt;/h2>
+&lt;p>Prerequisite: &lt;code>conda&lt;/code> and/or &lt;code>miniconda&lt;/code> are already installed&lt;/p>
+&lt;ol>
+&lt;li>Create a conda environment.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ conda create -n dlib python&lt;span style="color:#f92672">=&lt;/span>3.8 cmake ipython
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Activate the environment.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ conda activate dlib
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>Install CUDA and cuDNN with &lt;code>conda&lt;/code> using nvidia channel&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ conda install cuda cudnn -c nvidia
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then find the path to the &lt;code>nvcc&lt;/code> of this environment. We will use this path for the build step below&lt;/p></description></item><item><title>使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络</title><link>https://bigbookplus.github.io/posts/blogs/2022-11-03-use-docker-for-gpu-and-web-camera-applications/</link><pubDate>Thu, 03 Nov 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-11-03-use-docker-for-gpu-and-web-camera-applications/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
+&lt;p>在操作系统中发行应用程序，尤其是python应用程序，其环境配置常常是分发过程中的重要一环。如果像开发的时候那样手动构建，一方面工作量难以承受，另一方面经常会出现各种各样的问题。在不同的目标主机上手动构建环境，会受到目标操作系统的版本、文件系统、所安装软件包的情况影响。而且开发时所使用的一些默认安装包，到了发布的时候可能已经都被更新过，所以手动构建要求使用的包版本号也精确记录。&lt;/p>
+&lt;h2 id="安装和配置">安装和配置&lt;/h2>
+&lt;p>安装GPU docker，首先需要安装docker，然后在docker的基础上安装nvidia-docker。&lt;/p>
+&lt;h3 id="安装docker">安装docker&lt;/h3>
+&lt;p>参考链接 &lt;a href="https://docs.docker.com/engine/install/ubuntu" target="_blank" rel="noopener">https://docs.docker.com/engine/install/ubuntu&lt;/a>&lt;/p>
+&lt;h3 id="安装nvidia-docker">安装nvidia-docker&lt;/h3>
+&lt;p>参考链接 &lt;a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker" target="_blank" rel="noopener">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker&lt;/a>&lt;/p>
+&lt;h2 id="在docker中显示gui">在docker中显示GUI&lt;/h2>
+&lt;p>如果在Docker中开发的是带有GUI的应用程序，也就是在docker中显示GUI，需要启动支持GUI的docker镜像。&lt;/p>
+&lt;p>首先配置一下xhost&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>xhost +local:docker
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>或者&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>xhost +
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>启动docker，由于需要docker中显示GUI，所以加入参数&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style="color:#f92672">=&lt;/span>$DISPLAY
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>完整指令如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>docker run --name mydocker --gpus all --shm-size&lt;span style="color:#f92672">=&lt;/span>1g --ulimit memlock&lt;span style="color:#f92672">=&lt;/span>-1 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style="color:#f92672">=&lt;/span>$DISPLAY snn-server:basic
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>注意，这里是启动了GPU docker，&amp;ndash;gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为&amp;ndash;gpus 0。&lt;/p>
+&lt;h2 id="在docker中访问usb相机">在Docker中访问usb相机&lt;/h2>
+&lt;p>如果需要在docker中访问usb相机，需要在启动docker的时候，追加以下参数&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>-v /dev/video0:/dev/video0 --device&lt;span style="color:#f92672">=&lt;/span>/dev/video0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样就把宿主机的/dev/video0映射到docker中的/dev/video0，然后在docker中就可以访问到相机了。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>docker run --name mydocker --gpus all --shm-size&lt;span style="color:#f92672">=&lt;/span>1g --ulimit memlock&lt;span style="color:#f92672">=&lt;/span>-1 -v /dev/video0:/dev/video0 --device&lt;span style="color:#f92672">=&lt;/span>/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style="color:#f92672">=&lt;/span>$DISPLAY myimage:latest
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="在docker镜像中开放端口">在Docker镜像中开放端口&lt;/h2>
+&lt;p>如果需要从docker中对外提供服务，需要在docker中向宿主机进行端口映射，才可以从宿主机访问到docker中的服务。&lt;/p>
+&lt;p>Docker中的端口映射，需要在启动docker的时候，加入参数&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>-p 8080:8080
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样，宿主机的8080端口就映射到docker中的8080端口了。&lt;/p></description></item><item><title>Build FFMpeg with CUDA on CentOS 8</title><link>https://bigbookplus.github.io/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/</link><pubDate>Mon, 04 Jul 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-07-04-build-ffmpeg-with-cuda-centos8/</guid><description>&lt;h2 id="prepareing">Prepareing&lt;/h2>
 &lt;p>CUDA toolkits need to be installed.
 Then the following listed packages should be installed too.&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>dnf -y install automake autoconf libtool make gcc gcc-c++
@@ -101,7 +146,26 @@ Then the following listed packages should be installed too.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>dnf --enablerepo&lt;span style="color:#f92672">=&lt;/span>powertools -y install libexif-devel
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>dnf -y install bison pkgconfig glib2-devel gettext make libpng-devel libjpeg-devel libtiff-devel libexif-devel giflib-devel libX11-devel freetype-devel fontconfig-devel cairo-devel fribidi-devel
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>dnf -y install openssl openssl-devel
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note that, &lt;code>powertools&lt;/code> might be &lt;code>PowerTools&lt;/code> according to different configurations, just replace the name.&lt;/p></description></item><item><title>C++中正则表达式的用法</title><link>https://bigbookplus.github.io/posts/blogs/2022-06-15-cpp-regex/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-06-15-cpp-regex/</guid><description>&lt;p>C++11引入了 &lt;code>&amp;lt;regex&amp;gt;&lt;/code> 标准库，为开发人员提供了强大的正则表达式支持。正则表达式（RegEx）可用于字符串匹配、搜索、替换等操作，是处理文本数据的利器。本文将从基础语法到高级用法，逐步介绍C++正则表达式如何高效使用。&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note that, &lt;code>powertools&lt;/code> might be &lt;code>PowerTools&lt;/code> according to different configurations, just replace the name.&lt;/p></description></item><item><title>Installation of GNUPlot 5.4.3 on Linux with png/jpg export support</title><link>https://bigbookplus.github.io/posts/blogs/2022-08-11-gnuplot-installation/</link><pubDate>Mon, 04 Jul 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-08-11-gnuplot-installation/</guid><description>&lt;p>We need to install libpng and libgd before the compilation of gnuplot-5.4.3&lt;/p>
+&lt;p>We can install libpng using yum install&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>yum install libpng-devel
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The libgd-devel package provided by yum is not compatable with gnuplot-5.4.3 on the aws-linux-2,
+we download and compile the officially new version.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>wget https://github.com/libgd/libgd/releases/download/gd-2.3.3/libgd-2.3.3.tar.gz
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tar zxvf ./libgd-2.3.3.tar.gz
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd libgd-2.3.3
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>./configure
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>make
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sudo make install
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then compile gnuplot.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>cd libs
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>wget https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.3/gnuplot-5.4.3.tar.gz
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tar zxvf ./gnuplot-5.4.3.tar.gz
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd gnuplot-5.4.3
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>./configure
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>make
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sudo make install
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>C++中正则表达式的用法</title><link>https://bigbookplus.github.io/posts/blogs/2022-06-15-cpp-regex/</link><pubDate>Wed, 15 Jun 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-06-15-cpp-regex/</guid><description>&lt;p>C++11引入了 &lt;code>&amp;lt;regex&amp;gt;&lt;/code> 标准库，为开发人员提供了强大的正则表达式支持。正则表达式（RegEx）可用于字符串匹配、搜索、替换等操作，是处理文本数据的利器。本文将从基础语法到高级用法，逐步介绍C++正则表达式如何高效使用。&lt;/p>
 &lt;hr>
 &lt;h2 id="一基础准备">一、基础准备&lt;/h2>
 &lt;h3 id="1-引入库和命名空间">1. 引入库和命名空间&lt;/h3>
@@ -177,7 +241,166 @@ Then the following listed packages should be installed too.&lt;/p>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;hr>
 &lt;h2 id="三核心函数与用法">三、核心函数与用法&lt;/h2>
 &lt;h3 id="1-检查匹配regex_match">1. 检查匹配（&lt;code>regex_match&lt;/code>）&lt;/h3>
-&lt;p>检查&lt;strong>整个字符串&lt;/strong>是否匹配：&lt;/p></description></item><item><title>CMake管理C/C++工程的一点心得</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-20-cmake-manage-project/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-20-cmake-manage-project/</guid><description>&lt;p>现在我自己的几乎所有C/C++项目均使用CMake管理。CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代表性的Lib库：&lt;/p>
+&lt;p>检查&lt;strong>整个字符串&lt;/strong>是否匹配：&lt;/p></description></item><item><title>How to Implement FTP Upload by C++ and POCO</title><link>https://bigbookplus.github.io/posts/blogs/2022-06-15-poco-ftp/</link><pubDate>Wed, 15 Jun 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-06-15-poco-ftp/</guid><description>&lt;h2 id="poco">POCO&lt;/h2>
+&lt;p>POCO is a lightweight and flexible network library for C++ users.
+You can refer to the POCO library at its homepage: &lt;a href="https://pocoproject.org/" target="_blank" rel="noopener">https://pocoproject.org/&lt;/a> or its github project page: &lt;a href="https://github.com/pocoproject/poco" target="_blank" rel="noopener">https://github.com/pocoproject/poco&lt;/a> .
+You can simply git clone from the POCO repository, and build it follows its official mannual.
+For me, I built it simply with the CMake-GUI tool on Windows, with all default settings.&lt;/p>
+&lt;h2 id="how-to-upload">How to Upload&lt;/h2>
+&lt;h3 id="includes-stuffs">Includes Stuffs&lt;/h3>
+&lt;p>Most of the FTP related APIs are in the &lt;code>Poco/Net/FTPClientSession.h&lt;/code> header file. The Exception Processing tools are used all the time, so that we include it too. When you need to do the uploading to FTP server, &lt;code>Poco/StreamCopier.h&lt;/code> is must be included.&lt;/p></description></item><item><title>OpenCV 4.X 使用CvxText在图片显示汉字</title><link>https://bigbookplus.github.io/posts/blogs/2022-06-15-cvxtext-opencv45/</link><pubDate>Wed, 15 Jun 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-06-15-cvxtext-opencv45/</guid><description>&lt;p>最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype+cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。&lt;/p>
+&lt;h2 id="准备">准备&lt;/h2>
+&lt;p>需要的依赖有：&lt;/p>
+&lt;ul>
+&lt;li>C/C++ 编译环境（似乎是废话）&lt;/li>
+&lt;li>OpenCV (仍然废话)&lt;/li>
+&lt;li>freetype的lib： 提前编译好，官网是 &lt;a href="https://freetype.org/" target="_blank" rel="noopener">https://freetype.org/&lt;/a>，我使用的版本是2.9.1&lt;/li>
+&lt;li>字体文件，一般用&lt;code>simhei.ttf&lt;/code>。在操作系统的字体里面哦。&lt;/li>
+&lt;/ul>
+&lt;h2 id="修改-cvxtext-代码">修改 CvxText 代码&lt;/h2>
+&lt;p>我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。&lt;/p>
+&lt;h3 id="opencv头文件包含方式">OpenCV头文件包含方式&lt;/h3>
+&lt;p>首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/core/core.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/core/core_c.h&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/highgui/highgui.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/imgproc/imgproc.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里特别说明，引入&lt;code>core_c.h&lt;/code>这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，&lt;code>core_c.h&lt;/code> 提供了对C类型的兼容。&lt;/p>
+&lt;h3 id="cvscalar类型问题">CvScalar类型问题&lt;/h3>
+&lt;p>下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C++类型的cv::Scalar。下面的&lt;code>puttext&lt;/code>函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> CvxText&lt;span style="color:#f92672">::&lt;/span>putText(cv&lt;span style="color:#f92672">::&lt;/span>Mat &lt;span style="color:#f92672">&amp;amp;&lt;/span>frame, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>text, CvPoint pos)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> CvScalar s &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">putText&lt;/span>(frame, text, pos, s);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> CvxText&lt;span style="color:#f92672">::&lt;/span>putText(cv&lt;span style="color:#f92672">::&lt;/span>Mat &lt;span style="color:#f92672">&amp;amp;&lt;/span>frame, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">wchar_t&lt;/span> &lt;span style="color:#f92672">*&lt;/span>text, CvPoint pos)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> CvScalar s &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>};
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">putText&lt;/span>(frame, text, pos, s);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="cvmat转为iplimage">cv::Mat转为IplImage&lt;/h3>
+&lt;p>另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：&lt;/p></description></item><item><title>Curved Text Detection by PaddleOCR</title><link>https://bigbookplus.github.io/posts/blogs/2022-04-14-curved-text-detection-by-paddleocr/</link><pubDate>Thu, 14 Apr 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-04-14-curved-text-detection-by-paddleocr/</guid><description>&lt;p>&lt;img src="https://bigbookplus.github.io/assets/image/in-post/curved_text_paddleocr/det_res_img623.jpg" alt="Detection Result">&lt;/p>
+&lt;p>Text Detection Task is an old topic of Detction tasks. Curved text is much more free form. in this Post, we show you how to run the curved text detection by PaddleOCR.&lt;/p>
+&lt;h2 id="setup-environment">Setup Environment&lt;/h2>
+&lt;p>Create a virtual environment named paddle_env.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>conda create --name paddle_env python&lt;span style="color:#f92672">=&lt;/span>3.8
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then activate it.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>conda activate paddle_env
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Install paddlepaddle and paddle ocr packages through pip.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>python -m pip install paddlepaddle
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>pip install &lt;span style="color:#e6db74">&amp;#34;paddleocr&amp;gt;=2.0.1&amp;#34;&lt;/span> &lt;span style="color:#75715e"># Recommend to use version 2.0.1+&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="test-environment">Test Environment&lt;/h2>
+&lt;p>Test the installations.&lt;/p></description></item><item><title>Tips of Migrating Numpy to C++ by OpenCV</title><link>https://bigbookplus.github.io/posts/blogs/2022-03-26-numpy-to-opencv-mat-tips/</link><pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-03-26-numpy-to-opencv-mat-tips/</guid><description>&lt;h2 id="sigmoid">Sigmoid&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-text" data-lang="text">&lt;span style="display:flex;">&lt;span>A sigmoid function is a mathematical function having a characteristic &amp;#34;S&amp;#34;-shaped curve or sigmoid curve.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>From wikipedia: &lt;a href="https://en.wikipedia.org/wiki/Sigmoid_function" target="_blank" rel="noopener">Sigmoid_function&lt;/a>&lt;/p>
+&lt;p>It&amp;rsquo;s formula: $S(t)=\frac {1}{1+e^{-t}}$&lt;/p>
+&lt;p>We can implement sigmoid function with python and numpy like this:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> numpy &lt;span style="color:#66d9ef">as&lt;/span> np
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>z &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">/&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>exp(&lt;span style="color:#f92672">-&lt;/span>x))
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now let&amp;rsquo;s implement it in OpenCV with cpp. Suppose we&amp;rsquo;ve got a output from a neural network as a [1, h, w] cv::Mat named &lt;code>pred&lt;/code>. We then do something like &lt;code>pred = sigmoid(pred)&lt;/code>.&lt;/p></description></item><item><title>Simplest Demo for Displaying Image Processing Results using PySide6</title><link>https://bigbookplus.github.io/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/</link><pubDate>Wed, 09 Mar 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/</guid><description>&lt;p>The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV &lt;code>imshow&lt;/code> stuff is simple but not enough, failed on expansibility and maintainability. The &lt;code>Qt&lt;/code> library, on the other side, is a well-developed UI framework that is evolved from C/C++ and is available in python now. The &lt;code>PyQt4/PyQt5&lt;/code> packages are from the community, and &lt;code>PySide2/PySide6&lt;/code> packages are from &lt;code>Qt&lt;/code> officially. We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, &lt;code>Qt&lt;/code>, takes over the results display work.&lt;/p></description></item><item><title>Using MMOCR: Installation and Training with my own Data</title><link>https://bigbookplus.github.io/posts/blogs/2022-03-04-mmocr-installation-training-with-own-data/</link><pubDate>Fri, 04 Mar 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-03-04-mmocr-installation-training-with-own-data/</guid><description>&lt;h2 id="what-is-ocr">What is OCR?&lt;/h2>
+&lt;p>According to the wikipedia, OCR, which refers to &lt;strong>Optical character recognition&lt;/strong> or &lt;strong>optical character reader,&lt;/strong> is the electronic  or mechanical  conversion of images  of typed, handwritten or printed text into machine-encoded text.&lt;/p>
+&lt;h2 id="why-mmocr">Why MMOCR?&lt;/h2>
+&lt;ul>
+&lt;li>Pytorch&lt;/li>
+&lt;li>Maintained by Openmmlab&lt;/li>
+&lt;li>Easy to train your own data&lt;/li>
+&lt;li>Can be deployed into C++ code&lt;/li>
+&lt;/ul>
+&lt;p>Pytorch is sweet, it seems to have absorbed most of the advantages of current deep learning frameworks. It is maintained by the OpenMMLab, belongs to SenseTime, which means that this repo can live long and keep updating. MMOCR has a clear structure just like MMDetection. It has the experimental deployment code too.&lt;/p></description></item><item><title>Setup GitLab Sevice on Ubuntu 16.04 in Local LAN</title><link>https://bigbookplus.github.io/posts/blogs/2022-02-08-install-configure-gitlab-ce/</link><pubDate>Tue, 08 Feb 2022 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-02-08-install-configure-gitlab-ce/</guid><description>&lt;h1 id="setup-gitlab-sevice-on-ubuntu-1604-in-local-lan">Setup GitLab Sevice on Ubuntu 16.04 in Local LAN&lt;/h1>
+&lt;p>GitLab is as powerful as GitHub. We decide to change the version control system from SVN to Git. We run the GitLab server in our local LAN. I found the blogs for GitLab installation are all too long to read and too complicated for using GitLab in local LAN with no domain name, so I wrote this one.&lt;/p>
+&lt;p>Before installing GitLab, please update the Ubuntu repository.&lt;/p></description></item><item><title>使用&amp;运算符在OpenCV图像裁剪时进行边界检查</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-26-operator-and-in-opencv/</link><pubDate>Thu, 26 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-26-operator-and-in-opencv/</guid><description>&lt;h3 id="给定roi的图像裁剪">给定ROI的图像裁剪&lt;/h3>
+&lt;p>假设需要按照既定的ROI对图像进行取窗裁剪，用&lt;code>cv::Rect&lt;/code>给定ROI区域，裁剪可以按照如下方式：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Mat image &lt;span style="color:#f92672">=&lt;/span> cv&lt;span style="color:#f92672">::&lt;/span>imread(&lt;span style="color:#e6db74">&amp;#34;/path/to/image.jpg&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Rect roi &lt;span style="color:#f92672">=&lt;/span> cv&lt;span style="color:#f92672">::&lt;/span>Rect(x, y, width, height);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Mat crop &lt;span style="color:#f92672">=&lt;/span> image(roi);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="限制边界">限制边界&lt;/h3>
+&lt;p>如果roi的坐标超出了图像的合法区域，会引发运行时错误，导致程序崩溃。此时一般要提前进行边界检查和规范，比如这样：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.x&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>) roi.x&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.y&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>) roi.y&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.x&lt;span style="color:#f92672">+&lt;/span>roi.width &lt;span style="color:#f92672">&amp;gt;=&lt;/span> image.cols) roi.width &lt;span style="color:#f92672">=&lt;/span> image.cols&lt;span style="color:#f92672">-&lt;/span>roi.x;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.y&lt;span style="color:#f92672">+&lt;/span>roi.height &lt;span style="color:#f92672">&amp;gt;=&lt;/span> image.rows) roi.heigth &lt;span style="color:#f92672">=&lt;/span> image.rows&lt;span style="color:#f92672">-&lt;/span>roi.y;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样写代码，看上去不太直观，而且有些冗长，更谈不上优雅或者可读性。&lt;/p>
+&lt;p>或者这样：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> w &lt;span style="color:#f92672">=&lt;/span> image.cols;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> h &lt;span style="color:#f92672">=&lt;/span> image.rows;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> x0 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>max&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, roi.tl().x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> y0 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>max&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, roi.tl().y);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> x1 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>min&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(w, roi.br().x);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> y1 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>min&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(h, roi.br().y);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>roi &lt;span style="color:#f92672">=&lt;/span> cv&lt;span style="color:#f92672">::&lt;/span>Rect(cv&lt;span style="color:#f92672">::&lt;/span>Point(x0, y0), cv&lt;span style="color:#f92672">::&lt;/span>Point(x1, y1));
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>稍微增加了些可读性，特别是如果习惯于使用stl的max/min函数进行边界检查。但是仍然冗长，不够优雅。冗长有什么坏处？一般来讲，冗长的代码不易于维护，可读性不会太强。另外以上面这段实现为例，由于反复使用同一变量，仅仅为了对其不同的成员做类似的操作，非常容易导致低级错误。&lt;/p>
+&lt;h3 id="operator---get-intersection-of-cvrect">Operator &amp;amp; : Get Intersection of cv::Rect&lt;/h3>
+&lt;p>这个运算符&lt;code>&amp;amp;&lt;/code>比较直观。在C/C++语法中，&lt;code>&amp;amp;&lt;/code>属于位运算，是按位与的功能。cv::Rect类型重载了它，可以想象它的功能就是取矩形的相交区域。所以要对图像ROI的cv::Rect进行边界限制，那么将ROI和表示图像区域的Bounding Box求相交区域即可。代码实现如下：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Rect bbox(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, mat.cols, mat.rows);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Rect roi &lt;span style="color:#f92672">=&lt;/span> roi &lt;span style="color:#f92672">&amp;amp;&lt;/span> bbox; &lt;span style="color:#75715e">// that&amp;#39;s all
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样基本上就一句话完成了边界限制。&lt;/p></description></item><item><title>PyTorch中的lr_scheduler的用法</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-24-pytorch-lr_scheduler/</link><pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-24-pytorch-lr_scheduler/</guid><description>&lt;p>几种常见的LR_Scheduler:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html#torch.optim.lr_scheduler.StepLR" target="_blank" rel="noopener">StepLR&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.MultiStepLR.html#torch.optim.lr_scheduler.MultiStepLR" target="_blank" rel="noopener">MultiStepLR&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ExponentialLR.html#torch.optim.lr_scheduler.ExponentialLR" target="_blank" rel="noopener">ExponentialLR&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>对于一个基本的训练流程，LR_Scheduler可能不是必须的。但是对于一个完整的训练流程，LR_Scheduler就是必须存在的。LR_Scheduler跟在Optimizer之后，利用对Optim变量的跟踪，在Optim执行Update后，检查lr是否满足预设条件并对学习率learning_rate进行更新。&lt;/p>
+&lt;p>以StepLR为例，StepLR每隔N个epoch改变&lt;code>lr&lt;/code>学习率为&lt;code>lr=lr*gamma&lt;/code>。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Python" data-lang="Python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> torch.optim.lr_scheduler &lt;span style="color:#66d9ef">as&lt;/span> lr_scheduler
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>optimizer &lt;span style="color:#f92672">=&lt;/span> SGD(model, &lt;span style="color:#ae81ff">0.1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>scheduler &lt;span style="color:#f92672">=&lt;/span> lr_scheduler&lt;span style="color:#f92672">.&lt;/span>StepLR(optimizer, step_size&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">10&lt;/span>, gamma&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0.1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> epoch &lt;span style="color:#f92672">in&lt;/span> range(&lt;span style="color:#ae81ff">20&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> input, target &lt;span style="color:#f92672">in&lt;/span> dataset:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> optimizer&lt;span style="color:#f92672">.&lt;/span>zero_grad()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> output &lt;span style="color:#f92672">=&lt;/span> model(input)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> loss &lt;span style="color:#f92672">=&lt;/span> loss_fn(output, target)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> loss&lt;span style="color:#f92672">.&lt;/span>backward()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> optimizer&lt;span style="color:#f92672">.&lt;/span>step()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> scheduler&lt;span style="color:#f92672">.&lt;/span>step()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Using MNIST-ROT Dataset in PyTorch</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-24-minst-rot-how-to/</link><pubDate>Tue, 24 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-24-minst-rot-how-to/</guid><description>&lt;p>&lt;img src="https://sites.google.com/a/lisa.iro.umontreal.ca/public_static_twiki/_/rsrc/1392048843662/variations-on-the-mnist-digits/rotation_examples.png" alt="mnist-rot example images">&lt;/p>
+&lt;p>Dataset Download Link: &lt;a href="http://www.iro.umontreal.ca/~lisa/icml2007data/mnist_rotation_new.zip" target="_blank" rel="noopener">MNIST-ROT&lt;/a>&lt;/p>
+&lt;h2 id="introduction">Introduction&lt;/h2>
+&lt;p>As was depicted in paper &lt;a href="https://arxiv.org/pdf/2007.10408.pdf" target="_blank" rel="noopener">PDO-eConvs&lt;/a>, MNIST-rot-12k is the most commonly used dataset for validating rotation equivariant algorithms. So if you are interested in the rotation equivariant algorithms research, this Dataset maybe helpful.&lt;/p>
+&lt;h2 id="turn-to-dataloader-code">Turn to DataLoader Code.&lt;/h2></description></item><item><title>OpenCV DNN Batch Inference in C++</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-23-opencv-dnn-batch-inference/</link><pubDate>Mon, 23 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-23-opencv-dnn-batch-inference/</guid><description>&lt;p>OpenCV has a DNN module, which is powerful, efficient, and easy to use. To implement a DNN inference application, we need only to call a couple of APIs which are offered by OpenCV DNN module. The basic routine of implementation a DNN inference code by OpenCV is as below.&lt;/p>
+&lt;blockquote>
+&lt;ul>
+&lt;li>Initialization. Creating the cv::dnn::Net object by reading in the network weight. (caffe/onnx&amp;hellip;)&lt;/li>
+&lt;li>Preprocessing. Determine shape of input data of the network. Reshape the raw input image(s) to match the input data shape. This step always combined some other operatations such as normalization.&lt;/li>
+&lt;li>Inference. Call inference method by the created cv::dnn::Net object.&lt;/li>
+&lt;li>Postprocessing. Decoding the output data and do further wrangling.&lt;/li>
+&lt;/ul>&lt;/blockquote>
+&lt;p>In my opinion, as the network weights are already determined, the most important parts of the deployment are pre&amp;amp;postprocessing. You need to figure out exactly what shape of input data is, and what the normalization method is (mean/std value). In post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks will be much harder to implement, such as object detection/segmentation tasks. You need to do a lot of work to crack the data wrangling problems, and sometimes may need to rewrite some operatations yourself from scratch, just because there is no corresponding method with the original python implementation in C++.&lt;/p></description></item><item><title>QtHttpServer Demo and a POST Client</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-21-qthttpserver-sample/</link><pubDate>Sat, 21 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-21-qthttpserver-sample/</guid><description>&lt;h2 id="client-http-post">Client HTTP POST&lt;/h2>
+&lt;p>假设&lt;a href="http://127.0.0.1:8888/post/" target="_blank" rel="noopener">http://127.0.0.1:8888/post/&lt;/a>是一个能够接受POST请求的路径，我们想要向它提交一段json数据，用Qt可以这样实现：&lt;/p>
+&lt;p>Suppose we want to make an HTTP POST with json body to &lt;a href="http://127.0.0.1:8888/post/" target="_blank" rel="noopener">http://127.0.0.1:8888/post/&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>QCoreApplication &lt;span style="color:#a6e22e">app&lt;/span>(argc, argv);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QNetworkAccessManager &lt;span style="color:#f92672">*&lt;/span>mgr &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> QNetworkAccessManager;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> QUrl &lt;span style="color:#a6e22e">url&lt;/span>(QStringLiteral(&lt;span style="color:#e6db74">&amp;#34;http://127.0.0.1:8888/post/&amp;#34;&lt;/span>));
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QNetworkRequest &lt;span style="color:#a6e22e">request&lt;/span>(url);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>request.setHeader(QNetworkRequest&lt;span style="color:#f92672">::&lt;/span>ContentTypeHeader, &lt;span style="color:#e6db74">&amp;#34;application/json; charset=utf-8&amp;#34;&lt;/span>);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QJsonObject obj;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>obj[&lt;span style="color:#e6db74">&amp;#34;key1&amp;#34;&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;value1&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>obj[&lt;span style="color:#e6db74">&amp;#34;key2&amp;#34;&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;value2&amp;#34;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QJsonDocument &lt;span style="color:#a6e22e">doc&lt;/span>(obj);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QByteArray data &lt;span style="color:#f92672">=&lt;/span> doc.toJson();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QNetworkReply &lt;span style="color:#f92672">*&lt;/span>reply &lt;span style="color:#f92672">=&lt;/span> mgr&lt;span style="color:#f92672">-&amp;gt;&lt;/span>post(request, data);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QObject&lt;span style="color:#f92672">::&lt;/span>connect(reply, &lt;span style="color:#f92672">&amp;amp;&lt;/span>QNetworkReply&lt;span style="color:#f92672">::&lt;/span>finished, [&lt;span style="color:#f92672">=&lt;/span>](){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>(reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>error() &lt;span style="color:#f92672">==&lt;/span> QNetworkReply&lt;span style="color:#f92672">::&lt;/span>NoError){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> QString contents &lt;span style="color:#f92672">=&lt;/span> QString&lt;span style="color:#f92672">::&lt;/span>fromUtf8(reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>readAll());
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> qDebug() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> contents;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> QString err &lt;span style="color:#f92672">=&lt;/span> reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>errorString();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> qDebug() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> err;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>deleteLater();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mgr&lt;span style="color:#f92672">-&amp;gt;&lt;/span>deleteLater();
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>});
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="http-server">Http Server&lt;/h2>
+&lt;p>而这个本地的Server，亦可使用QtHttpServer方便实现：&lt;/p>
+&lt;p>Server can be implemented by QtHttpServer easily, too.&lt;/p></description></item><item><title>CMake管理C/C++工程的一点心得</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-20-cmake-manage-project/</link><pubDate>Fri, 20 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-20-cmake-manage-project/</guid><description>&lt;p>现在我自己的几乎所有C/C++项目均使用CMake管理。CMake语法简洁功能强大，并且大部分主流C/C++ Lib库都内建了对CMake的支持。我在工作中主要使用到比较有代表性的Lib库：&lt;/p>
 &lt;ul>
 &lt;li>
 &lt;p>OpenCV&lt;/p>
@@ -246,230 +469,89 @@ Then the following listed packages should be installed too.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> cv&lt;span style="color:#f92672">::&lt;/span>waitKey(&lt;span style="color:#ae81ff">0&lt;/span>);
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>对应的&lt;code>CMakeLists.txt&lt;/code>文件：&lt;/p></description></item><item><title>Curved Text Detection by PaddleOCR</title><link>https://bigbookplus.github.io/posts/blogs/2022-04-14-curved-text-detection-by-paddleocr/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-04-14-curved-text-detection-by-paddleocr/</guid><description>&lt;p>&lt;img src="https://bigbookplus.github.io/assets/image/in-post/curved_text_paddleocr/det_res_img623.jpg" alt="Detection Result">&lt;/p>
-&lt;p>Text Detection Task is an old topic of Detction tasks. Curved text is much more free form. in this Post, we show you how to run the curved text detection by PaddleOCR.&lt;/p>
-&lt;h2 id="setup-environment">Setup Environment&lt;/h2>
-&lt;p>Create a virtual environment named paddle_env.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>conda create --name paddle_env python&lt;span style="color:#f92672">=&lt;/span>3.8
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then activate it.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>conda activate paddle_env
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Install paddlepaddle and paddle ocr packages through pip.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>python -m pip install paddlepaddle
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>pip install &lt;span style="color:#e6db74">&amp;#34;paddleocr&amp;gt;=2.0.1&amp;#34;&lt;/span> &lt;span style="color:#75715e"># Recommend to use version 2.0.1+&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="test-environment">Test Environment&lt;/h2>
-&lt;p>Test the installations.&lt;/p></description></item><item><title>How to Implement FTP Upload by C++ and POCO</title><link>https://bigbookplus.github.io/posts/blogs/2022-06-15-poco-ftp/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-06-15-poco-ftp/</guid><description>&lt;h2 id="poco">POCO&lt;/h2>
-&lt;p>POCO is a lightweight and flexible network library for C++ users.
-You can refer to the POCO library at its homepage: &lt;a href="https://pocoproject.org/" target="_blank" rel="noopener">https://pocoproject.org/&lt;/a> or its github project page: &lt;a href="https://github.com/pocoproject/poco" target="_blank" rel="noopener">https://github.com/pocoproject/poco&lt;/a> .
-You can simply git clone from the POCO repository, and build it follows its official mannual.
-For me, I built it simply with the CMake-GUI tool on Windows, with all default settings.&lt;/p>
-&lt;h2 id="how-to-upload">How to Upload&lt;/h2>
-&lt;h3 id="includes-stuffs">Includes Stuffs&lt;/h3>
-&lt;p>Most of the FTP related APIs are in the &lt;code>Poco/Net/FTPClientSession.h&lt;/code> header file. The Exception Processing tools are used all the time, so that we include it too. When you need to do the uploading to FTP server, &lt;code>Poco/StreamCopier.h&lt;/code> is must be included.&lt;/p></description></item><item><title>Installation of GNUPlot 5.4.3 on Linux with png/jpg export support</title><link>https://bigbookplus.github.io/posts/blogs/2022-08-11-gnuplot-installation/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-08-11-gnuplot-installation/</guid><description>&lt;p>We need to install libpng and libgd before the compilation of gnuplot-5.4.3&lt;/p>
-&lt;p>We can install libpng using yum install&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>yum install libpng-devel
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The libgd-devel package provided by yum is not compatable with gnuplot-5.4.3 on the aws-linux-2,
-we download and compile the officially new version.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>wget https://github.com/libgd/libgd/releases/download/gd-2.3.3/libgd-2.3.3.tar.gz
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tar zxvf ./libgd-2.3.3.tar.gz
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd libgd-2.3.3
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>./configure
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>make
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sudo make install
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then compile gnuplot.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>cd libs
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>wget https://sourceforge.net/projects/gnuplot/files/gnuplot/5.4.3/gnuplot-5.4.3.tar.gz
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tar zxvf ./gnuplot-5.4.3.tar.gz
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd gnuplot-5.4.3
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>./configure
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>make
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sudo make install
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>OpenCV 4.X 使用CvxText在图片显示汉字</title><link>https://bigbookplus.github.io/posts/blogs/2022-06-15-cvxtext-opencv45/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-06-15-cvxtext-opencv45/</guid><description>&lt;p>最近又需要在图像上实时绘制汉字。一般来讲如果绘制汉字的需求绕不过的话，直接绘制在图片总归是最easy的实现方式。因为不然的话可能要额外调用GUI组件来实现。一般都是用freetype+cvxtext，老生常谈。且不说实际实现起来是否最easy，主要是这种方法多年来实践了无数次了，不过今次切换到OpenCV4.5，突然发现可能又要修改CvxText代码才可以，因为直接使用，不work。&lt;/p>
-&lt;h2 id="准备">准备&lt;/h2>
-&lt;p>需要的依赖有：&lt;/p>
-&lt;ul>
-&lt;li>C/C++ 编译环境（似乎是废话）&lt;/li>
-&lt;li>OpenCV (仍然废话)&lt;/li>
-&lt;li>freetype的lib： 提前编译好，官网是 &lt;a href="https://freetype.org/" target="_blank" rel="noopener">https://freetype.org/&lt;/a>，我使用的版本是2.9.1&lt;/li>
-&lt;li>字体文件，一般用&lt;code>simhei.ttf&lt;/code>。在操作系统的字体里面哦。&lt;/li>
-&lt;/ul>
-&lt;h2 id="修改-cvxtext-代码">修改 CvxText 代码&lt;/h2>
-&lt;p>我这里有一份CvxText代码，在旧版本的OpenCV下可以使用（OpenCV3.X)。如今更换到了OpenCV4.5，这份代码直接使用会有些小问题，不过都很容易修改。&lt;/p>
-&lt;h3 id="opencv头文件包含方式">OpenCV头文件包含方式&lt;/h3>
-&lt;p>首先需要重写头文件包含方法。在OpenCV4以前，include下有两个子目录，分别是opencv，和opencv2。在OpenCV4.X后，include下只剩一个opencv2文件夹了。涉及到opencv的头文件包含代码，改为如下形式：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/core/core.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/core/core_c.h&amp;#34;&lt;/span>&lt;span style="color:#75715e">
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/highgui/highgui.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;#34;opencv2/imgproc/imgproc.hpp&amp;#34;&lt;/span>&lt;span style="color:#75715e">
-&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这里特别说明，引入&lt;code>core_c.h&lt;/code>这个头文件很重要。因为我手里这份CvxText代码类型都是基于旧式的C类型，&lt;code>core_c.h&lt;/code> 提供了对C类型的兼容。&lt;/p>
-&lt;h3 id="cvscalar类型问题">CvScalar类型问题&lt;/h3>
-&lt;p>下一处需要修改的是和CvScalar相关的代码。尽管我们重新写了头文件包含，引入了C类型，但是有些代码仍然不能直接编译通过， 因为CvScalar不能隐式的转为C++类型的cv::Scalar。下面的&lt;code>puttext&lt;/code>函数代码中，我修改了显式的手工转换替代了注释中的代码。样子很丑，但是简单好用（总共花费了不到1分钟）。&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> CvxText&lt;span style="color:#f92672">::&lt;/span>putText(cv&lt;span style="color:#f92672">::&lt;/span>Mat &lt;span style="color:#f92672">&amp;amp;&lt;/span>frame, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>text, CvPoint pos)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> CvScalar s &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>};
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">putText&lt;/span>(frame, text, pos, s);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>对应的&lt;code>CMakeLists.txt&lt;/code>文件：&lt;/p></description></item><item><title>在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-18-qthttpserver-qapplication/</link><pubDate>Wed, 18 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-18-qthttpserver-qapplication/</guid><description>&lt;h3 id="编译-qthttpserver-模块">编译 QtHttpServer 模块&lt;/h3>
+&lt;p>首先拉取代码&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>git clone https://github.com/qt-labs/qthttpserver.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd qthttpserver
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git checkout 5.15
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git submodule update --init --recursive
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>然后用qtcreator打开工程，编译&lt;/p>
+&lt;h3 id="最简单的qt代码">最简单的Qt代码&lt;/h3>
+&lt;p>如果想构建一个最简单的Qt程序，那么大概就是一个没有UI、控制台下运行的HelloWorld程序，它的代码大概是这个样子：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;QtCore&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> argc, &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">**&lt;/span>argv) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> QCoreApplication app(argc, argv);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// qDebug()&amp;lt;&amp;lt;&amp;#34;Hello World&amp;#34;;
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> app.exec();
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> CvxText&lt;span style="color:#f92672">::&lt;/span>putText(cv&lt;span style="color:#f92672">::&lt;/span>Mat &lt;span style="color:#f92672">&amp;amp;&lt;/span>frame, &lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">wchar_t&lt;/span> &lt;span style="color:#f92672">*&lt;/span>text, CvPoint pos)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>{
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">//return putText(frame, text, pos, CV_RGB(255, 255, 255));
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> CvScalar s &lt;span style="color:#f92672">=&lt;/span> {&lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>, &lt;span style="color:#ae81ff">255&lt;/span>};
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#a6e22e">putText&lt;/span>(frame, text, pos, s);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="cvmat转为iplimage">cv::Mat转为IplImage&lt;/h3>
-&lt;p>另一处就是比较老生常谈的问题，cv::Mat转为IplImage。这里之前的实现是直接采用C形式的强制转换，如下所示：&lt;/p></description></item><item><title>OpenCV DNN Batch Inference in C++</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-23-opencv-dnn-batch-inference/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-23-opencv-dnn-batch-inference/</guid><description>&lt;p>OpenCV has a DNN module, which is powerful, efficient, and easy to use. To implement a DNN inference application, we need only to call a couple of APIs which are offered by OpenCV DNN module. The basic routine of implementation a DNN inference code by OpenCV is as below.&lt;/p>
-&lt;blockquote>
-&lt;ul>
-&lt;li>Initialization. Creating the cv::dnn::Net object by reading in the network weight. (caffe/onnx&amp;hellip;)&lt;/li>
-&lt;li>Preprocessing. Determine shape of input data of the network. Reshape the raw input image(s) to match the input data shape. This step always combined some other operatations such as normalization.&lt;/li>
-&lt;li>Inference. Call inference method by the created cv::dnn::Net object.&lt;/li>
-&lt;li>Postprocessing. Decoding the output data and do further wrangling.&lt;/li>
-&lt;/ul>&lt;/blockquote>
-&lt;p>In my opinion, as the network weights are already determined, the most important parts of the deployment are pre&amp;amp;postprocessing. You need to figure out exactly what shape of input data is, and what the normalization method is (mean/std value). In post processing, things may be much more complicated. Some tasks are easy to implement, classification tasks for instance. Some tasks will be much harder to implement, such as object detection/segmentation tasks. You need to do a lot of work to crack the data wrangling problems, and sometimes may need to rewrite some operatations yourself from scratch, just because there is no corresponding method with the original python implementation in C++.&lt;/p></description></item><item><title>PyTorch中的lr_scheduler的用法</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-24-pytorch-lr_scheduler/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-24-pytorch-lr_scheduler/</guid><description>&lt;p>几种常见的LR_Scheduler:&lt;/p>
-&lt;ul>
-&lt;li>&lt;a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html#torch.optim.lr_scheduler.StepLR" target="_blank" rel="noopener">StepLR&lt;/a>&lt;/li>
-&lt;li>&lt;a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.MultiStepLR.html#torch.optim.lr_scheduler.MultiStepLR" target="_blank" rel="noopener">MultiStepLR&lt;/a>&lt;/li>
-&lt;li>&lt;a href="https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ExponentialLR.html#torch.optim.lr_scheduler.ExponentialLR" target="_blank" rel="noopener">ExponentialLR&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;p>对于一个基本的训练流程，LR_Scheduler可能不是必须的。但是对于一个完整的训练流程，LR_Scheduler就是必须存在的。LR_Scheduler跟在Optimizer之后，利用对Optim变量的跟踪，在Optim执行Update后，检查lr是否满足预设条件并对学习率learning_rate进行更新。&lt;/p>
-&lt;p>以StepLR为例，StepLR每隔N个epoch改变&lt;code>lr&lt;/code>学习率为&lt;code>lr=lr*gamma&lt;/code>。&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Python" data-lang="Python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> torch.optim.lr_scheduler &lt;span style="color:#66d9ef">as&lt;/span> lr_scheduler
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="使用qthttpserver">使用QtHttpServer&lt;/h3>
+&lt;p>QtHttpServer目前不在Qt的主lib中，据说Qt6会正式加入。所以需要自行下载编译。&lt;a href="https://github.com/qt-labs/qthttpserver" target="_blank" rel="noopener">&lt;/a>&lt;/p>
+&lt;h4 id="编译qthttpserver">编译QtHttpServer&lt;/h4>
+&lt;p>我使用的是Qt5，牵出5.15分支，并自己使用QtCreator编译：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git clone https://github.com/qt-labs/qthttpserver.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git checkout 5.15
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>编译成功后，将头文件和动态库拷贝到所使用的Qt安装路径下的对应目录内即可。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>cd build-qthttpserver-Desktop_Qt_5_12_6_GCC_64bit-Release/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>optimizer &lt;span style="color:#f92672">=&lt;/span> SGD(model, &lt;span style="color:#ae81ff">0.1&lt;/span>)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>scheduler &lt;span style="color:#f92672">=&lt;/span> lr_scheduler&lt;span style="color:#f92672">.&lt;/span>StepLR(optimizer, step_size&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">10&lt;/span>, gamma&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0.1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd cmake/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/cmake/
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">for&lt;/span> epoch &lt;span style="color:#f92672">in&lt;/span> range(&lt;span style="color:#ae81ff">20&lt;/span>):
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> input, target &lt;span style="color:#f92672">in&lt;/span> dataset:
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> optimizer&lt;span style="color:#f92672">.&lt;/span>zero_grad()
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> output &lt;span style="color:#f92672">=&lt;/span> model(input)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> loss &lt;span style="color:#f92672">=&lt;/span> loss_fn(output, target)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> loss&lt;span style="color:#f92672">.&lt;/span>backward()
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> optimizer&lt;span style="color:#f92672">.&lt;/span>step()
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> scheduler&lt;span style="color:#f92672">.&lt;/span>step()
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>QtHttpServer Demo and a POST Client</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-21-qthttpserver-sample/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-21-qthttpserver-sample/</guid><description>&lt;h2 id="client-http-post">Client HTTP POST&lt;/h2>
-&lt;p>假设&lt;a href="http://127.0.0.1:8888/post/" target="_blank" rel="noopener">http://127.0.0.1:8888/post/&lt;/a>是一个能够接受POST请求的路径，我们想要向它提交一段json数据，用Qt可以这样实现：&lt;/p>
-&lt;p>Suppose we want to make an HTTP POST with json body to &lt;a href="http://127.0.0.1:8888/post/" target="_blank" rel="noopener">http://127.0.0.1:8888/post/&lt;/a>.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>QCoreApplication &lt;span style="color:#a6e22e">app&lt;/span>(argc, argv);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QNetworkAccessManager &lt;span style="color:#f92672">*&lt;/span>mgr &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> QNetworkAccessManager;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">const&lt;/span> QUrl &lt;span style="color:#a6e22e">url&lt;/span>(QStringLiteral(&lt;span style="color:#e6db74">&amp;#34;http://127.0.0.1:8888/post/&amp;#34;&lt;/span>));
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QNetworkRequest &lt;span style="color:#a6e22e">request&lt;/span>(url);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>request.setHeader(QNetworkRequest&lt;span style="color:#f92672">::&lt;/span>ContentTypeHeader, &lt;span style="color:#e6db74">&amp;#34;application/json; charset=utf-8&amp;#34;&lt;/span>);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QJsonObject obj;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>obj[&lt;span style="color:#e6db74">&amp;#34;key1&amp;#34;&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;value1&amp;#34;&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>obj[&lt;span style="color:#e6db74">&amp;#34;key2&amp;#34;&lt;/span>] &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;value2&amp;#34;&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QJsonDocument &lt;span style="color:#a6e22e">doc&lt;/span>(obj);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QByteArray data &lt;span style="color:#f92672">=&lt;/span> doc.toJson();
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QNetworkReply &lt;span style="color:#f92672">*&lt;/span>reply &lt;span style="color:#f92672">=&lt;/span> mgr&lt;span style="color:#f92672">-&amp;gt;&lt;/span>post(request, data);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd pkgconfig/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/pkgconfig/
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>QObject&lt;span style="color:#f92672">::&lt;/span>connect(reply, &lt;span style="color:#f92672">&amp;amp;&lt;/span>QNetworkReply&lt;span style="color:#f92672">::&lt;/span>finished, [&lt;span style="color:#f92672">=&lt;/span>](){
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span>(reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>error() &lt;span style="color:#f92672">==&lt;/span> QNetworkReply&lt;span style="color:#f92672">::&lt;/span>NoError){
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> QString contents &lt;span style="color:#f92672">=&lt;/span> QString&lt;span style="color:#f92672">::&lt;/span>fromUtf8(reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>readAll());
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> qDebug() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> contents;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">else&lt;/span>{
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> QString err &lt;span style="color:#f92672">=&lt;/span> reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>errorString();
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> qDebug() &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> err;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> reply&lt;span style="color:#f92672">-&amp;gt;&lt;/span>deleteLater();
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mgr&lt;span style="color:#f92672">-&amp;gt;&lt;/span>deleteLater();
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>});
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="http-server">Http Server&lt;/h2>
-&lt;p>而这个本地的Server，亦可使用QtHttpServer方便实现：&lt;/p>
-&lt;p>Server can be implemented by QtHttpServer easily, too.&lt;/p></description></item><item><title>Setup GitLab Sevice on Ubuntu 16.04 in Local LAN</title><link>https://bigbookplus.github.io/posts/blogs/2022-02-08-install-configure-gitlab-ce/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-02-08-install-configure-gitlab-ce/</guid><description>&lt;h1 id="setup-gitlab-sevice-on-ubuntu-1604-in-local-lan">Setup GitLab Sevice on Ubuntu 16.04 in Local LAN&lt;/h1>
-&lt;p>GitLab is as powerful as GitHub. We decide to change the version control system from SVN to Git. We run the GitLab server in our local LAN. I found the blogs for GitLab installation are all too long to read and too complicated for using GitLab in local LAN with no domain name, so I wrote this one.&lt;/p>
-&lt;p>Before installing GitLab, please update the Ubuntu repository.&lt;/p></description></item><item><title>Simplest Demo for Displaying Image Processing Results using PySide6</title><link>https://bigbookplus.github.io/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-03-09-easiest-demo-displaying-cnn-ai-image-processing-results-by-qt6-in-python/</guid><description>&lt;p>The Deep Learning algorithm applications, especially image processing algorithms, its results are always needed to be displayed visually. Raw OpenCV &lt;code>imshow&lt;/code> stuff is simple but not enough, failed on expansibility and maintainability. The &lt;code>Qt&lt;/code> library, on the other side, is a well-developed UI framework that is evolved from C/C++ and is available in python now. The &lt;code>PyQt4/PyQt5&lt;/code> packages are from the community, and &lt;code>PySide2/PySide6&lt;/code> packages are from &lt;code>Qt&lt;/code> officially. We will use PySide6 here, for it’s newer and official. The data wrappers, which are used for images data, are always OpenCV Mat. Here’s the workflow. Images are captured from camera devices or video stream/files and decoded into OpenCV mat one by one, then given to the algorithm for further processing. Finally, the UI framework, &lt;code>Qt&lt;/code>, takes over the results display work.&lt;/p></description></item><item><title>Tips of Migrating Numpy to C++ by OpenCV</title><link>https://bigbookplus.github.io/posts/blogs/2022-03-26-numpy-to-opencv-mat-tips/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-03-26-numpy-to-opencv-mat-tips/</guid><description>&lt;h2 id="sigmoid">Sigmoid&lt;/h2>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-text" data-lang="text">&lt;span style="display:flex;">&lt;span>A sigmoid function is a mathematical function having a characteristic &amp;#34;S&amp;#34;-shaped curve or sigmoid curve.
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>From wikipedia: &lt;a href="https://en.wikipedia.org/wiki/Sigmoid_function" target="_blank" rel="noopener">Sigmoid_function&lt;/a>&lt;/p>
-&lt;p>It&amp;rsquo;s formula: $S(t)=\frac {1}{1+e^{-t}}$&lt;/p>
-&lt;p>We can implement sigmoid function with python and numpy like this:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> numpy &lt;span style="color:#66d9ef">as&lt;/span> np
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>z &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">/&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> np&lt;span style="color:#f92672">.&lt;/span>exp(&lt;span style="color:#f92672">-&lt;/span>x))
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now let&amp;rsquo;s implement it in OpenCV with cpp. Suppose we&amp;rsquo;ve got a output from a neural network as a [1, h, w] cv::Mat named &lt;code>pred&lt;/code>. We then do something like &lt;code>pred = sigmoid(pred)&lt;/code>.&lt;/p></description></item><item><title>Using MMOCR: Installation and Training with my own Data</title><link>https://bigbookplus.github.io/posts/blogs/2022-03-04-mmocr-installation-training-with-own-data/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-03-04-mmocr-installation-training-with-own-data/</guid><description>&lt;h2 id="what-is-ocr">What is OCR?&lt;/h2>
-&lt;p>According to the wikipedia, OCR, which refers to &lt;strong>Optical character recognition&lt;/strong> or &lt;strong>optical character reader,&lt;/strong> is the electronic  or mechanical  conversion of images  of typed, handwritten or printed text into machine-encoded text.&lt;/p>
-&lt;h2 id="why-mmocr">Why MMOCR?&lt;/h2>
-&lt;ul>
-&lt;li>Pytorch&lt;/li>
-&lt;li>Maintained by Openmmlab&lt;/li>
-&lt;li>Easy to train your own data&lt;/li>
-&lt;li>Can be deployed into C++ code&lt;/li>
-&lt;/ul>
-&lt;p>Pytorch is sweet, it seems to have absorbed most of the advantages of current deep learning frameworks. It is maintained by the OpenMMLab, belongs to SenseTime, which means that this repo can live long and keep updating. MMOCR has a clear structure just like MMDetection. It has the experimental deployment code too.&lt;/p></description></item><item><title>Using MNIST-ROT Dataset in PyTorch</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-24-minst-rot-how-to/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-24-minst-rot-how-to/</guid><description>&lt;p>&lt;img src="https://sites.google.com/a/lisa.iro.umontreal.ca/public_static_twiki/_/rsrc/1392048843662/variations-on-the-mnist-digits/rotation_examples.png" alt="mnist-rot example images">&lt;/p>
-&lt;p>Dataset Download Link: &lt;a href="http://www.iro.umontreal.ca/~lisa/icml2007data/mnist_rotation_new.zip" target="_blank" rel="noopener">MNIST-ROT&lt;/a>&lt;/p>
-&lt;h2 id="introduction">Introduction&lt;/h2>
-&lt;p>As was depicted in paper &lt;a href="https://arxiv.org/pdf/2007.10408.pdf" target="_blank" rel="noopener">PDO-eConvs&lt;/a>, MNIST-rot-12k is the most commonly used dataset for validating rotation equivariant algorithms. So if you are interested in the rotation equivariant algorithms research, this Dataset maybe helpful.&lt;/p>
-&lt;h2 id="turn-to-dataloader-code">Turn to DataLoader Code.&lt;/h2></description></item><item><title>使用&amp;运算符在OpenCV图像裁剪时进行边界检查</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-26-operator-and-in-opencv/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-26-operator-and-in-opencv/</guid><description>&lt;h3 id="给定roi的图像裁剪">给定ROI的图像裁剪&lt;/h3>
-&lt;p>假设需要按照既定的ROI对图像进行取窗裁剪，用&lt;code>cv::Rect&lt;/code>给定ROI区域，裁剪可以按照如下方式：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Mat image &lt;span style="color:#f92672">=&lt;/span> cv&lt;span style="color:#f92672">::&lt;/span>imread(&lt;span style="color:#e6db74">&amp;#34;/path/to/image.jpg&amp;#34;&lt;/span>);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Rect roi &lt;span style="color:#f92672">=&lt;/span> cv&lt;span style="color:#f92672">::&lt;/span>Rect(x, y, width, height);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Mat crop &lt;span style="color:#f92672">=&lt;/span> image(roi);
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="限制边界">限制边界&lt;/h3>
-&lt;p>如果roi的坐标超出了图像的合法区域，会引发运行时错误，导致程序崩溃。此时一般要提前进行边界检查和规范，比如这样：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.x&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>) roi.x&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.y&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>) roi.y&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.x&lt;span style="color:#f92672">+&lt;/span>roi.width &lt;span style="color:#f92672">&amp;gt;=&lt;/span> image.cols) roi.width &lt;span style="color:#f92672">=&lt;/span> image.cols&lt;span style="color:#f92672">-&lt;/span>roi.x;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span>(roi.y&lt;span style="color:#f92672">+&lt;/span>roi.height &lt;span style="color:#f92672">&amp;gt;=&lt;/span> image.rows) roi.heigth &lt;span style="color:#f92672">=&lt;/span> image.rows&lt;span style="color:#f92672">-&lt;/span>roi.y;
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样写代码，看上去不太直观，而且有些冗长，更谈不上优雅或者可读性。&lt;/p>
-&lt;p>或者这样：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> w &lt;span style="color:#f92672">=&lt;/span> image.cols;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> h &lt;span style="color:#f92672">=&lt;/span> image.rows;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd include/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/include/
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> x0 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>max&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, roi.tl().x);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> y0 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>max&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, roi.tl().y);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> x1 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>min&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(w, roi.br().x);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> y1 &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>min&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">int&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>(h, roi.br().y);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>roi &lt;span style="color:#f92672">=&lt;/span> cv&lt;span style="color:#f92672">::&lt;/span>Rect(cv&lt;span style="color:#f92672">::&lt;/span>Point(x0, y0), cv&lt;span style="color:#f92672">::&lt;/span>Point(x1, y1));
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>稍微增加了些可读性，特别是如果习惯于使用stl的max/min函数进行边界检查。但是仍然冗长，不够优雅。冗长有什么坏处？一般来讲，冗长的代码不易于维护，可读性不会太强。另外以上面这段实现为例，由于反复使用同一变量，仅仅为了对其不同的成员做类似的操作，非常容易导致低级错误。&lt;/p>
-&lt;h3 id="operator---get-intersection-of-cvrect">Operator &amp;amp; : Get Intersection of cv::Rect&lt;/h3>
-&lt;p>这个运算符&lt;code>&amp;amp;&lt;/code>比较直观。在C/C++语法中，&lt;code>&amp;amp;&lt;/code>属于位运算，是按位与的功能。cv::Rect类型重载了它，可以想象它的功能就是取矩形的相交区域。所以要对图像ROI的cv::Rect进行边界限制，那么将ROI和表示图像区域的Bounding Box求相交区域即可。代码实现如下：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Rect bbox(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>, mat.cols, mat.rows);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cv&lt;span style="color:#f92672">::&lt;/span>Rect roi &lt;span style="color:#f92672">=&lt;/span> roi &lt;span style="color:#f92672">&amp;amp;&lt;/span> bbox; &lt;span style="color:#75715e">// that&amp;#39;s all
-&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样基本上就一句话完成了边界限制。&lt;/p></description></item><item><title>使用Docker辅助图像识别程序开发：在Docker中访问GPU和、USB相机以及网络</title><link>https://bigbookplus.github.io/posts/blogs/2022-11-03-use-docker-for-gpu-and-web-camera-applications/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2022-11-03-use-docker-for-gpu-and-web-camera-applications/</guid><description>&lt;h2 id="引言">引言&lt;/h2>
-&lt;p>在操作系统中发行应用程序，尤其是python应用程序，其环境配置常常是分发过程中的重要一环。如果像开发的时候那样手动构建，一方面工作量难以承受，另一方面经常会出现各种各样的问题。在不同的目标主机上手动构建环境，会受到目标操作系统的版本、文件系统、所安装软件包的情况影响。而且开发时所使用的一些默认安装包，到了发布的时候可能已经都被更新过，所以手动构建要求使用的包版本号也精确记录。&lt;/p>
-&lt;h2 id="安装和配置">安装和配置&lt;/h2>
-&lt;p>安装GPU docker，首先需要安装docker，然后在docker的基础上安装nvidia-docker。&lt;/p>
-&lt;h3 id="安装docker">安装docker&lt;/h3>
-&lt;p>参考链接 &lt;a href="https://docs.docker.com/engine/install/ubuntu" target="_blank" rel="noopener">https://docs.docker.com/engine/install/ubuntu&lt;/a>&lt;/p>
-&lt;h3 id="安装nvidia-docker">安装nvidia-docker&lt;/h3>
-&lt;p>参考链接 &lt;a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker" target="_blank" rel="noopener">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker&lt;/a>&lt;/p>
-&lt;h2 id="在docker中显示gui">在docker中显示GUI&lt;/h2>
-&lt;p>如果在Docker中开发的是带有GUI的应用程序，也就是在docker中显示GUI，需要启动支持GUI的docker镜像。&lt;/p>
-&lt;p>首先配置一下xhost&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>xhost +local:docker
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>或者&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>xhost +
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>启动docker，由于需要docker中显示GUI，所以加入参数&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style="color:#f92672">=&lt;/span>$DISPLAY
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>完整指令如下：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>docker run --name mydocker --gpus all --shm-size&lt;span style="color:#f92672">=&lt;/span>1g --ulimit memlock&lt;span style="color:#f92672">=&lt;/span>-1 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style="color:#f92672">=&lt;/span>$DISPLAY snn-server:basic
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>注意，这里是启动了GPU docker，&amp;ndash;gpus all是指定使用所有的GPU，如果只使用一块GPU，可以指定为&amp;ndash;gpus 0。&lt;/p>
-&lt;h2 id="在docker中访问usb相机">在Docker中访问usb相机&lt;/h2>
-&lt;p>如果需要在docker中访问usb相机，需要在启动docker的时候，追加以下参数&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>-v /dev/video0:/dev/video0 --device&lt;span style="color:#f92672">=&lt;/span>/dev/video0
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样就把宿主机的/dev/video0映射到docker中的/dev/video0，然后在docker中就可以访问到相机了。&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>docker run --name mydocker --gpus all --shm-size&lt;span style="color:#f92672">=&lt;/span>1g --ulimit memlock&lt;span style="color:#f92672">=&lt;/span>-1 -v /dev/video0:/dev/video0 --device&lt;span style="color:#f92672">=&lt;/span>/dev/video0 -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY&lt;span style="color:#f92672">=&lt;/span>$DISPLAY myimage:latest
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="在docker镜像中开放端口">在Docker镜像中开放端口&lt;/h2>
-&lt;p>如果需要从docker中对外提供服务，需要在docker中向宿主机进行端口映射，才可以从宿主机访问到docker中的服务。&lt;/p>
-&lt;p>Docker中的端口映射，需要在启动docker的时候，加入参数&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>-p 8080:8080
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样，宿主机的8080端口就映射到docker中的8080端口了。&lt;/p></description></item><item><title>在Docker中安装和配置OpenVino 2022.3</title><link>https://bigbookplus.github.io/posts/blogs/2023-04-11-openvino-installation/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2023-04-11-openvino-installation/</guid><description>&lt;h2 id="从代码安装">从代码安装&lt;/h2>
-&lt;p>官方推荐从代码安装&lt;/p>
-&lt;h3 id="开局不利">开局不利&lt;/h3>
-&lt;p>选择通过gitee clone安装，但是反复clone失败。报错如下：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span># git clone -b 2022.3.0 https://gitee.com/openvinotoolkit-prc/openvino.git
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Cloning into &amp;#39;openvino&amp;#39;...
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>remote: Enumerating objects: 345561, done.
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>remote: Counting objects: 100% (59023/59023), done.
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>remote: Compressing objects: 100% (33490/33490), done.
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>error: RPC failed; curl 56 GnuTLS recv error (-9): Error decoding the received TLS packet.
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fatal: the remote end hung up unexpectedly
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fatal: early EOF
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fatal: index-pack failed
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="解决方法">解决方法&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git config --global http.postBuffer 500M
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git config --global http.maxRequestBuffer 100M
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git config --global core.compression 0
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>在kaggle的notebook 执行 import tensorflow-io 报错 undefined symbol</title><link>https://bigbookplus.github.io/posts/blogs/tensorflow-io-fault/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/tensorflow-io-fault/</guid><description>&lt;p>最近尝试在kaggle的ipython notebook搞事情，在尝试一个新方案的时候，被动执行了import tensorflow-io，代码如下：&lt;/p>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd mkspecs
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd modules
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/mkspecs/modules/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="启动qthttpserver">启动QtHttpServer&lt;/h4>
+&lt;p>在Qt官方blog &lt;a href="https://www.qt.io/blog/2019/01/25/introducing-qt-http-server" target="_blank" rel="noopener">introducing-qt-http-server&lt;/a>，介绍了一个最基本的QHttpServer用法：&lt;/p></description></item><item><title>Build OpenCV 4.5.2 with CUDA support | CMake+VS2019+Win10+CUDA</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-16-opencv-cmake-vs2019/</link><pubDate>Mon, 16 Aug 2021 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-16-opencv-cmake-vs2019/</guid><description>&lt;p>使用C++进行计算机图像处理方向的开发，OpenCV是最常使用的Lib之一。个人对OpenCV的使用，大概从2.4版本开始，一直到现在的Release版4.5.2[现在是2021.06.08]。&lt;/p>
+&lt;p>OpenCV功能比较丰富，包含了传统图像处理的绝大部分经典算法，其基本矩阵类型Mat简单强大，现在还加入了DNN模块支持深度学习模型推理，这两部分都可以单独深入讨论。最近决定使用DNN模块进行算法部署，需要用到GPU加速,而官方提供的标准编译安装包不满足需求了，遂决定自己动手编译，定制符合自己需求的OpenCV Lib。这对自己日常的开发工作来说，其实是一本万利的。&lt;/p>
+&lt;p>由于业务需求，本文实践在Windows 10操作系统下进行。在Linux下进行此类编译更为便捷，问题也更少，步骤基本类似。好在Windows平台下的Visual Stuido对CMake的支持也越做越好了。&lt;/p>
+&lt;p>按照自己的习惯，我在自己的work目录下建立了一个名为opencv-github的文件夹，随后从git上把最新的opencv和opencv-contrib牵下来。opencv-contrib一般包含非release组件以及nonfree组件。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git clone https://github.com/opencv/opencv.git
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/0.png" alt="image">&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git clone https://github.com/opencv/opencv_contrib.git
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/1.png" alt="image">&lt;/p>
+&lt;p>如果安装了visual stuido 2019，cmake-gui大概率可以从cmd控制台直接呼出来。打开cmake-gui后，配置一下源码路径和编译路径。我的配置如下:&lt;/p>
+&lt;p>源码路径 D:/WORK/opencv-github/opencv&lt;/p>
+&lt;p>编译路径 D:/WORK/opencv-github/opencv/build&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/2.png" alt="image">&lt;/p>
+&lt;p>点击Configure，选择vs2019 x64编译&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/3.png" alt="image">&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/4.png" alt="image">&lt;/p>
+&lt;p>第一次Configure，ippicv依赖包下载失败，重新configure了一次，这次成功了。&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/5.png" alt="image">&lt;/p>
+&lt;p>搜索OPENCV_EXTRA_MODULES_PATH选型，填入OpenCV Contrib的路径&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>D:/WORK/opencv-github/opencv_contrib/modules
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/6.png" alt="image">&lt;/p>
+&lt;p>搜索cuda，勾选OPENCV DNN CUDA和WITH CUDA。不要勾选 BUILD CUDA STUBS。&lt;/p>
+&lt;p>cuda是要提前安装的，cudnn最好也安装上，注意cuda和cudnn版本的对应。&lt;/p>
+&lt;p>再次点击configure。&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/7.png" alt="image">&lt;/p>
+&lt;p>选中BUILD opencv world选项。这里主要是为了使用便捷，一个胜过你所有，不必单独一个个去链接。当然，单独选择链接组件的方式更有利于控制release程序的体积，有利有弊吧。&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/8.png" alt="image">&lt;/p>
+&lt;p>选中 enable nonfree选项，打开这个选项会把一些不能免费商用的算法编译进去，做些研究和实验还是可以的。之前的nonfree算法中最著名的当属sift，不过现在sift已经免费啦。&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/9.png" alt="image">&lt;/p>
+&lt;p>现在点击generate&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/10.png" alt="image">&lt;/p>
+&lt;p>Generate结束。可以点击Open Project了。&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/11.png" alt="image">&lt;/p>
+&lt;p>这样就呼出了宇宙第一IDE 2019。然后就可以开始编译啦~&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/12.png" alt="image">&lt;/p>
+&lt;p>展开CMakeTargets，选择ALL BUILD&lt;/p>
+&lt;p>&lt;img src="https://bigbookplus.github.io/images/in-post/opencv_cmake_vs2019/13.png" alt="image">&lt;/p>
+&lt;p>右键菜单选择build或者直接f7键，即可开始编译。ALL BUILD编译结束后，再选中INSTALL执行编译，这样编译出来的头文件、lib文件、dll文件和cmake文件就在开头提到的build目录下的install目录下面了。其实这里的ALL BUILD和INSTALL，相当于linux下面常见的make和make install。&lt;/p>
+&lt;p>现在已经有了头文件、lib文件、dll文件和cmake文件，就可以开始愉快的开发了哦。&lt;/p></description></item><item><title>在kaggle的notebook 执行 import tensorflow-io 报错 undefined symbol</title><link>https://bigbookplus.github.io/posts/blogs/tensorflow-io-fault/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/tensorflow-io-fault/</guid><description>&lt;p>最近尝试在kaggle的ipython notebook搞事情，在尝试一个新方案的时候，被动执行了import tensorflow-io，代码如下：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> tensorflow&lt;span style="color:#f92672">-&lt;/span>io
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这时提示一个错误，核心内容主要是这段：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-text" data-lang="text">&lt;span style="display:flex;">&lt;span>libtensorflow_io.so undefined symbol:
@@ -688,74 +770,7 @@ we download and compile the officially new version.&lt;/p>
 &lt;td>Dec 16, 2018&lt;/td>
 &lt;/tr>
 &lt;/tbody>
-&lt;/table></description></item><item><title>在动态链接库中以非GUI形式调用Qt组件并提供C语言形式API</title><link>https://bigbookplus.github.io/posts/blogs/2021-08-18-qthttpserver-qapplication/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2021-08-18-qthttpserver-qapplication/</guid><description>&lt;h3 id="编译-qthttpserver-模块">编译 QtHttpServer 模块&lt;/h3>
-&lt;p>首先拉取代码&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>git clone https://github.com/qt-labs/qthttpserver.git
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd qthttpserver
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git checkout 5.15
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git submodule update --init --recursive
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>然后用qtcreator打开工程，编译&lt;/p>
-&lt;h3 id="最简单的qt代码">最简单的Qt代码&lt;/h3>
-&lt;p>如果想构建一个最简单的Qt程序，那么大概就是一个没有UI、控制台下运行的HelloWorld程序，它的代码大概是这个样子：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;QtCore&amp;gt;&lt;/span>&lt;span style="color:#75715e">
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> argc, &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">**&lt;/span>argv) {
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> QCoreApplication app(argc, argv);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// qDebug()&amp;lt;&amp;lt;&amp;#34;Hello World&amp;#34;;
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> app.exec();
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="使用qthttpserver">使用QtHttpServer&lt;/h3>
-&lt;p>QtHttpServer目前不在Qt的主lib中，据说Qt6会正式加入。所以需要自行下载编译。&lt;a href="https://github.com/qt-labs/qthttpserver" target="_blank" rel="noopener">&lt;/a>&lt;/p>
-&lt;h4 id="编译qthttpserver">编译QtHttpServer&lt;/h4>
-&lt;p>我使用的是Qt5，牵出5.15分支，并自己使用QtCreator编译：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>git clone https://github.com/qt-labs/qthttpserver.git
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git checkout 5.15
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>编译成功后，将头文件和动态库拷贝到所使用的Qt安装路径下的对应目录内即可。&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>cd build-qthttpserver-Desktop_Qt_5_12_6_GCC_64bit-Release/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd cmake/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/cmake/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd pkgconfig/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/lib/pkgconfig/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd include/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/include/
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd ..
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd mkspecs
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd modules
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mv ./* /opt/Qt5.12.6/5.12.6/gcc_64/mkspecs/modules/
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="启动qthttpserver">启动QtHttpServer&lt;/h4>
-&lt;p>在Qt官方blog &lt;a href="https://www.qt.io/blog/2019/01/25/introducing-qt-http-server" target="_blank" rel="noopener">introducing-qt-http-server&lt;/a>，介绍了一个最基本的QHttpServer用法：&lt;/p></description></item><item><title>开启face_recognition的CUDA支持以及人脸识别package的一点讨论</title><link>https://bigbookplus.github.io/posts/blogs/2023-03-31-enable-face-recognition-cuda/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2023-03-31-enable-face-recognition-cuda/</guid><description>&lt;h2 id="开启face_recognition的cuda支持的方法">开启face_recognition的CUDA支持的方法&lt;/h2>
-&lt;p>face_recognition是一个python包，用于人脸识别。属于基础的人脸识别包，支持人脸检测、人脸编码、人脸比对等功能。
-face_recognition包支持使用GPU进行加速，但是默认情况下是不开启的。
-也就是说，直接用Pip或这conda方式进行安装，装上的包基本上是不支持GPU计算的。
-face_recognition的核心计算部分依赖dlib，所以需要安装dlib的GPU版本。如需要使用GPU进行加速的时候，需要安装CUDA和cuDNN。安装dlib的GPU版本，需要下载代码，开启cuda和cudnn支持，然后编译安装。
-下面介绍一下安装过程。&lt;/p>
-&lt;h3 id="核心编译安装dlib-with-cuda">核心：编译安装dlib with CUDA&lt;/h3>
-&lt;p>官方文档介绍开启cuda支持的dlib的安装过程如下：&lt;/p>
-&lt;h2 id="installing-dlib-using-conda-with-cuda-enabled">Installing dlib using &lt;code>conda&lt;/code> with CUDA enabled&lt;/h2>
-&lt;p>Prerequisite: &lt;code>conda&lt;/code> and/or &lt;code>miniconda&lt;/code> are already installed&lt;/p>
-&lt;ol>
-&lt;li>Create a conda environment.&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ conda create -n dlib python&lt;span style="color:#f92672">=&lt;/span>3.8 cmake ipython
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
-&lt;li>Activate the environment.&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ conda activate dlib
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
-&lt;li>Install CUDA and cuDNN with &lt;code>conda&lt;/code> using nvidia channel&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ conda install cuda cudnn -c nvidia
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then find the path to the &lt;code>nvcc&lt;/code> of this environment. We will use this path for the build step below&lt;/p></description></item><item><title>执行git pull并忽略本地文件修改</title><link>https://bigbookplus.github.io/posts/blogs/git-pull-ignore-local-changes/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/git-pull-ignore-local-changes/</guid><description>&lt;h2 id="问题">问题&lt;/h2>
+&lt;/table></description></item><item><title>执行git pull并忽略本地文件修改</title><link>https://bigbookplus.github.io/posts/blogs/git-pull-ignore-local-changes/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/git-pull-ignore-local-changes/</guid><description>&lt;h2 id="问题">问题&lt;/h2>
 &lt;p>在一个很久没有同步过的测试机上面试图将代码仓库更新到最新版本，提示报错：&lt;/p>
 &lt;pre tabindex="0">&lt;code class="language-log" data-lang="log">error: Your local changes to the following files would be overwritten by merge:
 app/client.py
@@ -784,17 +799,4 @@ Aborting
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git stash pop
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>更多内容可参考&lt;/p>
 &lt;p>&lt;a href="https://stackoverflow.com/questions/1125968/how-do-i-force-git-pull-to-overwrite-local-files" target="_blank" rel="noopener">how-do-i-force-git-pull-to-overwrite-local-files&lt;/a>
-&lt;a href="https://www.freecodecamp.org/news/git-pull-force-how-to-overwrite-local-changes-with-git/" target="_blank" rel="noopener">git-pull-force-how-to-overwrite-local-changes-with-git&lt;/a>&lt;/p></description></item><item><title>无需sudo运行docker命令</title><link>https://bigbookplus.github.io/posts/blogs/2023-04-08-run-docker-without-sudo/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://bigbookplus.github.io/posts/blogs/2023-04-08-run-docker-without-sudo/</guid><description>&lt;h2 id="run-docker-commands-without-sudo">Run Docker commands without sudo&lt;/h2>
-&lt;p>新安装的Docker，有可能需要使用sudo才能运行docker命令。&lt;/p>
-&lt;p>比如，运行一个GPU docker镜像，需要使用sudo，否则会报错：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ docker run --rm --runtime&lt;span style="color:#f92672">=&lt;/span>nvidia --gpus all nvidia/cuda:11.6.2-base-ubuntu20.04 nvidia-smi
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#960050;background-color:#1e0010">
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#960050;background-color:#1e0010">&lt;/span>docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post &amp;#34;http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create&amp;#34;: dial unix /var/run/docker.sock: connect: permission denied.
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>See &amp;#39;docker run --help&amp;#39;.
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>报错信息就是说，没有权限访问docker daemon。这是因为docker默认情况下是不允许普通用户使用的，需要使用sudo才能运行docker命令。&lt;/p>
-&lt;p>这样很不方便，下面介绍一下如何让docker不需要sudo就能运行。&lt;/p>
-&lt;h3 id="1-add-the-docker-group-if-it-doesnt-already-exist">1. Add the &lt;code>docker&lt;/code> group if it doesn&amp;rsquo;t already exist&lt;/h3>
-&lt;p>首先创建一个Docker 用户组，如果用户组已经存在，可以跳过这一步。&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-console" data-lang="console">&lt;span style="display:flex;">&lt;span>$ sudo groupadd docker
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-add-the-connected-user-user-to-the-docker-group">2. Add the connected user &lt;code>$USER&lt;/code> to the docker group&lt;/h3>
-&lt;p>然后把当前用户加入到docker用户组中。&lt;/p></description></item></channel></rss>
+&lt;a href="https://www.freecodecamp.org/news/git-pull-force-how-to-overwrite-local-changes-with-git/" target="_blank" rel="noopener">git-pull-force-how-to-overwrite-local-changes-with-git&lt;/a>&lt;/p></description></item></channel></rss>
