@@ -33,30 +33,54 @@ const otherUrl = other ? `/${otherLang}/${year}/${data.slug}/` : null;
 ---
 
 <Layout lang={data.lang} title={data.title} description={data.description}>
-  <article class="mx-auto max-w-4xl px-4 py-10">
-    <header class="mb-10">
-      <div class="flex items-center justify-between text-sm opacity-70 mb-4">
-        <p>
-          {data.lang.toUpperCase()} · {data.date.toISOString().slice(0, 10)}
-          {data.author ? ` · ${data.author}` : ''}
-        </p>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-primary-500 to-accent-500 z-50 transition-all duration-150" style="width: 0%"></div>
+  
+  <!-- Back to Top Button -->
+  <button
+    id="back-to-top"
+    class="fixed bottom-8 right-8 w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-lg hover:shadow-2xl hover:scale-110 transition-all opacity-0 pointer-events-none z-40"
+    aria-label="Back to top"
+  >
+    <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+    </svg>
+  </button>
+
+  <article class="mx-auto max-w-4xl px-4 py-10 animate-fade-in">
+    <header class="mb-12">
+      <div class="flex items-center justify-between text-sm mb-6">
+        <div class="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-semibold">
+          <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900/50 rounded-full">{data.lang.toUpperCase()}</span>
+          <span>·</span>
+          <time datetime={data.date.toISOString()}>{data.date.toISOString().slice(0, 10)}</time>
+          {data.author ? (
+            <>
+              <span>·</span>
+              <span class="text-gray-600 dark:text-gray-400">{data.author}</span>
+            </>
+          ) : null}
+        </div>
         {otherUrl ? (
-          <a href={otherUrl} class="hover:opacity-100 transition-opacity">
-            {otherLang === 'zh' ? '切换到中文' : 'Switch to English'}
+          <a href={otherUrl} class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-white text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all">
+            {otherLang === 'zh' ? '🌏 中文' : '🌏 English'}
           </a>
         ) : null}
       </div>
       
-      <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
         {data.title}
       </h1>
 
       {data.cover ? (
-        <img 
-          src={data.cover} 
-          alt={data.title} 
-          class="w-full rounded-2xl shadow-lg mb-6" 
-        />
+        <div class="relative group mb-8 overflow-hidden rounded-2xl">
+          <img 
+            src={data.cover} 
+            alt={data.title} 
+            class="w-full rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-500" 
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+        </div>
       ) : null}
 
       {data.tags?.length ? (
@@ -64,9 +88,9 @@ const otherUrl = other ? `/${otherLang}/${year}/${data.slug}/` : null;
           {data.tags.map((tag) => (
             <a
               href={`/${data.lang}/tags/${tag}/`}
-              class="rounded-full bg-gray-100 dark:bg-gray-800 px-4 py-1.5 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              class="rounded-full bg-gradient-to-r from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 px-4 py-1.5 text-sm font-medium text-primary-700 dark:text-primary-300 hover:from-primary-500 hover:to-accent-500 hover:text-white dark:hover:text-white transition-all hover:shadow-lg hover:scale-105"
             >
-              {tag}
+              #{tag}
             </a>
           ))}
         </div>
@@ -80,6 +104,7 @@ const otherUrl = other ? `/${otherLang}/${year}/${data.slug}/` : null;
       prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
       prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
       prose-pre:bg-gray-900 prose-pre:text-gray-100
+      [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-gray-100
       prose-img:rounded-xl prose-img:shadow-md
       prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-4 prose-blockquote:italic
       prose-ul:list-disc prose-ol:list-decimal
@@ -95,4 +120,50 @@ const otherUrl = other ? `/${otherLang}/${year}/${data.slug}/` : null;
     
     <Giscus lang={data.lang} />
   </article>
+
+  <script>
+    // Reading Progress Bar
+    function updateReadingProgress() {
+      const article = document.querySelector('article');
+      const progressBar = document.getElementById('reading-progress');
+      if (!article || !progressBar) return;
+
+      const scrollTop = window.scrollY;
+      const docHeight = article.offsetHeight;
+      const winHeight = window.innerHeight;
+      const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+      const progress = Math.min(Math.max(scrollPercent, 0), 100);
+      
+      progressBar.style.width = `${progress}%`;
+    }
+
+    // Back to Top Button
+    function updateBackToTop() {
+      const backToTop = document.getElementById('back-to-top');
+      if (!backToTop) return;
+
+      if (window.scrollY > 300) {
+        backToTop.classList.remove('opacity-0', 'pointer-events-none');
+        backToTop.classList.add('opacity-100', 'pointer-events-auto');
+      } else {
+        backToTop.classList.add('opacity-0', 'pointer-events-none');
+        backToTop.classList.remove('opacity-100', 'pointer-events-auto');
+      }
+    }
+
+    // Scroll to top
+    document.getElementById('back-to-top')?.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Event listeners
+    window.addEventListener('scroll', () => {
+      updateReadingProgress();
+      updateBackToTop();
+    });
+
+    // Initial update
+    updateReadingProgress();
+    updateBackToTop();
+  </script>
 </Layout>

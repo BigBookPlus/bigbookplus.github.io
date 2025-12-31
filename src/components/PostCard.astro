@@ -13,41 +13,57 @@ const url = `/${lang}/${year}/${entry.data.slug}/`;
 const featured = variant === 'featured';
 ---
 
-<article class={featured ? "grid gap-6 md:grid-cols-2 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden" : "rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-lg transition-shadow"}>
+<article class={featured ? "group relative grid gap-6 md:grid-cols-2 rounded-2xl border-2 border-transparent bg-gradient-to-br from-primary-50 to-accent-50 dark:from-gray-800 dark:to-gray-800 overflow-hidden hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-300 hover:shadow-2xl hover:shadow-primary-500/20 animate-slide-up" : "group relative rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:shadow-2xl hover:shadow-primary-500/10 dark:hover:shadow-accent-500/10 transition-all duration-300 hover:-translate-y-2 hover:border-primary-400 dark:hover:border-primary-600 animate-slide-up"}>
   {entry.data.cover ? (
-    <a href={url} class={featured ? "" : "block"}>
+    <a href={url} class={featured ? "relative overflow-hidden" : "block relative overflow-hidden"}>
       <img
         src={entry.data.cover}
         alt={entry.data.title}
-        class={featured ? "h-64 w-full object-cover md:h-full" : "mb-4 h-48 w-full rounded-lg object-cover"}
+        class={featured ? "h-64 w-full object-cover md:h-full group-hover:scale-110 transition-transform duration-500" : "mb-4 h-48 w-full rounded-xl object-cover group-hover:scale-110 transition-transform duration-500"}
         loading="lazy"
       />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </a>
   ) : null}
 
   <div class={featured ? "flex flex-col justify-center p-8" : ""}>
-    <p class="text-xs uppercase tracking-wide opacity-70">
-      {entry.data.lang.toUpperCase()} · {entry.data.date.toISOString().slice(0, 10)}
-    </p>
-    <h3 class={featured ? "mt-3 text-3xl font-bold leading-tight" : "mt-2 text-lg font-semibold leading-snug"}>
-      <a href={url} class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+    <div class="flex items-center gap-2 text-xs uppercase tracking-wide text-primary-600 dark:text-primary-400 font-semibold">
+      <span class="px-2 py-1 bg-primary-100 dark:bg-primary-900/50 rounded-full">{entry.data.lang.toUpperCase()}</span>
+      <span>·</span>
+      <time datetime={entry.data.date.toISOString()}>{entry.data.date.toISOString().slice(0, 10)}</time>
+    </div>
+    <h3 class={featured ? "mt-4 text-3xl font-bold leading-tight" : "mt-3 text-xl font-bold leading-snug"}>
+      <a href={url} class="bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent hover:from-primary-600 hover:to-accent-600 dark:hover:from-primary-400 dark:hover:to-accent-400 transition-all duration-300">
         {entry.data.title}
       </a>
     </h3>
     {entry.data.description ? (
-      <p class="mt-3 opacity-80 line-clamp-3">{entry.data.description}</p>
+      <p class="mt-3 text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">{entry.data.description}</p>
     ) : null}
     {entry.data.tags?.length ? (
       <div class="mt-4 flex flex-wrap gap-2">
         {entry.data.tags.slice(0, featured ? 5 : 3).map((tag) => (
           <a
             href={`/${lang}/tags/${tag}/`}
-            class="rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            class="group/tag relative rounded-full bg-gradient-to-r from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 px-3 py-1 text-xs font-medium text-primary-700 dark:text-primary-300 hover:from-primary-500 hover:to-accent-500 hover:text-white dark:hover:text-white transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/30 hover:scale-105"
           >
-            {tag}
+            #{tag}
           </a>
         ))}
       </div>
     ) : null}
+    {featured ? (
+      <div class="mt-6">
+        <a href={url} class="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:gap-3 transition-all">
+          {lang === 'zh' ? '阅读全文' : 'Read More'}
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+    ) : null}
   </div>
+  
+  <!-- Decorative gradient border effect -->
+  <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-400 to-accent-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300 -z-10"></div>
 </article>
