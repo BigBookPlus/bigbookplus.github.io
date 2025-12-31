@@ -1,0 +1,107 @@
+Hau-Shiang Shiu 等人的 [Stream-DiffVSR: Low-Latency Streamable Video Super-Resolution via Auto-Regressive Diffusion](http://arxiv.org/abs/2512.23709v1 ) 提出了一种基于扩散模型的低延迟视频超分辨率方法。该研究通过**因果条件扩散框架**实现了高效的在线处理，结合了四步蒸馏去噪器、**自回归时间引导模块**（ARTG）和轻量级时间感知解码器，显著提升了处理速度（720p帧处理仅需0.328秒）和感知质量（LPIPS提升0.095），同时将延迟降低了130倍以上，使其成为首个适用于低延迟在线部署的扩散视频超分辨率方法。
+
+Shaocong Xu 等人的 [Diffusion Knows Transparency: Repurposing Video Diffusion for Transparent Object Depth and Normal Estimation](http://arxiv.org/abs/2512.23705v1 ) 提出了一种利用视频扩散模型进行透明物体深度和法线估计的新方法。研究构建了合成数据集TransPhy3D，并通过**轻量级LoRA适配器**将预训练的视频扩散模型转化为深度和法线估计器。该方法在透明物体感知任务中实现了零样本的SOTA性能，显著提升了时间一致性和准确性，并成功应用于机器人抓取任务，验证了**扩散模型对透明物理规律的隐式学习能力**。
+
+Kevin Rojas 等人的 [Improving Reasoning for Diffusion Language Models via Group Diffusion Policy Optimization](http://arxiv.org/abs/2510.08554v2 ) 提出了一种针对扩散语言模型（DLMs）的强化学习优化方法。通过分析证据下界（ELBO）估计的方差来源，提出了**半确定性蒙特卡洛采样**策略，显著降低了方差。所提出的Group Diffusion Policy Optimization（GDPO）算法在数学、推理和代码生成任务上超越了现有基线（如diffu-GRPO），展示了扩散语言模型在复杂推理任务中的潜力。
+
+Jamie Portsmouth 等人的 [OpenPBR: Novel Features and Implementation Details](http://arxiv.org/abs/2512.23696v1 ) 详细介绍了OpenPBR材质模型的实现细节和理论基础。该研究基于**物理渲染理论**，提出了包含金属、电介质、次表面散射等基底的标准化材质框架，并扩展了薄膜干涉、涂层和绒毛层等特效。论文还探讨了技术实现中的关键问题，如高光反射与透射的解耦，以及涂层暗化和薄膜干涉的物理建模。该成果于2025年8月发表于SIGGRAPH 2025课程。
+
+Igor Ermakov 等人的 [Symbolic recursion method for strongly correlated fermions in two and three dimensions](http://arxiv.org/abs/2512.23678v1 ) 提出了一种符号化递归方法，用于研究强关联费米子在二维和三维系统中的动力学。研究验证了**兰克洛斯系数的线性增长**（符合通用算子增长假设），并通过符号计算实现了热力学极限下的高精度自相关函数和扩散常数计算。研究发现电荷扩散常数在宽相互作用强度范围内服从普适的**1/V²标度律**，为强关联系统的输运性质提供了新见解。
+
+R. J. Spieker 等人的 [Evidence for rare-region physics in the structural and electronic degrees of freedom of the nickelate La$_{2-x}$Sr$_x$NiO$_4$](http://arxiv.org/abs/2512.23655v1 ) 提出了对镍酸盐 La$_{2-x}$Sr$_x$NiO$_4$ 的结构、自旋和电荷密度波涨落的研究。**通过漫散射中子与X射线实验，研究发现该材料存在纳米尺度正交涨落行为，其散射强度呈指数缩放，特征长度与相对温度呈幂律关系**。这项工作表明，**稀土区域效应是钙钛矿相关结构的普遍特征**，会导致结构和电子自由度在较宽温度范围内的涨落。
+
+Zhe Li 等人的 [Do You Have Freestyle? Expressive Humanoid Locomotion via Audio Control](http://arxiv.org/abs/2512.23650v1 ) 提出了 RoboPerform 框架，**首次实现了直接从音频生成音乐驱动舞蹈和语音驱动手势的统一方法**。该框架通过将音频视为隐式风格信号，避免了显式运动重建的需求，**采用 ResMoE 教师策略适应多样化运动模式，并结合基于扩散的学生策略注入音频风格**。实验验证表明，RoboPerform 在物理合理性和音频对齐方面表现出色，成功将机器人转变为能够响应音频的表演者。
+
+Zhe Li 等人的 [RoboMirror: Understand Before You Imitate for Video to Humanoid Locomotion](http://arxiv.org/abs/2512.23649v1 ) 提出了 RoboMirror 框架，**首次实现了基于视频理解的免重定向人形机器人运动控制**。该框架利用视觉语言模型从原始视频中提取视觉运动意图，**直接驱动基于扩散的策略生成物理合理且语义对齐的运动，无需显式姿态重建或重定向**。实验表明，RoboMirror 能够通过第一视角视频实现远程临场感，将第三人称控制延迟降低80%，任务成功率比基线方法高3.7%。
+
+Shu Pu 等人的 [Memorization in 3D Shape Generation: An Empirical Study](http://arxiv.org/abs/2512.23628v1 ) 提出了一个评估框架来量化3D生成模型中的记忆效应。研究发现，**记忆效应取决于数据模态，并随着数据多样性和更细粒度的条件而增加**；在模型方面，**记忆效应在中等引导尺度达到峰值，可通过较长的向量集和简单的旋转增强来缓解**。该研究为理解3D生成模型中的记忆效应提供了实证基础，并提出了在不降低生成质量的情况下减少记忆的简单策略。
+
+SaiKiran Tedla 等人的 [Learning to Refocus with Video Diffusion Models](http://arxiv.org/abs/2512.19823v3 ) 提出了一种利用视频扩散模型实现逼真后对焦的新方法。**从单张模糊图像出发，该方法生成感知准确的焦堆栈视频序列，支持交互式重新对焦**。研究还发布了一个大规模真实智能手机拍摄的焦堆栈数据集。该方法在感知质量和鲁棒性方面持续优于现有方法，为日常摄影中的焦点编辑功能开辟了新途径。该成果于2025年12月发表于 SIGGRAPH Asia 2025。
+
+Courtney Kyger 等人的 [Profile Bayesian Optimization for Expensive Computer Experiments](http://arxiv.org/abs/2512.23581v1 ) 提出了一种新颖的贝叶斯优化（BO）方法，旨在识别具有单一控制参数和多个干扰参数的确定性黑盒计算机模拟的“轮廓最优值”。**该方法通过两阶段采集方案平衡控制参数的探索和轮廓最优值的利用**，并利用深度和浅层高斯过程代理模型来促进不确定性量化。该研究在旋转爆震燃烧发动机扩散器模拟中验证了其有效性，表明该方法在基准测试和实际应用中均优于传统BO和轮廓优化方法。
+
+Zhirui Tang 等人的 [Analysis of kinetic-diffusion Monte Carlo simulation and source term estimation scheme in nuclear fusion applications](http://arxiv.org/abs/2512.23580v1 ) 对等离子体边缘模拟中的动力学-扩散蒙特卡洛（KDMC）方法及其流体估计技术进行了全面分析。**研究通过理论误差上界证明和数值验证，表明KDMC结合流体估计在核聚变应用中显著优于纯流体方法**，且相比传统动力学MC方法实现了计算加速。该方法在ITER和DEMO等大型反应堆的模拟中展现出高效性和准确性。
+
+Ethan Chern 等人的 [LiveTalk: Real-Time Multimodal Interactive Video Diffusion via Improved On-Policy Distillation](http://arxiv.org/abs/2512.23576v1 ) 提出了一种实时多模态交互视频生成框架。**通过改进的策略蒸馏方法（如优化条件输入质量和初始化策略），解决了多模态条件下的视觉伪影问题**。该模型在HDTF、AVSpeech等数据集上实现了20倍的推理成本降低和延迟优化，并集成音频语言模型构建了LiveTalk系统。系统级评估显示其在多轮交互中优于Sora2、Veo3等模型，实现了实时生成。
+
+Siyu Jiao 等人的 [ThinkGen: Generalized Thinking for Visual Generation](http://arxiv.org/abs/2512.23568v1 ) 提出了首个基于思维链（CoT）的视觉生成框架ThinkGen。**通过解耦的MLLM和DiT架构，结合可分离的GRPO训练范式（SepGRPO），实现了跨场景的联合训练**。该框架在多个生成基准测试中表现优异，代码已开源。
+
+A. Sila Okcu 等人的 [Physical Limits of Proximal Tumor Detection via MAGE-A Extracellular Vesicles](http://arxiv.org/abs/2512.23555v1 ) 通过理论模型评估了基于MAGE-A阳性微泡的近场肿瘤检测可行性。**结合布朗动力学和反应扩散PDE，提出最大检测半径约为275微米（6000秒窗口）**，为微创肿瘤传感器设计提供了物理限制参考。
+
+Zongsheng Cao 等人的 [PurifyGen: A Risk-Discrimination and Semantic-Purification Model for Safe Text-to-Image Generation](http://arxiv.org/abs/2512.23546v1 ) 提出了一种无需训练的T2I生成安全框架PurifyGen。**通过互补语义距离评估令牌风险，并采用双空间变换（零空间投影和清洁概念对齐）净化有害语义**。该方法在五个数据集上超越现有方法，且无需模型微调，代码已开源。
+
+Binhe Yu 等人的 [AnyMS: Bottom-up Attention Decoupling for Layout-guided and Training-free Multi-subject Customization](http://arxiv.org/abs/2512.23537v1 ) 提出了一种**无需训练**的多主题定制框架AnyMS，通过**自底向上的双级注意力解耦机制**实现文本对齐、主题身份保持和布局控制的平衡。该框架利用全局解耦分离文本与视觉条件的交叉注意力，局部解耦将每个主题的注意力限制在其指定区域，并通过预训练图像适配器提取主题特征，**支持复杂组合并扩展到更多主题**。
+
+Hexin Zhang 等人的 [Iterative Inference-time Scaling with Adaptive Frequency Steering for Image Super-Resolution](http://arxiv.org/abs/2512.23532v1 ) 提出了IAFS框架，通过**迭代细化与频率感知粒子融合**解决图像超分辨率中感知质量与结构保真度的权衡问题。该方法在推理时**自适应融合高频细节与低频结构信息**，通过迭代修正结构偏差提升重建效果，实验表明其优于现有推理时缩放方法。
+
+[Operando study of the evolution of peritectic structures in metal solidification by quasi-simultaneous synchrotron X-ray diffraction and tomography](http://arxiv.org/abs/2512.23501v1 ) 利用同步辐射X射线衍射与断层扫描技术，原位研究了Al-Mn合金凝固过程中包晶结构的成核与共生长动力学。研究发现**Al4Mn六棱柱的轴向生长速度比径向快70倍**，并在液固界面形成约5微米的Mn富集扩散层，主导了后续相变过程。**冷却速率从0.17升至20°C/s可抑制核缺陷形成**，促使形貌从刻面向非刻面转变。
+
+Jiakai Tang 等人的 [ReaSeq: Unleashing World Knowledge via Reasoning for Sequential Modeling](http://arxiv.org/abs/2512.21257v2 ) 提出了基于大语言模型世界知识的推理增强框架ReaSeq，通过**显式思维链推理**生成语义丰富的商品表示，以及**隐式扩散模型推理**推断平台外用户行为。在淘宝排名系统中部署后，实现了IPV、CTR提升>6%，订单量提升>2.9%的显著效果，验证了知识增强推理对纯日志驱动方法的优势。
+
+Yuxin Wen 等人的 [HY-Motion 1.0: Scaling Flow Matching Models for Text-To-Motion Generation](http://arxiv.org/abs/2512.23464v1 ) 提出了一个名为 HY-Motion 1.0 的大规模文本到 3D 人体运动生成模型。该模型是首个在运动生成领域将基于扩散变换器（DiT）的流匹配模型扩展到十亿参数规模的成果，**显著超越当前开源基准性能**。研究团队采用**全阶段训练范式**，包括在 3000 多小时运动数据上的预训练、400 小时精选数据的微调，以及基于人类反馈和奖励模型的强化学习，确保运动质量与文本指令的精准对齐。通过覆盖 6 大类 200 余种运动类别的数据集，模型展现出**最广泛的动作覆盖能力**。项目已开源以推动相关研究。
+
+F. Alemanno 等人的 [Observations of the Fermi bubbles and the Galactic center excess with the DArk Matter Particle Explorer](http://arxiv.org/abs/2512.23458v1 ) 利用 DAMPE 卫星 102 个月的观测数据，首次独立证实了费米气泡（26σ 显著性）和银河系中心 GeV 超（7σ 置信度）的存在。**光谱和形态特征与 Fermi-LAT 观测结果一致**，并发现 GeV 超成分可能源于约 50 GeV 的暗物质粒子通过 $χχ\rightarrow b\bar{b}$ 道湮灭（截面约 $10^{-26}~{\rm cm^{3}~s^{-1}}$）。该研究为这两个关键伽马射线源的物理机制提供了新的独立证据。
+
+Xiaolong Wu 等人的 [Adaptive Probability Flow Residual Minimization for High-Dimensional Fokker-Planck Equations](http://arxiv.org/abs/2512.19196v2 ) 提出了一种**自适应概率流残差最小化（A-PFRM）方法**，用于解决高维Fokker-Planck（FP）方程的数值计算难题。该方法通过将二阶FP方程转化为等效的一阶概率流ODE（PF-ODE）约束，**避免了显式Hessian计算**，并结合连续归一化流和Hutchinson迹估计器，将训练复杂度降低至线性规模 $O(d)$。实验表明，A-PFRM在100维问题中仍能保持高精度和恒定时间成本。
+
+Adrian Koenigstein 等人的 [Functional Renormalization Group flows as diffusive Hamilton-Jacobi-type equations](http://arxiv.org/abs/2512.05973v2 ) 将**功能重正化群（FRG）流方程**重新表述为Hamilton-Jacobi型偏微分方程，并提出了一种数值求解方案。该方法首先在零维费米子-玻色子系统中验证，随后扩展到三维欧几里得空间中的$\mathbb{Z}_2$对称模型和$(1+1)$维Gross-Neveu模型，展示了其在**非高斯解和非零温度/化学势条件下的适用性**。
+
+Weijie Wang 等人的 [DriveGen3D: Boosting Feed-Forward Driving Scene Generation with Efficient Video Diffusion](http://arxiv.org/abs/2510.15264v2 ) 提出了一个**动态3D驾驶场景生成框架**，通过结合加速长时视频生成（FastDrive-DiT）和多模态条件控制的大规模动态场景重建（FastRecon3D），实现了高分辨率（800×424，12 FPS）和时空一致的3D场景生成。该成果被NeurIPS Workshop on Next Practices in Video Generation and Evaluation录用。
+
+Dohyun Kim 等人的 [Direct Diffusion Score Preference Optimization via Stepwise Contrastive Policy-Pair Supervision](http://arxiv.org/abs/2512.23426v1 ) 提出**DDSPO方法**，通过**在去噪轨迹上直接利用策略对的逐时间步监督信号**，避免了传统偏好学习对人工标注数据的依赖。实验显示，DDSPO在提升文本-图像对齐和视觉质量方面优于现有方法，且所需监督更少。
+
+Jifeng Ge 等人的 [Mixed Precision General Alternating-Direction Implicit Method for Solving Large Sparse Linear Systems](http://arxiv.org/abs/2512.21164v2 ) 针对大规模稀疏线性系统求解，提出**混合精度GADI方法**，**在低精度（Bfloat16/FP32）下求解子系统**，同时保持高精度残差计算。实验在NVIDIA A100 GPU上实现了最高3.1倍的加速，适用于2D/3D对流-扩散和复杂反应-扩散问题（1.3亿未知量）。
+
+Le Shen 等人的 [SoulX-LiveTalk Technical Report](http://arxiv.org/abs/2512.23379v1 ) 提出了一个用于实时音频驱动虚拟人生成的高效框架。该成果通过**自校正双向蒸馏策略**在视频块内保留双向注意力机制，显著提升了动作连贯性和视觉细节。此外，系统采用了**多步回顾自校正机制**以防止无限生成时的错误累积，并通过混合序列并行、并行VAE和内核级优化等技术实现了高性能推理。实验表明，该系统在14B参数规模下实现了**亚秒级启动延迟（0.87秒）**和**32 FPS的实时吞吐量**，为高保真交互式数字人合成设立了新标准。
+
+Xiao Ma 等人的 [Diffusion priors enhanced velocity model building from time-lag images using a neural operator](http://arxiv.org/abs/2512.23375v1 ) 提出了一种结合生成模型和神经算子的新型速度模型构建框架。该研究利用神经算子作为前向映射工具，从真实速度和迁移速度模型中快速生成时间滞后逆时偏移（RTM）扩展图像。通过自动微分和嵌入生成模型作为正则化器，该方法能够高效更新高分辨率速度模型分量。合成和实际数据实验验证了该方法的有效性，**在保持高分辨率信息的同时提升了预测精度**。
+
+[Search for a photon peak from keV-scale dark matter annihilation with NuSTAR: Constraints on $\langle σv \rangle$ after 11 years of observations](http://arxiv.org/abs/2509.08506v2 ) 基于NuSTAR X射线望远镜11年的观测数据，对keV级暗物质粒子的速度无关湮灭截面$\langle σv \rangle$提出了新的约束。研究通过分析银河系晕中暗物质湮灭可能产生的光子信号，在3-20 keV能量范围内未发现显著的谱线特征。结果表明，**在大多数质量范围内，该研究提供了迄今最强的X射线约束**，达到$\langleσv\rangle \lesssim 10^{-33}$ -- $10^{-34}$ cm$^3$ s$^{-1}$的水平。该成果发表于Physical Review D。
+
+Kabir Khan 等人的 [Parameter-Efficient and Personalized Federated Training of Generative Models at the Edge](http://arxiv.org/abs/2511.11585v3 ) 提出了FedGen-Edge框架，通过解耦预训练的全局主干和轻量级客户端适配器，实现了生成模型在跨设备联邦学习中的高效训练。该方案利用**低秩自适应（LoRA）**将客户端更新限制在紧凑子空间，减少上行流量超过99%，并在非独立同分布数据下稳定聚合。实验显示，FedGen-Edge在语言建模（PTB）和图像生成（CIFAR-10）任务上实现了更低的困惑度/FID和更快的收敛速度，同时支持个性化适配。
+
+Louis Libat 等人的 [A space-time extension of a conservative two-fluid cut-cell diffusion method for moving geometries](http://arxiv.org/abs/2512.23358v1 ) 提出了一种处理运动几何体中两相扩散问题的时空扩展保守笛卡尔切割网格方法。该方法通过**相限制时空控制体积**的离散平衡，结合几何矩（扫掠体积和孔径）作为有限体积算子权重，严格保持离散守恒性。验证测试表明，该方法在二维和三维情况下均表现出超线性空间精度，并能在强系数跳跃和移动界面下保持鲁棒性。
+
+Shangxun Li 等人的 [Geometric Disentanglement of Text Embeddings for Subject-Consistent Text-to-Image Generation using A Single Prompt](http://arxiv.org/abs/2512.16443v2 ) 提出了一种无需训练的方法，从几何角度通过细化文本嵌入来抑制不需要的语义，解决了文本到图像生成中的主题一致性难题。实验证明，该方法在**主题一致性和文本对齐**方面显著优于现有基线，尤其改善了多帧生成中的语义泄漏问题。
+
+根据提供的输入内容，没有包含任何有效的论文信息（如entry、author、title、id等必要字段），因此无法生成论文摘要。XML结构中仅包含`<entry>`和`<feed>`的闭合标签，未提供具体论文数据。
+
+如果您能提供完整的论文元数据（例如arXiv XML格式的完整条目），我将很乐意为您生成对应的中文摘要。
+
+
+### 主要研究方向
+
+1. **扩散模型在视频处理中的应用**
+  - 研究方向概述：利用扩散模型改进视频处理任务，如超分辨率、帧生成和深度估计。
+  - 代表性研究
+    - *[Stream-DiffVSR: Low-Latency Streamable Video Super-Resolution via Auto-Regressive Diffusion](http://arxiv.org/abs/2512.23709v1 )* (2025年12月发表于arXiv)
+    - *[Diffusion Knows Transparency: Repurposing Video Diffusion for Transparent Object Depth and Normal Estimation](http://arxiv.org/abs/2512.23705v1 )* (2025年12月发表于arXiv)
+    - *[DriveGen3D: Boosting Feed-Forward Driving Scene Generation with Efficient Video Diffusion](http://arxiv.org/abs/2510.15264v2 )* (2025年10月发表于arXiv)
+
+2. **扩散语言模型优化**
+  - 研究方向概述：提升扩散语言模型的推理能力和生成质量。
+  - 代表性研究
+    - *[Improving Reasoning for Diffusion Language Models via Group Diffusion Policy Optimization](http://arxiv.org/abs/2510.08554v2 )* (2025年10月发表于arXiv)
+
+3. **扩散模型在3D生成与机器人控制中的应用**
+  - 研究方向概述：利用扩散模型生成3D内容或控制机器人运动。
+  - 代表性研究
+    - *[HY-Motion 1.0: Scaling Flow Matching Models for Text-To-Motion Generation](http://arxiv.org/abs/2512.23464v1 )* (2025年12月发表于arXiv)
+    - *[Do You Have Freestyle? Expressive Humanoid Locomotion via Audio Control](http://arxiv.org/abs/2512.23650v1 )* (2025年12月发表于arXiv)
+    - *[RoboMirror: Understand Before You Imitate for Video to Humanoid Locomotion](http://arxiv.org/abs/2512.23649v1 )* (2025年12月发表于arXiv)
+
+4. **扩散模型的安全与优化**
+  - 研究方向概述：研究扩散模型的安全生成方法及优化技术。
+  - 代表性研究
+    - *[PurifyGen: A Risk-Discrimination and Semantic-Purification Model for Safe Text-to-Image Generation](http://arxiv.org/abs/2512.23546v1 )* (2025年12月发表于arXiv)
+    - *[Direct Diffusion Score Preference Optimization via Stepwise Contrastive Policy-Pair Supervision](http://arxiv.org/abs/2512.23426v1 )* (2025年12月发表于arXiv)
+
+5. **扩散模型在物理模拟中的应用**
+  - 研究方向概述：将扩散模型用于解决物理模拟中的复杂问题。
+  - 代表性研究
+    - *[Adaptive Probability Flow Residual Minimization for High-Dimensional Fokker-Planck Equations](http://arxiv.org/abs/2512.19196v2 )* (2025年12月发表于arXiv)
+    - *[A space-time extension of a conservative two-fluid cut-cell diffusion method for moving geometries](http://arxiv.org/abs/2512.23358v1 )* (2025年12月发表于arXiv)
+
+### 研究趋势分析
+
+过去几年，扩散模型的研究趋势呈现出明显的跨领域扩展和优化趋势。从最初的图像生成，扩散模型逐渐扩展到视频处理（如超分辨率、深度估计）、语言模型优化、3D内容生成和机器人控制等方向。在技术层面，研究重点从单纯提升生成质量转向低延迟优化（如Stream-DiffVSR）、安全生成（如PurifyGen）和多模态控制（如RoboMirror）。此外，扩散模型在物理模拟（如Fokker-Planck方程求解）和联邦学习（如FedGen-Edge）中的应用也展现出强大的潜力。整体来看，扩散模型的研究正朝着更高效、更安全、更实用的方向发展，同时不断突破传统领域的边界。

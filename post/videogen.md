@@ -1,0 +1,118 @@
+Ayush Shrivastava 等人的 [Point Prompting: Counterfactual Tracking with Video Diffusion Models](http://arxiv.org/abs/2510.11715v1 ) 提出了**一种利用预训练视频扩散模型进行零样本点跟踪的新方法**。该方法通过在查询点放置彩色标记，并从中间噪声级别重新生成视频其余部分，从而传播标记并追踪点的轨迹。**关键创新**包括使用未编辑的初始帧作为负提示，以确保标记在反事实生成中保持可见。实验表明，该方法在零样本跟踪任务中优于现有方法，且能处理遮挡情况，性能可与专用自监督模型相媲美。
+
+Yinan Chen 等人的 [IVEBench: Modern Benchmark Suite for Instruction-Guided Video Editing Assessment](http://arxiv.org/abs/2510.11647v1 ) 提出了**首个专门针对指令引导视频编辑评估的基准套件**。该套件包含600个高质量源视频，覆盖7种语义维度和8类编辑任务，**创新点**在于通过大语言模型生成提示，并建立三维评估协议（视频质量、指令遵从性和视频保真度）。实验证明，IVEBench能全面评估现有视频编辑方法，提供与人类判断一致的结果。
+
+Yicheng Xu 等人的 [ExpVid: A Benchmark for Experiment Video Understanding & Reasoning](http://arxiv.org/abs/2510.11606v1 ) 提出了**首个针对科学实验视频理解的基准测试**。ExpVid通过三级任务层次（细粒度感知、流程理解、科学推理）系统评估多模态大语言模型（MLLM）的能力。**重要发现**显示，现有MLLM在细节区分、状态跟踪和科学推理方面表现不足，尤其在开源与专有模型间存在显著差距。该基准为开发科学实验辅助的MLLM提供了诊断工具。
+
+Hongyu Zhu 等人的 [MS-Mix: Unveiling the Power of Mixup for Multimodal Sentiment Analysis](http://arxiv.org/abs/2510.11579v1 ) 提出了**一种情感敏感的多模态数据增强框架**。**核心贡献**包括：（1）情感感知样本选择策略避免语义混淆；（2）基于情感强度的动态混合比例模块；（3）情感对齐损失函数。实验证明，MS-Mix在三个基准数据集上优于现有方法，显著提升了多模态情感分析的鲁棒性。
+
+Wenyue Chen 等人的 [SyncHuman: Synchronizing 2D and 3D Generative Models for Single-view Human Reconstruction](http://arxiv.org/abs/2510.07723v2 ) 提出了**首个同步2D多视图生成模型与3D原生生成模型的框架**，用于单视图人体重建。**关键创新**包括像素对齐的2D-3D同步注意力机制和特征注入技术，将2D细节提升到3D形状上。实验表明，该方法在挑战性姿势下仍能实现高保真重建，几何准确性和视觉质量均超越基线方法。该成果将于2025年发表于NeurIPS。
+
+Liu Yang 等人的 [ODI-Bench: Can MLLMs Understand Immersive Omnidirectional Environments?](http://arxiv.org/abs/2510.11549v1 ) 提出了ODI-Bench，一个专门为全向图像理解设计的新颖综合基准。**该研究首次系统地评估了多模态大语言模型（MLLMs）在理解沉浸式全向图像环境方面的能力**，揭示了当前模型在捕捉全向图像提供的沉浸式上下文方面仍存在困难。此外，作者还提出了Omni-CoT，一种无需训练的方法，通过跨文本信息和视觉线索的链式思考推理，显著增强了MLLMs在全向环境中的理解能力。
+
+Trinh T. L. Vuong 等人的 [ViDRiP-LLaVA: A Dataset and Benchmark for Diagnostic Reasoning from Pathology Videos](http://arxiv.org/abs/2505.04192v2 ) 提出了ViDRiP-LLaVA，这是计算病理学领域首个整合了三种不同图像场景（包括单张切片图像、自动分割的病理视频片段和手动分割的病理视频）的大型多模态模型。**该研究通过生成详细的组织学描述并最终得出明确的诊断，将视觉叙述与诊断推理联系起来**。此外，作者还提出了ViDRiP-Instruct数据集，包含4,278个视频和诊断特定的链式思考教学对，为病理视频分析建立了新的基准。
+
+Jianhao Yuan 等人的 [LikePhys: Evaluating Intuitive Physics Understanding in Video Diffusion Models via Likelihood Preference](http://arxiv.org/abs/2510.11512v1 ) 提出了LikePhys，一种无需训练的方法，通过使用去噪目标作为基于ELBO的似然替代，在精心策划的有效-无效视频对数据集上区分物理有效和无效视频。**该研究引入的Plausibility Preference Error (PPE)评估指标与人类偏好高度一致**，优于现有的评估基线。此外，作者还系统地评估了当前视频扩散模型在直观物理理解方面的表现，并分析了模型设计和推理设置对其理解能力的影响。
+
+Zi-Yuan Hu 等人的 [NeMo: Needle in a Montage for Video-Language Understanding](http://arxiv.org/abs/2509.24563v2 ) 提出了Needle in a Montage (NeMo)任务，旨在评估视频大语言模型（VideoLLMs）的关键推理能力，包括长上下文回忆和时间定位。**该研究通过开发可扩展的自动化数据生成管道，生成了高质量的合成数据**，并在此基础上提出了NeMoBench，一个包含31,378个自动生成的问答对和13,486个不同时长视频的视频语言基准。
+
+Li Chen 等人的 [GADA: Graph Attention-based Detection Aggregation for Ultrasound Video Classification](http://arxiv.org/abs/2510.11437v1 ) 提出了GADA（基于图注意力的检测聚合框架），将视频分类重新定义为在空间局部化感兴趣区域上的图推理问题。**该方法通过检测跨帧的病理相关区域并将其表示为时空图中的节点，利用图注意力网络聚合这些节点级预测**，从而生成紧凑且具有判别性的视频级输出。该成果于2025年发表于ICCV CVAMD。
+
+Zirui Song 等人的 [Beyond Survival: Evaluating LLMs in Social Deduction Games with Human-Aligned Strategies](http://arxiv.org/abs/2510.11389v1 ) 提出了一种新的策略对齐评估框架，用于评估大型语言模型（LLM）在社交推理游戏（如狼人杀）中的表现。该研究基于一个高质量的多模态狼人杀数据集，包含超过100小时的视频、3240万条文本和15种规则变体。**创新点包括**：1）将获胜阵营的策略作为评估基准，通过语音评估（多选任务）和决策评估（投票选择和角色推理）两个阶段，量化模型在社交能力五个维度的表现；2）实验显示当前最先进的LLM在欺骗和反事实推理方面存在明显不足，约半数模型得分低于0.50。该研究为多智能体交互中的语言、推理和策略研究提供了新方向。
+
+Ralf Römer 等人的 [Failure Prediction at Runtime for Generative Robot Policies](http://arxiv.org/abs/2510.09459v2 ) 提出了FIPER框架，用于实时预测生成式模仿学习（IL）策略的失败。**核心贡献**包括：1）通过随机网络蒸馏检测策略嵌入空间中的分布外（OOD）观测；2）提出新的动作块熵评分量化生成动作的不确定性；3）使用保形预测校准阈值，仅在两种指标同时超限时触发失败警报。实验表明，FIPER在5种仿真和真实环境中能更早、更准确地预测失败，且优于现有方法。该成果于2025年发表于NeurIPS。
+
+Liyang Chen 等人的 [Detecting and Mitigating Insertion Hallucination in Video-to-Audio Generation](http://arxiv.org/abs/2510.08078v2 ) 首次定义了视频到音频生成中的“插入幻觉”（IH）问题，即模型生成无视觉来源的语音或音乐。**研究亮点**：1）开发了基于多数投票的音频事件检测框架，并提出IH@vid（幻觉视频比例）和IH@dur（幻觉时长比例）两项新指标；2）提出后验特征修正（PFC）方法，通过两阶段生成——首轮检测幻觉段落后屏蔽对应视频特征重新生成音频。实验显示，PFC将IH发生率和持续时间平均降低50%以上，且不损害传统音频质量指标。
+
+Ole-Johan Skrede 等人的 [Generalisation of automatic tumour segmentation in histopathological whole-slide images across multiple cancer types](http://arxiv.org/abs/2510.11182v1 ) 开发了一种通用的肿瘤分割模型，覆盖结直肠癌、子宫内膜癌、肺癌和前列腺癌的2万张全切片图像。**关键发现**：1）模型在外部验证集（3000+患者）和TCGA队列中平均Dice系数超80%；2）通用模型与单癌种专用模型性能相当。研究表明，跨癌种、样本制备和扫描仪的单模型泛化分割是可行的。
+
+Rohit Gupta 等人的 [Open Vocabulary Multi-Label Video Classification](http://arxiv.org/abs/2407.09073v2 ) 提出了一个基于预训练视觉语言模型（VLMs）的开放词汇多标签视频分类方法。**该研究通过大型语言模型（LLMs）生成语义引导的软属性，增强CLIP文本编码器对新类别的识别能力，并引入时序建模模块和正则化微调技术以优化视频领域的开放词汇分类性能**。该成果于2024年9月发表于 ECCV 2024。
+
+Xiucheng Wang 等人的 [Graph Neural Network-Based Multicast Routing for On-Demand Streaming Services in 6G Networks](http://arxiv.org/abs/2510.11109v1 ) 提出了一种基于图神经网络（GNN）的组播路由框架，用于6G网络中带宽密集型应用（如实时体积流和多感官扩展现实）的服务质量（QoS）保障。**该方法通过强化学习动态构建高效的组播树，结合图注意力网络（GAT）和LSTM模块，显著降低了计算复杂度并适应动态网络拓扑**。
+
+Jiahui Lei 等人的 [MoMaps: Semantics-Aware Scene Motion Generation with Motion Maps](http://arxiv.org/abs/2510.11107v1 ) 提出了一种像素对齐的运动图（MoMap）表示方法，用于从单张输入图像预测未来3D场景运动。**通过从大规模视频数据中学习MoMap表示，并结合扩散模型生成语义一致的3D运动轨迹，该方法为2D视频合成提供了新的流程**。该成果于2025年9月发表于 ICCV 2025。
+
+Jiahao Yu 等人的 [TranSUN: A Preemptive Paradigm to Eradicate Retransformation Bias Intrinsically from Regression Models in Recommender Systems](http://arxiv.org/abs/2505.13881v6 ) 提出了一种预emptive范式，通过联合偏置学习方式从推荐系统的回归模型中消除重变换偏差。**TranSUN方法及其扩展框架GTS（Generalized TranSUN）提供了理论保证的无偏性，并在淘宝App的推荐场景中成功应用**。该成果于2025年12月发表于 NeurIPS 2025。
+
+Junlong Tong 等人的 [Context Guided Transformer Entropy Modeling for Video Compression](http://arxiv.org/abs/2508.01852v2 ) 提出了基于上下文引导Transformer的视频压缩熵模型。该模型通过**时空上下文重采样机制**和**依赖加权的空间上下文建模**，显著提升了视频压缩效率。其中，时间上下文重采样器通过预定义潜在查询减少计算开销，而师生网络架构则显式建模空间依赖顺序。实验表明，该模型将熵建模时间降低65%，并在BD-Rate指标上优于现有方法11%。该成果于2025年9月发表于 ICCV。
+
+Kunyun Wang 等人的 [Communication-Efficient Diffusion Denoising Parallelization via Reuse-then-Predict Mechanism](http://arxiv.org/abs/2505.14741v2 ) 提出了一种**基于重用-预测机制的扩散模型并行化方法ParaStep**。通过利用相邻去噪步骤的相似性，该方法以轻量级步间通信替代传统层间通信，在SVD、CogVideoX-2b和AudioLDM2-large任务上分别实现3.88×、2.43×和6.56×加速，同时保持生成质量。该方法特别适用于带宽受限环境下的扩散推理加速。
+
+Zheyuan Zhang 等人的 [VideoAds for Fast-Paced Video Understanding](http://arxiv.org/abs/2504.09282v2 ) 构建了首个广告视频理解基准数据集VideoAds，包含复杂时间结构的广告视频及人工标注的视觉查找、视频摘要和视觉推理三类任务问题。**实验发现开源模型Qwen2.5-VL-72B以73.35%准确率超越GPT-4o和Gemini-1.5 Pro**，但距人类专家94.27%仍有显著差距，突显了现有多模态大模型在时序建模上的不足。该成果于2025年9月发表于 ICCV。
+
+Runyu Yang 等人的 [Bit Allocation Transfer for Perceptual Quality Enhancement of VVC Intra Coding](http://arxiv.org/abs/2510.10970v1 ) 提出了一种低复杂度方法，通过**从端到端图像压缩中迁移比特分配知识**来增强VVC帧内编码的感知质量。该方法利用轻量级模型生成量化步长图，隐式捕捉块级感知重要性，实验表明在Kodak和CLIC数据集上可实现超过11%的MS-SSIM BD-rate提升。该成果于2025年发表于 Picture Coding Symposium。
+
+Yuzhuo Chen 等人的 [TAG-WM: Tamper-Aware Generative Image Watermarking via Diffusion Inversion Sensitivity](http://arxiv.org/abs/2506.23484v3 ) 提出了一种针对生成图像的篡改感知水印方法TAG-WM。**通过双标记联合采样（DMJS）和扩散反转敏感性的篡改检测机制**，该方法在保持生成质量无损的同时，实现了256比特水印容量下的鲁棒篡改定位能力，在失真条件下仍表现优异。
+
+Jiaben Chen 等人的 [TalkCuts: A Large-Scale Dataset for Multi-Shot Human Speech Video Generation](http://arxiv.org/abs/2510.07249v2 ) 发布了包含164k片段、500+小时的**多镜头人声视频数据集TalkCuts**，涵盖近景/半身/全身视角，并附带文本描述、2D关键点和3D动作标注。基于该数据集提出的Orator框架通过LLM指导多模态生成，显著提升了多镜头语音视频的连贯性和视觉质量。
+
+Xinyu Shao 等人的 [More than A Point: Capturing Uncertainty with Adaptive Affordance Heatmaps for Spatial Grounding in Robotic Tasks](http://arxiv.org/abs/2510.10912v1 ) 提出RoboMAP框架，**将空间目标表示为连续自适应的功能热度图**，解决了传统离散点表示的脆弱性问题。该方法在真实机器人操作中达到82%成功率，且在导航任务中展现零样本泛化能力。
+
+Peyman Gholami 等人的 [Streamlining Image Editing with Layered Diffusion Brushes](http://arxiv.org/abs/2405.00313v2 ) 提出分层扩散笔刷（LDB）框架，**通过中间潜在缓存实现每编辑仅需少量去噪步骤**（140ms/次），支持非破坏性、细粒度的提示引导编辑。用户研究表明其编辑速度和质量优于现有方法。
+
+Xuankai Zhang 等人的 [Dynamic Gaussian Splatting from Defocused and Motion-blurred Monocular Videos](http://arxiv.org/abs/2510.10691v1 ) 提出了**统一处理散焦和运动模糊单目视频的动态高斯泼溅方法**。通过模糊预测网络估计像素级模糊核，结合动态高斯加密策略，在新型视图合成中优于现有技术。
+
+Jinxuan Li 等人的 [Image-to-Video Transfer Learning based on Image-Language Foundation Models: A Comprehensive Survey](http://arxiv.org/abs/2510.10671v1 ) 提出了对基于图像-语言基础模型（ILFM）的图像到视频迁移学习领域的首次全面综述。该研究**系统分类了现有方法（冻结特征 vs 修改特征）**，并详细分析了这些策略在视频文本学习任务（从细粒度时空视频定位到粗粒度视频问答）中的应用。实验分析揭示了不同迁移学习范式在下游视频理解任务中的有效性，同时指出了当前挑战和未来研究方向。
+
+Yu Li 等人的 [AdaViewPlanner: Adapting Video Diffusion Models for Viewpoint Planning in 4D Scenes](http://arxiv.org/abs/2510.10670v1 ) 提出了一种两阶段范式，将预训练文本到视频（T2V）模型适配于4D场景的视点预测任务。**创新点包括**：通过自适应学习分支注入4D场景表示，以及混合条件引导的相机外参去噪过程。实验证明该方法在视点预测上的优越性，验证了视频生成模型在4D交互中的潜力。
+
+Peiyin Chen 等人的 [DEMO: Disentangled Motion Latent Flow Matching for Fine-Grained Controllable Talking Portrait Synthesis](http://arxiv.org/abs/2510.10650v1 ) 提出基于流匹配的生成框架DEMO，**通过运动自编码器构建解耦的潜在空间**（分离唇部运动、头部姿态和视线），并应用最优传输流匹配生成音频驱动的平滑运动轨迹。实验表明该方法在视频真实性、唇音同步和运动保真度上优于现有方法。
+
+
+
+### 主要研究方向
+
+1. **视频扩散模型与零样本跟踪**
+  - 研究方向概述：利用预训练视频扩散模型进行零样本点跟踪，通过反事实生成和标记传播实现点跟踪。
+  - 代表性研究
+    - *[Point Prompting: Counterfactual Tracking with Video Diffusion Models](http://arxiv.org/abs/2510.11715v1 )* (2025年10月发表于arXiv)
+
+2. **视频编辑评估基准**
+  - 研究方向概述：构建专门针对指令引导视频编辑的评估基准，覆盖多种语义维度和编辑任务。
+  - 代表性研究
+    - *[IVEBench: Modern Benchmark Suite for Instruction-Guided Video Editing Assessment](http://arxiv.org/abs/2510.11647v1 )* (2025年10月发表于arXiv)
+
+3. **科学实验视频理解与推理**
+  - 研究方向概述：开发针对科学实验视频的多模态理解与推理基准，评估模型在细粒度感知、流程理解和科学推理上的能力。
+  - 代表性研究
+    - *[ExpVid: A Benchmark for Experiment Video Understanding & Reasoning](http://arxiv.org/abs/2510.11606v1 )* (2025年10月发表于arXiv)
+
+4. **视频生成中的物理理解评估**
+  - 研究方向概述：通过似然偏好评估视频扩散模型在直观物理理解上的表现，提出新的评估指标。
+  - 代表性研究
+    - *[LikePhys: Evaluating Intuitive Physics Understanding in Video Diffusion Models via Likelihood Preference](http://arxiv.org/abs/2510.11512v1 )* (2025年10月发表于arXiv)
+
+5. **多镜头人声视频生成**
+  - 研究方向概述：构建大规模多镜头人声视频数据集，并开发多模态生成框架以提升视频连贯性和视觉质量。
+  - 代表性研究
+    - *[TalkCuts: A Large-Scale Dataset for Multi-Shot Human Speech Video Generation](http://arxiv.org/abs/2510.07249v2 )* (2025年10月发表于arXiv)
+
+6. **视频压缩与熵建模**
+  - 研究方向概述：利用上下文引导的Transformer提升视频压缩效率，通过时空上下文重采样机制优化熵建模。
+  - 代表性研究
+    - *[Context Guided Transformer Entropy Modeling for Video Compression](http://arxiv.org/abs/2508.01852v2 )* (2025年9月发表于ICCV)
+
+7. **图像到视频迁移学习**
+  - 研究方向概述：基于图像-语言基础模型的图像到视频迁移学习，系统分类现有方法并分析其在下游任务中的有效性。
+  - 代表性研究
+    - *[Image-to-Video Transfer Learning based on Image-Language Foundation Models: A Comprehensive Survey](http://arxiv.org/abs/2510.10671v1 )* (2025年10月发表于arXiv)
+
+8. **视点预测与4D场景交互**
+  - 研究方向概述：将预训练文本到视频模型适配于4D场景的视点预测任务，通过混合条件引导实现优化。
+  - 代表性研究
+    - *[AdaViewPlanner: Adapting Video Diffusion Models for Viewpoint Planning in 4D Scenes](http://arxiv.org/abs/2510.10670v1 )* (2025年10月发表于arXiv)
+
+9. **音频驱动的人像合成**
+  - 研究方向概述：通过解耦运动潜在空间和流匹配技术生成音频驱动的平滑运动轨迹，提升视频真实性和唇音同步。
+  - 代表性研究
+    - *[DEMO: Disentangled Motion Latent Flow Matching for Fine-Grained Controllable Talking Portrait Synthesis](http://arxiv.org/abs/2510.10650v1 )* (2025年10月发表于arXiv)
+
+### 研究趋势分析
+
+过去几年，视频生成领域的研究呈现出以下趋势：
+
+1. **从通用生成到特定任务适配**：早期研究主要集中在通用视频生成，而近年来逐渐转向特定任务（如零样本跟踪、视点预测、音频驱动合成等）的适配与优化。
+2. **评估基准的多样化**：随着视频生成技术的成熟，研究重点转向构建更全面的评估基准（如IVEBench、ExpVid），以系统评估模型在不同场景下的表现。
+3. **多模态与跨模态融合**：越来越多的研究探索视频与其他模态（如音频、文本、3D场景）的融合，以提升生成内容的丰富性和交互性。
+4. **效率与实时性优化**：针对视频生成的计算密集型特性，研究开始关注压缩、并行化和轻量化技术（如ParaStep、Context Guided Transformer），以提升生成效率。
+5. **物理与逻辑理解的深化**：通过引入物理理解评估（如LikePhys）和逻辑推理任务（如NeMoBench），研究开始关注模型在复杂场景中的语义和物理一致性。

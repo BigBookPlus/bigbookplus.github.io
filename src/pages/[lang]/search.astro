@@ -1,0 +1,134 @@
+---
+import Layout from '../../components/Layout.astro';
+
+export async function getStaticPaths() {
+  return [
+    { params: { lang: 'zh' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: 'zh' | 'en' };
+---
+
+<Layout lang={lang} title={lang === 'zh' ? '搜索' : 'Search'}>
+  <main class="mx-auto max-w-3xl px-4 py-10">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold mb-4">
+        {lang === 'zh' ? '搜索文章' : 'Search Posts'}
+      </h1>
+      <p class="opacity-70">
+        {lang === 'zh' ? '跨语言搜索：中文和英文文章一起搜' : 'Cross-language search: Search both Chinese and English posts'}
+      </p>
+    </header>
+
+    <div class="mb-8">
+      <input
+        id="search-input"
+        type="text"
+        placeholder={lang === 'zh' ? '输入关键词搜索...' : 'Type keywords to search...'}
+        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <div id="search-results" class="space-y-4"></div>
+    
+    <div id="search-loading" class="hidden text-center py-8 opacity-70">
+      {lang === 'zh' ? '搜索中...' : 'Searching...'}
+    </div>
+    
+    <div id="search-empty" class="hidden text-center py-12 opacity-70">
+      {lang === 'zh' ? '未找到相关文章' : 'No posts found'}
+    </div>
+  </main>
+
+  <script>
+    let pagefind: any = null;
+
+    async function loadPagefind() {
+      if (pagefind) return pagefind;
+      try {
+        // @ts-ignore
+        pagefind = await import('/pagefind/pagefind.js');
+        return pagefind;
+      } catch (e) {
+        console.error('Failed to load pagefind:', e);
+        return null;
+      }
+    }
+
+    function getLangBadge(url: string): string {
+      if (url.startsWith('/zh/')) return 'ZH';
+      if (url.startsWith('/en/')) return 'EN';
+      return '';
+    }
+
+    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    const resultsContainer = document.getElementById('search-results') as HTMLElement;
+    const loadingIndicator = document.getElementById('search-loading') as HTMLElement;
+    const emptyIndicator = document.getElementById('search-empty') as HTMLElement;
+
+    let searchTimeout: number;
+
+    async function performSearch() {
+      const query = searchInput.value.trim();
+      
+      if (!query) {
+        resultsContainer.innerHTML = '';
+        loadingIndicator.classList.add('hidden');
+        emptyIndicator.classList.add('hidden');
+        return;
+      }
+
+      loadingIndicator.classList.remove('hidden');
+      emptyIndicator.classList.add('hidden');
+      resultsContainer.innerHTML = '';
+
+      const pf = await loadPagefind();
+      if (!pf) {
+        resultsContainer.innerHTML = '<p class="text-center py-8 opacity-70">Search is not available</p>';
+        loadingIndicator.classList.add('hidden');
+        return;
+      }
+
+      const results = await pf.search(query);
+      loadingIndicator.classList.add('hidden');
+
+      if (results.results.length === 0) {
+        emptyIndicator.classList.remove('hidden');
+        return;
+      }
+
+      const data = await Promise.all(
+        results.results.slice(0, 20).map((r: any) => r.data())
+      );
+
+      resultsContainer.innerHTML = data
+        .map((item: any) => {
+          const langBadge = getLangBadge(item.url);
+          return `
+            <article class="rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-lg transition-shadow">
+              <div class="flex items-center gap-2 text-xs uppercase tracking-wide opacity-70 mb-2">
+                <span class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">${langBadge}</span>
+              </div>
+              <h2 class="text-xl font-semibold mb-2">
+                <a href="${item.url}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  ${item.meta?.title || item.url}
+                </a>
+              </h2>
+              ${item.excerpt ? `<p class="opacity-80 text-sm line-clamp-2">${item.excerpt}</p>` : ''}
+            </article>
+          `;
+        })
+        .join('');
+    }
+
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = window.setTimeout(performSearch, 300);
+    });
+
+    // Load pagefind on page load
+    loadPagefind();
+  </script>
+</Layout>

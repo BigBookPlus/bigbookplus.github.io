@@ -1,0 +1,85 @@
+---
+interface Props {
+  lang: 'zh' | 'en';
+  title?: string;
+  description?: string;
+}
+
+const { lang, title, description } = Astro.props;
+const pageTitle = title ? `${title} | ${lang === 'zh' ? '博客' : 'Blog'}` : (lang === 'zh' ? '博客' : 'Blog');
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    {description && <meta name="description" content={description} />}
+    <title>{pageTitle}</title>
+    <script is:inline>
+      // Dark mode support
+      const theme = localStorage.getItem('theme') || 'auto';
+      if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors">
+    <nav class="border-b border-gray-200 dark:border-gray-800">
+      <div class="mx-auto max-w-6xl px-4 py-4">
+        <div class="flex items-center justify-between">
+          <a href={`/${lang}/`} class="text-xl font-bold">
+            {lang === 'zh' ? '博客' : 'Blog'}
+          </a>
+          <div class="flex items-center gap-6">
+            <a href={`/${lang}/`} class="hover:opacity-70 transition-opacity">
+              {lang === 'zh' ? '首页' : 'Home'}
+            </a>
+            <a href={`/${lang}/search/`} class="hover:opacity-70 transition-opacity">
+              {lang === 'zh' ? '搜索' : 'Search'}
+            </a>
+            <a href={`/${lang}/tags/`} class="hover:opacity-70 transition-opacity">
+              {lang === 'zh' ? '标签' : 'Tags'}
+            </a>
+            <a href={`/${lang}/archive/`} class="hover:opacity-70 transition-opacity">
+              {lang === 'zh' ? '归档' : 'Archive'}
+            </a>
+            <a href={lang === 'zh' ? '/en/' : '/zh/'} class="hover:opacity-70 transition-opacity">
+              {lang === 'zh' ? 'EN' : '中文'}
+            </a>
+            <button
+              id="theme-toggle"
+              class="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Toggle theme"
+            >
+              <svg class="h-5 w-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+              </svg>
+              <svg class="h-5 w-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <slot />
+
+    <footer class="border-t border-gray-200 dark:border-gray-800 mt-20">
+      <div class="mx-auto max-w-6xl px-4 py-8 text-center text-sm opacity-70">
+        <p>&copy; {new Date().getFullYear()} {lang === 'zh' ? '版权所有' : 'All rights reserved'}</p>
+      </div>
+    </footer>
+
+    <script>
+      const toggle = document.getElementById('theme-toggle');
+      toggle?.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      });
+    </script>
+  </body>
+</html>

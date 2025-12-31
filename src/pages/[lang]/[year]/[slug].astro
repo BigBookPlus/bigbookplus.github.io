@@ -1,0 +1,98 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../../components/Layout.astro';
+import Giscus from '../../../components/Giscus.astro';
+
+export async function getStaticPaths() {
+  const all = await getCollection('posts', ({ data }) => !data.draft);
+  return all.map((entry) => ({
+    params: {
+      lang: entry.data.lang,
+      year: String(entry.data.date.getFullYear()),
+      slug: entry.data.slug,
+    },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+
+const year = data.date.getFullYear();
+const otherLang = data.lang === 'zh' ? 'en' : 'zh';
+const all = await getCollection('posts', ({ data }) => !data.draft);
+const other = all.find(
+  (p) =>
+    p.data.lang === otherLang &&
+    p.data.slug === data.slug &&
+    p.data.date.getFullYear() === year
+);
+
+const otherUrl = other ? `/${otherLang}/${year}/${data.slug}/` : null;
+---
+
+<Layout lang={data.lang} title={data.title} description={data.description}>
+  <article class="mx-auto max-w-4xl px-4 py-10">
+    <header class="mb-10">
+      <div class="flex items-center justify-between text-sm opacity-70 mb-4">
+        <p>
+          {data.lang.toUpperCase()} · {data.date.toISOString().slice(0, 10)}
+          {data.author ? ` · ${data.author}` : ''}
+        </p>
+        {otherUrl ? (
+          <a href={otherUrl} class="hover:opacity-100 transition-opacity">
+            {otherLang === 'zh' ? '切换到中文' : 'Switch to English'}
+          </a>
+        ) : null}
+      </div>
+      
+      <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+        {data.title}
+      </h1>
+
+      {data.cover ? (
+        <img 
+          src={data.cover} 
+          alt={data.title} 
+          class="w-full rounded-2xl shadow-lg mb-6" 
+        />
+      ) : null}
+
+      {data.tags?.length ? (
+        <div class="flex flex-wrap gap-2 mb-6">
+          {data.tags.map((tag) => (
+            <a
+              href={`/${data.lang}/tags/${tag}/`}
+              class="rounded-full bg-gray-100 dark:bg-gray-800 px-4 py-1.5 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      ) : null}
+    </header>
+
+    <div class="prose prose-lg dark:prose-invert max-w-none
+      prose-headings:font-bold prose-headings:tracking-tight
+      prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+      prose-p:leading-relaxed prose-p:text-gray-700 dark:prose-p:text-gray-300
+      prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+      prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+      prose-pre:bg-gray-900 prose-pre:text-gray-100
+      prose-img:rounded-xl prose-img:shadow-md
+      prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-4 prose-blockquote:italic
+      prose-ul:list-disc prose-ol:list-decimal
+      prose-li:text-gray-700 dark:prose-li:text-gray-300
+      prose-strong:text-gray-900 dark:prose-strong:text-gray-100
+      prose-table:border-collapse prose-th:border prose-th:border-gray-300 dark:prose-th:border-gray-700 prose-th:bg-gray-100 dark:prose-th:bg-gray-800 prose-th:p-2
+      prose-td:border prose-td:border-gray-300 dark:prose-td:border-gray-700 prose-td:p-2
+    ">
+      <Content />
+    </div>
+
+    <hr class="my-12 border-gray-200 dark:border-gray-800" />
+    
+    <Giscus lang={data.lang} />
+  </article>
+</Layout>

@@ -1,0 +1,120 @@
+# arXiv论文速递:视觉语言模型(Vision Language Models)最新论文、研究趋势和方向20250515
+
+Beichen Wen 等人的 [3D Scene Generation: A Survey](http://arxiv.org/abs/2505.05474v1 ) 提出了对3D场景生成技术的全面综述。**该论文系统性地总结了当前最先进的方法，将其分为四大范式：程序生成、基于神经网络的3D生成、基于图像的生成和基于视频的生成**。文章还分析了这些方法的技术基础、优缺点以及代表性成果，并讨论了未来在高保真度、物理感知和交互生成等方向的发展潜力。
+
+Wenqi Wang 等人的 [SITE: towards Spatial Intelligence Thorough Evaluation](http://arxiv.org/abs/2505.05456v1 ) 提出了一个用于评估空间智能的基准数据集SITE。**该数据集通过多选视觉问答的形式，评估大尺度视觉语言模型在不同视觉模态（如图像、视频）和空间智能因素（如空间可视化、空间定向）上的表现**。实验表明，现有模型在空间定向等基本空间智能因素上仍落后于人类专家，且空间推理能力与具身AI任务的表现呈正相关。
+
+Zhaohan Feng 等人的 [Multi-agent Embodied AI: Advances and Future Directions](http://arxiv.org/abs/2505.05108v1 ) 回顾了多智能体具身AI的研究现状。**文章指出，尽管单智能体系统在静态封闭环境中取得了显著进展，但现实世界的复杂场景需要多智能体之间的协作与实时学习**。论文分析了当前研究的局限性，并提出了未来在动态开放环境中多智能体具身AI的发展方向。
+
+Ranjan Sapkota 等人的 [Vision-Language-Action Models: Concepts, Progress, Applications and Challenges](http://arxiv.org/abs/2505.04769v1 ) 对视觉-语言-动作（VLA）模型进行了全面综述。**文章总结了VLA模型在感知、自然语言理解和具身动作一体化方面的进展，并探讨了其在人形机器人、自动驾驶等领域的应用**。同时，文章还提出了解决实时控制、多模态动作表示和系统扩展性等挑战的潜在方案。
+
+Liam Boyle 等人的 [RobotxR1: Enabling Embodied Robotic Intelligence on Large Language Models through Closed-Loop Reinforcement Learning](http://arxiv.org/abs/2505.03238v1 ) 提出了一种通过闭环强化学习在低参数量大语言模型（LLM）上实现具身智能的方法。**实验表明，小规模LLM通过与环境的闭环交互学习，可以在自动驾驶等任务中超越更大规模的模型**，证明了在机器人领域部署小型LLM的可行性。
+
+Huangyue Yu 等人的 [MetaScenes: Towards Automated Replica Creation for Real-world 3D Scenes](http://arxiv.org/abs/2505.02388v1 ) 提出了 MetaScenes，一个基于真实世界扫描的大规模、可模拟的 3D 场景数据集，包含 15366 个对象，涵盖 831 个细粒度类别。该研究还提出了 Scan2Sim，一种多模态对齐模型，**能够自动化地高质量替换资产，从而减少对艺术家驱动设计的依赖**。通过两个基准测试，MetaScenes 展示了其在增强 Embodied AI 通用性和模拟到现实应用中的潜力。该成果于 2025 年发表于 CVPR。
+
+Irene Wang 等人的 [Carbon Aware Transformers Through Joint Model-Hardware Optimization](http://arxiv.org/abs/2505.01386v2 ) 提出了 CATransformers，一个碳感知的架构搜索框架，**通过联合优化模型和硬件架构来减少机器学习系统的总碳排放**。该框架在多模态 CLIP 模型上应用，生成了 CarbonCLIP 模型家族，在保持准确性和延迟的同时，总碳排放减少了 17%。
+
+Roberto Bigazzi 的 [Autonomous Embodied Agents: When Robotics Meets Deep Learning Reasoning](http://arxiv.org/abs/2505.00935v1 ) 探讨了 Embodied AI 领域的智能体创建过程，**从概念到实现和部署的全流程**。该研究通过模拟环境中的大规模训练，提出了在未知环境中执行任务的智能体实现方法，为 Embodied AI 研究提供了重要参考。
+
+Wayne Wu 等人的 [Towards Autonomous Micromobility through Scalable Urban Simulation](http://arxiv.org/abs/2505.00690v1 ) 提出了 URBAN-SIM，一个用于大规模训练城市环境中智能体的高性能机器人学习平台。该平台通过**分层城市生成、交互动力学生成和异步场景采样等模块，提高了机器人学习的多样性、真实性和效率**。研究还提出了 URBAN-BENCH，用于评估智能体在实现自主微移动中的核心能力。该成果于 2025 年发表于 CVPR。
+
+Lang Feng 等人的 [Towards Efficient Online Tuning of VLM Agents via Counterfactual Soft Reinforcement Learning](http://arxiv.org/abs/2505.03792v1 ) 提出了 CoSo，一种针对视觉语言模型（VLM）智能体的在线微调方法。**通过反事实推理动态评估单个 token 对后处理动作的因果影响，CoSo 显著提高了探索效率**。该成果于 2025 年发表于 ICML。
+
+Ruochen Jiao 等人的 [Can We Trust Embodied Agents? Exploring Backdoor Attacks against Embodied LLM-based Decision-Making Systems](http://arxiv.org/abs/2405.20774v3 ) 提出了针对基于LLM的具身AI决策系统的后门攻击框架（BALD），并系统性地探索了攻击面和触发机制。该研究提出了三种不同的攻击机制：**词注入**、**场景操纵**和**知识注入**，针对LLM决策管道的不同组件。实验表明，这些攻击在自动驾驶和家庭机器人任务中具有高效性和隐蔽性，例如车辆加速冲向障碍物或机器人将刀具放置在床上。研究揭示了具身LLM系统的关键安全漏洞，强调了保护这些系统以减轻潜在风险的迫切性。该成果被ICLR 2025录用。
+
+Jiwen Yu 等人的 [A Survey of Interactive Generative Video](http://arxiv.org/abs/2504.21853v1 ) 对交互式生成视频（IGV）技术进行了全面调查，将其定义为结合生成能力和交互功能的技术，能够在游戏、具身AI和自动驾驶等领域生成高质量视频内容并实现用户交互。研究提出了一个包含生成、控制、记忆、动态和智能五个模块的理想IGV系统框架，并分析了实现每个模块的技术挑战和未来方向，如实现实时生成、开放域控制和准确物理模拟等。
+
+Zhuoqi Zeng 等人的 [TinyMA-IEI-PPO: Exploration Incentive-Driven Multi-Agent DRL with Self-Adaptive Pruning for Vehicular Embodied AI Agent Twins Migration](http://arxiv.org/abs/2505.00055v1 ) 提出了一种结合多领导者多追随者（MLMF）Stackelberg博弈激励机制和微型多智能体深度强化学习（MADRL）算法的高效车辆具身AI Agent Twins（VEAAT）迁移框架。研究提出了一种基于虚拟沉浸体验的效用模型，并开发了TinyMA-IEI-PPO算法，通过动态结构化剪枝提高训练效率，同时保留探索-利用性能。
+
+Seonghee Lee 等人的 [IRL Dittos: Embodied Multimodal AI Agent Interactions in Open Spaces](http://arxiv.org/abs/2504.21347v1 ) 介绍了IRL Ditto，一种AI驱动的具身代理，旨在在共享办公空间中代表远程同事，创造实时交流的机会。研究表明，IRL Ditto能够通过模拟存在感和实现有意义的互动来增强社交关系，但其效果取决于用户与代理来源的关系基础。
+
+Yibin Yan 等人的 [Learning Streaming Video Representation via Multitask Training](http://arxiv.org/abs/2504.20041v1 ) 提出了一种名为StreamFormer的流媒体视频骨干网络，通过将因果时间注意力机制引入预训练的视觉Transformer中，实现了高效的流媒体视频处理。研究通过多任务视觉语言对齐框架统一了多样化的时空视频理解任务，使StreamFormer能够同时学习全局语义、时间动态和细粒度空间关系。实验表明，StreamFormer在在线动作检测、在线视频实例分割和视频问答等任务中取得了竞争力的结果，展示了其在实时应用中的潜力。
+
+Run Luo 等人的 [VCM: Vision Concept Modeling Based on Implicit Contrastive Learning with Vision-Language Instruction Fine-Tuning](http://arxiv.org/abs/2504.19627v1 ) 提出了一种基于隐式对比学习和视觉语言指令微调的视觉概念建模框架。**该框架通过多实例采样和视觉语言微调，构建了一个无需昂贵概念级标注的视觉概念模型**，显著降低了计算成本（例如，LLaVA-1.5-7B的FLOPs减少了85%），同时在多种图像理解任务中保持了强大的性能。此外，VCM还增强了视觉编码器在经典视觉概念感知任务中的能力。
+
+Rajeev Gupta 等人的 [Personalized Artificial General Intelligence (AGI) via Neuroscience-Inspired Continuous Learning Systems](http://arxiv.org/abs/2504.20109v1 ) 提出了一种基于神经科学启发的个性化AGI架构。**该架构整合了类似大脑的学习机制，支持在资源受限的边缘设备上进行持续学习和个性化**。通过引入互补的快慢学习模块、突触自优化和内存高效模型更新，解决了灾难性遗忘、内存效率和系统可扩展性等挑战。
+
+Yiren Xu 等人的 [Balancing Creativity and Automation: The Influence of AI on Modern Film Production and Dissemination](http://arxiv.org/abs/2504.19275v1 ) 探讨了AI在现代电影制作中的双重影响。**研究提出将AI定位为“体现工具”而非独立的“他者伙伴”，以保留人类作者身份和艺术完整性**。通过案例分析和理论框架，提出了包括国际监管框架和人类控制指数（HCI）在内的建议，以应对AI驱动的市场中的监控资本主义和深度伪造技术等伦理困境。
+
+Li Jin 等人的 [Embodied World Models Emerge from Navigational Task in Open-Ended Environments](http://arxiv.org/abs/2504.11419v2 ) 研究了在开放环境中通过导航任务自发涌现的具身世界模型。**研究表明，持续的感知运动交互足以产生紧凑的具身世界模型**，并通过动力学、表征和因果分析验证了其有效性，为可解释和可迁移的导航策略提供了理论支持。
+
+Zishen Wan 等人的 [Generative AI in Embodied Systems: System-Level Analysis of Performance, Efficiency and Scalability](http://arxiv.org/abs/2504.18945v1 ) 对生成式AI在具身系统中的性能、效率和可扩展性进行了系统级分析。**研究揭示了规划与通信延迟、冗余交互、内存不一致性等关键挑战**，并提出了优化策略以提升具身系统的性能和可扩展性。该成果于2025年发表于 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)。
+
+Tianliang Yao 等人的 [Advancing Embodied Intelligence in Robotic-Assisted Endovascular Procedures: A Systematic Review of AI Solutions](http://arxiv.org/abs/2504.15327v2 ) 提出了关于在机器人辅助血管内手术中推进具身智能（Embodied Intelligence, EI）的系统性综述。**该研究探讨了如何通过数据驱动的方法、计算机视觉、医学图像分析和机器学习技术，增强手术中的智能感知和实时控制能力。** 具体来说，EI 可以帮助机器人导航复杂的血管网络并适应动态的生理条件，从而减少操作者疲劳、辐射暴露以及人类精确度的局限性。**文章还展望了未来研究方向，如联邦学习在医疗数据共享中的应用、可解释 AI 在临床决策支持中的作用，以及先进的人机协作范式。** 该成果于2025年4月发表于 arXiv。
+
+Pei Lin 等人的 [PP-Tac: Paper Picking Using Tactile Feedback in Dexterous Robotic Hands](http://arxiv.org/abs/2504.16649v1 ) 提出了一种基于触觉反馈的机器人系统 PP-Tac，用于抓取类似纸张的薄、平、可变形物体。**该系统通过高分辨率全向触觉传感器实现实时滑动检测和在线摩擦力控制，从而有效减少滑动。** 此外，抓取动作生成通过轨迹合成管道实现，基于扩散策略控制手-臂机器人系统。实验表明，PP-Tac 能够成功抓取不同材质、厚度和硬度的纸张类物体，整体成功率达到 87.5%。**这是首次尝试使用触觉灵巧手抓取纸张类可变形物体的研究。** 该成果已被 Robotics: Science and Systems (RSS) 2025 录用。
+
+Yun Li 等人的 [STI-Bench: Are MLLMs Ready for Precise Spatial-Temporal World Understanding?](http://arxiv.org/abs/2503.23765v3 ) 提出了一个用于评估多模态大语言模型（MLLMs）在空间-时间理解方面的能力的基准测试。该研究通过一系列任务（如物体外观、姿态、位移和运动的估计与预测）来评估MLLMs在机器人操作和自动驾驶等实际应用中的表现。实验结果表明，**当前最先进的MLLMs在精确距离估计和运动分析等任务中仍存在显著困难**。
+
+Haotian Xu 等人的 [GeoNav: Empowering MLLMs with Explicit Geospatial Reasoning Abilities for Language-Goal Aerial Navigation](http://arxiv.org/abs/2504.09587v2 ) 提出了一种具有地理空间推理能力的多模态代理GeoNav，用于无人机在复杂环境中的语言目标导航。该模型通过**全局认知地图和局部场景图的动态构建**，实现了从地标导航到目标精确定位的分层推理。在CityNav城市导航基准测试中，GeoNav在成功率上比现有最先进模型提高了12.53%，并显著提升了导航效率。
+
+Haoming Li 等人的 [PLANET: A Collection of Benchmarks for Evaluating LLMs' Planning Capabilities](http://arxiv.org/abs/2504.14773v1 ) 提出了一系列用于评估大语言模型（LLMs）规划能力的基准测试。该研究将规划任务分为**具身环境、网络导航、调度、游戏与谜题以及日常任务自动化**等类别，并推荐了适合不同算法的基准测试，为未来的基准开发提供了指导。
+
+Steeven Janny 等人的 [Reasoning in visual navigation of end-to-end trained agents: a dynamical systems approach](http://arxiv.org/abs/2503.08306v4 ) 提出了对端到端训练机器人在真实环境中导航行为的细粒度研究。该研究通过大规模实验分析了机器人从端到端训练中产生的推理能力，特别是**开放式预测的动态学习**、**感知与记忆的交互**以及**有限范围内的精确规划能力**。研究还展示了**价值函数与长期规划的关系**，为计算机视觉和顺序决策在机器人控制中的新能力提供了新的视角。该成果于2025年6月发表于 Computer Vision and Pattern Recognition Conference (CVPR) 2025。
+
+Jirui Yang 等人的 [Concept Enhancement Engineering: A Lightweight and Efficient Robust Defense Against Jailbreak Attacks in Embodied AI](http://arxiv.org/abs/2504.13201v1 ) 提出了一种名为**概念增强工程（CEE）**的新型防御框架，用于应对Embodied AI系统中的越狱攻击。CEE通过**表示工程技术**动态引导大语言模型的内部激活，增强其安全性。该方法**提取多语言安全模式**、**构建基于安全对齐概念子空间的控制方向**，并在推理过程中**应用子空间概念旋转**以强化安全行为。实验表明，CEE在保持任务性能的同时有效缓解了越狱攻击，在鲁棒性和效率上优于现有防御方法。
+
+Jiaxin Lu 等人的 [HUMOTO: A 4D Dataset of Mocap Human Object Interactions](http://arxiv.org/abs/2504.10414v1 ) 提出了一个高精度的人-物交互数据集HUMOTO，用于运动生成、计算机视觉和机器人应用。该数据集包含736个序列，捕捉了与63个精确建模物体和72个关节部件的交互。其创新点包括**基于场景的LLM脚本生成自然任务流程**以及**有效处理遮挡的动作捕捉和相机记录设置**。HUMOTO的全面性和逻辑性为动画、机器人和Embodied AI系统的研究提供了重要数据支持。
+
+Haiyong Yu 等人的 [Efficient Task-specific Conditional Diffusion Policies: Shortcut Model Acceleration and SO(3) Optimization](http://arxiv.org/abs/2504.09927v1 ) 提出了一种**无分类器捷径扩散策略（CF-SDP）**，用于高效生成任务特定的动作策略。该方法结合**无分类器引导**和**基于捷径的加速**，显著提高了推理速度，同时将扩散模型扩展到SO(3)流形，确保旋转估计的稳定性和准确性。实验表明，该方法在扩散推理上实现了近5倍的加速，并在任务性能上保持了优势。该成果被CVPR 2025 Workshop on 2nd MEIS录用。
+
+
+### 主要研究方向
+
+1. **3D场景生成与模拟**
+  - 研究方向概述：研究如何通过程序生成、神经网络、图像和视频等多种方法生成高质量的3D场景，并应用于具身AI的模拟环境。
+  - 代表性研究
+    - *[3D Scene Generation: A Survey](http://arxiv.org/abs/2505.05474v1 )* (2025年5月发表于arXiv)
+    - *[MetaScenes: Towards Automated Replica Creation for Real-world 3D Scenes](http://arxiv.org/abs/2505.02388v1 )* (2025年发表于CVPR)
+
+2. **多智能体具身AI**
+  - 研究方向概述：探索多智能体在动态开放环境中的协作与实时学习，以应对复杂现实场景的挑战。
+  - 代表性研究
+    - *[Multi-agent Embodied AI: Advances and Future Directions](http://arxiv.org/abs/2505.05108v1 )* (2025年5月发表于arXiv)
+
+3. **视觉-语言-动作模型**
+  - 研究方向概述：研究将视觉感知、自然语言理解和具身动作一体化的模型，应用于人形机器人、自动驾驶等领域。
+  - 代表性研究
+    - *[Vision-Language-Action Models: Concepts, Progress, Applications and Challenges](http://arxiv.org/abs/2505.04769v1 )* (2025年5月发表于arXiv)
+
+4. **空间智能与导航**
+  - 研究方向概述：通过基准数据集和模型评估，提升具身AI在空间推理、导航和地理空间理解方面的能力。
+  - 代表性研究
+    - *[SITE: towards Spatial Intelligence Thorough Evaluation](http://arxiv.org/abs/2505.05456v1 )* (2025年5月发表于arXiv)
+    - *[GeoNav: Empowering MLLMs with Explicit Geospatial Reasoning Abilities for Language-Goal Aerial Navigation](http://arxiv.org/abs/2504.09587v2 )* (2025年4月发表于arXiv)
+
+5. **具身AI的安全与防御**
+  - 研究方向概述：研究具身AI系统的安全漏洞及防御机制，特别是针对后门攻击和越狱攻击的防护。
+  - 代表性研究
+    - *[Can We Trust Embodied Agents? Exploring Backdoor Attacks against Embodied LLM-based Decision-Making Systems](http://arxiv.org/abs/2405.20774v3 )* (2025年发表于ICLR)
+    - *[Concept Enhancement Engineering: A Lightweight and Efficient Robust Defense Against Jailbreak Attacks in Embodied AI](http://arxiv.org/abs/2504.13201v1 )* (2025年4月发表于arXiv)
+
+6. **生成式AI在具身系统中的应用**
+  - 研究方向概述：探讨生成式AI在具身系统中的性能、效率和可扩展性，并解决规划与通信延迟等挑战。
+  - 代表性研究
+    - *[Generative AI in Embodied Systems: System-Level Analysis of Performance, Efficiency and Scalability](http://arxiv.org/abs/2504.18945v1 )* (2025年发表于IEEE ISPASS)
+
+7. **机器人辅助手术中的具身智能**
+  - 研究方向概述：通过数据驱动的方法和机器学习技术，提升机器人辅助手术中的智能感知和实时控制能力。
+  - 代表性研究
+    - *[Advancing Embodied Intelligence in Robotic-Assisted Endovascular Procedures: A Systematic Review of AI Solutions](http://arxiv.org/abs/2504.15327v2 )* (2025年4月发表于arXiv)
+
+### 研究趋势分析
+
+过去几年，具身AI的研究呈现出以下几个显著趋势：
+
+1. **多模态融合**：视觉、语言和动作的多模态模型逐渐成为研究热点，尤其是在机器人、自动驾驶等领域的应用中，多模态融合显著提升了系统的感知和决策能力。
+
+2. **多智能体协作**：随着现实世界复杂场景的需求增加，单智能体系统的局限性逐渐显现，多智能体之间的协作与实时学习成为研究重点，特别是在动态开放环境中的应用。
+
+3. **安全与防御**：随着具身AI系统的广泛应用，其安全性和防御机制受到越来越多的关注，特别是针对后门攻击和越狱攻击的防护研究逐渐深入。
+
+4. **生成式AI的应用**：生成式AI在具身系统中的应用逐渐扩展，但其性能和可扩展性仍需进一步优化，特别是在规划与通信延迟、内存一致性等方面的挑战。
+
+5. **3D场景生成与模拟**：高质量的3D场景生成技术不断发展，为具身AI提供了更加逼真的模拟环境，推动了其在虚拟现实、游戏和机器人等领域的应用。
+
+6. **空间智能与导航**：空间智能和导航能力的研究逐渐深入，特别是在无人机、自动驾驶等领域，地理空间推理和导航效率的提升成为关键。
+
+7. **机器人辅助手术**：具身智能在医疗领域的应用逐渐扩展，特别是在机器人辅助手术中，智能感知和实时控制能力的提升显著改善了手术效果。
+
+总体来看，具身AI的研究正朝着更加复杂、安全和高效的方向发展，多模态融合、多智能体协作和生成式AI的应用将成为未来研究的重点。

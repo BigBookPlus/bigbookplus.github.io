@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../components/Layout.astro';
+import PostCard from '../../../components/PostCard.astro';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+  
+  const tagsByLang = new Map<string, Set<string>>();
+  
+  allPosts.forEach((post) => {
+    const lang = post.data.lang;
+    if (!tagsByLang.has(lang)) {
+      tagsByLang.set(lang, new Set());
+    }
+    post.data.tags?.forEach((tag) => {
+      tagsByLang.get(lang)!.add(tag);
+    });
+  });
+
+  const paths: any[] = [];
+  tagsByLang.forEach((tags, lang) => {
+    tags.forEach((tag) => {
+      const tagPosts = allPosts.filter(
+        (p) => p.data.lang === lang && p.data.tags?.includes(tag)
+      );
+      paths.push({
+        params: { lang, tag },
+        props: { posts: tagPosts },
+      });
+    });
+  });
+
+  return paths;
+}
+
+const { lang, tag } = Astro.params as { lang: 'zh' | 'en'; tag: string };
+const { posts: propsPosts } = Astro.props;
+
+let posts = propsPosts;
+if (!posts) {
+  posts = await getCollection(
+    'posts',
+    ({ data }) => !data.draft && data.lang === lang && data.tags?.includes(tag)
+  );
+}
+
+posts.sort((a: any, b: any) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Layout lang={lang} title={`${tag} - ${lang === 'zh' ? '标签' : 'Tag'}`}>
+  <main class="mx-auto max-w-6xl px-4 py-10">
+    <header class="mb-12">
+      <nav class="text-sm mb-4 opacity-70">
+        <a href={`/${lang}/`} class="hover:opacity-100">{lang === 'zh' ? '首页' : 'Home'}</a>
+        <span class="mx-2">/</span>
+        <a href={`/${lang}/tags/`} class="hover:opacity-100">{lang === 'zh' ? '标签' : 'Tags'}</a>
+        <span class="mx-2">/</span>
+        <span>{tag}</span>
+      </nav>
+      
+      <h1 class="text-4xl font-bold mb-4">
+        {tag}
+      </h1>
+      <p class="opacity-70">
+        {lang === 'zh' ? `${posts.length} 篇文章` : `${posts.length} post${posts.length === 1 ? '' : 's'}`}
+      </p>
+    </header>
+
+    {posts.length > 0 ? (
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {posts.map((entry: any) => (
+          <PostCard lang={lang} entry={entry} />
+        ))}
+      </div>
+    ) : (
+      <p class="text-center py-12 opacity-70">
+        {lang === 'zh' ? '暂无文章' : 'No posts yet'}
+      </p>
+    )}
+  </main>
+</Layout>

@@ -1,0 +1,28 @@
+---
+interface Props {
+  lang?: 'zh' | 'en';
+}
+
+const { lang = 'zh' } = Astro.props;
+const giscusLang = lang === 'zh' ? 'zh-CN' : 'en';
+---
+
+<section class="mx-auto max-w-3xl mt-12">
+  <script
+    is:inline
+    src="https://giscus.app/client.js"
+    data-repo="bigbookplus/bigbookplus.github.io"
+    data-repo-id="R_kgDONhWNQQ"
+    data-category="General"
+    data-category-id="DIC_kwDONhWNQc4ClL3g"
+    data-mapping="pathname"
+    data-strict="1"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="preferred_color_scheme"
+    data-lang={giscusLang}
+    crossorigin="anonymous"
+    async>
+  </script>
+</section>

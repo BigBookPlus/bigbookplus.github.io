@@ -1,0 +1,102 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../components/Layout.astro';
+
+export async function getStaticPaths() {
+  return [
+    { params: { lang: 'zh' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: 'zh' | 'en' };
+
+const posts = await getCollection('posts', ({ data }) => !data.draft && data.lang === lang);
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Group posts by year
+const postsByYear = new Map<number, typeof posts>();
+posts.forEach((post) => {
+  const year = post.data.date.getFullYear();
+  if (!postsByYear.has(year)) {
+    postsByYear.set(year, []);
+  }
+  postsByYear.get(year)!.push(post);
+});
+
+const years = Array.from(postsByYear.keys()).sort((a, b) => b - a);
+---
+
+<Layout lang={lang} title={lang === 'zh' ? '归档' : 'Archive'}>
+  <main class="mx-auto max-w-4xl px-4 py-10">
+    <header class="mb-12">
+      <h1 class="text-4xl font-bold mb-4">
+        {lang === 'zh' ? '文章归档' : 'Archive'}
+      </h1>
+      <p class="opacity-70">
+        {lang === 'zh' ? `共 ${posts.length} 篇文章` : `${posts.length} post${posts.length === 1 ? '' : 's'} in total`}
+      </p>
+    </header>
+
+    {years.length > 0 ? (
+      <div class="space-y-12">
+        {years.map((year) => {
+          const yearPosts = postsByYear.get(year)!;
+          return (
+            <section>
+              <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span>{year}</span>
+                <span class="text-lg font-normal opacity-70">
+                  ({yearPosts.length} {yearPosts.length === 1 ? (lang === 'zh' ? '篇' : 'post') : (lang === 'zh' ? '篇' : 'posts')})
+                </span>
+              </h2>
+              <div class="space-y-4">
+                {yearPosts.map((post) => {
+                  const url = `/${lang}/${year}/${post.data.slug}/`;
+                  const month = String(post.data.date.getMonth() + 1).padStart(2, '0');
+                  const day = String(post.data.date.getDate()).padStart(2, '0');
+                  return (
+                    <article class="flex gap-6 items-start group">
+                      <time class="text-sm opacity-70 font-mono shrink-0 w-20">
+                        {month}-{day}
+                      </time>
+                      <div class="flex-1">
+                        <h3 class="text-lg font-semibold mb-1">
+                          <a 
+                            href={url}
+                            class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          >
+                            {post.data.title}
+                          </a>
+                        </h3>
+                        {post.data.description ? (
+                          <p class="text-sm opacity-70 line-clamp-2">{post.data.description}</p>
+                        ) : null}
+                        {post.data.tags?.length ? (
+                          <div class="mt-2 flex flex-wrap gap-2">
+                            {post.data.tags.slice(0, 4).map((tag) => (
+                              <a
+                                href={`/${lang}/tags/${tag}/`}
+                                class="text-xs rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                              >
+                                {tag}
+                              </a>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    ) : (
+      <p class="text-center py-12 opacity-70">
+        {lang === 'zh' ? '暂无文章' : 'No posts yet'}
+      </p>
+    )}
+  </main>
+</Layout>

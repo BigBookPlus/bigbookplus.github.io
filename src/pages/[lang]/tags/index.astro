@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../components/Layout.astro';
+
+export async function getStaticPaths() {
+  return [
+    { params: { lang: 'zh' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: 'zh' | 'en' };
+
+const posts = await getCollection('posts', ({ data }) => !data.draft && data.lang === lang);
+
+// Collect all tags with their post counts
+const tagCounts = new Map<string, number>();
+posts.forEach((post) => {
+  post.data.tags?.forEach((tag) => {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  });
+});
+
+const sortedTags = Array.from(tagCounts.entries())
+  .sort((a, b) => b[1] - a[1]);
+---
+
+<Layout lang={lang} title={lang === 'zh' ? '标签' : 'Tags'}>
+  <main class="mx-auto max-w-6xl px-4 py-10">
+    <header class="mb-12">
+      <h1 class="text-4xl font-bold mb-4">
+        {lang === 'zh' ? '标签' : 'Tags'}
+      </h1>
+      <p class="opacity-70">
+        {lang === 'zh' ? `共 ${sortedTags.length} 个标签` : `${sortedTags.length} tags in total`}
+      </p>
+    </header>
+
+    {sortedTags.length > 0 ? (
+      <div class="flex flex-wrap gap-4">
+        {sortedTags.map(([tag, count]) => (
+          <a
+            href={`/${lang}/tags/${tag}/`}
+            class="group rounded-xl border border-gray-200 dark:border-gray-800 px-6 py-4 hover:shadow-lg hover:border-blue-500 dark:hover:border-blue-500 transition-all"
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="text-lg font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {tag}
+              </span>
+              <span class="text-sm opacity-70">
+                {count} {count === 1 ? (lang === 'zh' ? '篇' : 'post') : (lang === 'zh' ? '篇' : 'posts')}
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="text-center py-12 opacity-70">
+        {lang === 'zh' ? '暂无标签' : 'No tags yet'}
+      </p>
+    )}
+  </main>
+</Layout>
